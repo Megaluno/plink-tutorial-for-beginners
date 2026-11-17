@@ -1,0 +1,154 @@
+# Haplotypes, proxy association and imputation {#sec-hap}
+
+::: {.lead}
+A single SNP is one letter. A haplotype is a short word: the alleles that travel together on one chromosome copy. Haplotype tests can pick up an effect that no single SNP tags well, and they can tell you whether one SNP explains a whole region. This chapter also shows how neighbouring SNPs can stand in for a missing one, which is the idea behind imputation.
+:::
+
+::: {.callout-important}
+## Which PLINK?
+PLINK 1.9 and 2.0 dropped the haplotype tools, so this chapter uses the old PLINK 1.07 (`plink107`). Every 1.07 command needs `--noweb`, which stops it trying to check for updates online. Today most people phase with BEAGLE or SHAPEIT and impute with BEAGLE, Minimac or IMPUTE5, but the logic below is the same, and it is easier to see on a small example.
+:::
+
+We work on one small region around the BRD SNP, cut out with PLINK 1.9:
+
+```bash
+plink --bfile cattle_qc --cow --chr 5 --from-mb 60 --to-mb 64 --make-bed --out brd_region   # 59 SNPs
+```
+
+## What PLINK has to guess: phase
+
+Genotypes do not tell you which alleles sit together on the same chromosome copy.
+
+An animal that is A/C at one SNP and G/T at the next could carry its alleles in two ways:
+
+| | Chromosome from sire | Chromosome from dam |
+|---|---|---|
+| Possibility 1 | A - G | C - T |
+| Possibility 2 | A - T | C - G |
+
+Both give exactly the same genotypes (A/C and G/T), so the chip cannot tell them apart. PLINK uses the **EM algorithm**: it starts from a guess of the haplotype frequencies in the population, works out how likely each phase is for each animal, updates the frequencies, and repeats until nothing changes. Every phase with probability at least 0.01 is kept as a weighted possibility, and haplotypes rarer than 1% are dropped (`--mhf 0.01`). Calves are phased with the help of their parents.
+
+You tell PLINK which SNPs make up each haplotype:
+
+| Option | Defines the haplotypes as |
+|---|---|
+| `--hap-window 3` | Every run of 3 neighbouring SNPs (a sliding window; 57 windows here) |
+| `--hap-window 1,2,3` | Windows of 1, 2 and 3 SNPs together (174 windows) |
+| `--hap-snps snp00705-snp00707` | One block of SNPs that you name |
+| `--hap myfile.hlist` | A file of haplotypes or blocks you define |
+
+## Haplotype frequencies and a case/control test
+
+```bash
+plink107 --noweb --bfile brd_region --cow --hap-window 3 --hap-freq --out hfreq
+plink107 --noweb --bfile brd_region --cow --hap-snps snp00705-snp00707 --hap-assoc --out hsnps
+```
+
+```text
+     LOCUS    HAPLOTYPE        F_A        F_U      CHISQ   DF          P SNPS
+      WIN1      OMNIBUS         NA         NA      53.28    4  7.464e-11 snp00705|snp00706|snp00707
+      WIN1          GCC     0.1302     0.2676      18.81    1  1.444e-05
+      WIN1          TAT     0.2503     0.2413    0.07338    1     0.7865
+      WIN1          GAT     0.3695     0.1585      40.61    1  1.854e-10
+      WIN1          TCT   0.003574    0.02894      5.789    1    0.01612
+      WIN1          GCT     0.2465     0.3037      2.704    1     0.1001
+```
+
+Five haplotypes exist for these three SNPs. Each line tests one haplotype against all the others (1 df); the **OMNIBUS** line tests all of them at once (df = 5 − 1 = 4). GAT, whose middle letter is the A allele of snp00706, makes up 37% of case chromosomes but only 16% of control chromosomes.
+
+These are plain chi-square tests, so breed differences fool them just as they fooled `--assoc` in Chapter 12: some windows reached p = 7 × 10⁻¹², stronger than the true SNP. Use `--hap-logistic` (or `--hap-linear` for a measured trait), which accepts covariates:
+
+```bash
+plink107 --noweb --bfile brd_region --cow --hap-window 3 --hap-logistic --covar pcs.txt --out hlogpc
+```
+
+```text
+NSNP NHAP CHR      BP1      BP2     SNP1     SNP2 HAPLOTYPE      F     OR   STAT        P
+   3    6   5 62019439 62070027 snp00706 snp00708       ATG   0.45   3.32   30.6 3.15e-08
+   3    6   5 61793011 62019439 snp00704 snp00706       TGC  0.454  0.335   25.1  5.5e-07
+   3    5   5 61838266 62040131 snp00705 snp00707       GAT  0.244   3.06   23.4 1.31e-06
+```
+
+With PCs as covariates, the three best windows all contain snp00706. For family data, `--hap-tdt` runs the TDT on haplotypes.
+
+## Is it one SNP or the whole haplotype? `--chap`
+
+A haplotype signal raises two questions:
+
+1. Does one SNP explain all of it?
+2. Does that SNP matter on its own, or only through its neighbours?
+
+`--chap` answers both by comparing two models. In the *alternative* model every haplotype has its own effect. In the *null* model some haplotypes are forced to share one effect. If forcing them together costs little, the simpler explanation is enough.
+
+```bash
+# 1. is there any haplotype effect at all?
+plink107 --noweb --bfile brd_region --cow --chap --hap-snps snp00705-snp00707 --covar pcs.txt --out chap1
+# 2. is anything left once we allow for snp00706?
+plink107 --noweb --bfile brd_region --cow --chap --hap-snps snp00705-snp00707 --control snp00706 --covar pcs.txt --out chap2
+# 3. does snp00706 have an effect beyond its neighbours?
+plink107 --noweb --bfile brd_region --cow --chap --hap-snps snp00705-snp00707 --independent-effect snp00706 --covar pcs.txt --out chap3
+```
+
+| Test | Haplotypes grouped together in the null model | χ² | df | p | Conclusion |
+|---|---|---|---|---|---|
+| 1. Overall | all five together | 42.7 | 4 | 1.2 × 10⁻⁸ | The region matters |
+| 2. `--control snp00706` | {GCC, TCT, GCT} and {TAT, GAT}, grouped by the snp00706 allele | 6.27 | 3 | 0.099 | Nothing beyond snp00706 |
+| 3. `--independent-effect snp00706` | {GCC}, {TAT, TCT}, {GAT, GCT}, grouped by the other two SNPs | 34.8 | 2 | 2.8 × 10⁻⁸ | snp00706 has its own effect |
+
+In test 2, the two haplotypes carrying A at snp00706 (TAT and GAT) had odds ratios of 2.50 and 3.85 when free, and 3.33 when forced to share. Tests 2 and 3 together say that snp00706 is the causal SNP, or a perfect tag for it, which is exactly how the data were simulated.
+
+## Proxy association: do the neighbours agree?
+
+For one SNP, PLINK searches nearby SNPs for haplotypes that tag it well ("proxies"), and tests those. This is a good sanity check for a hit: if a strong single-SNP result has no support from any proxy, suspect a genotyping problem at that SNP.
+
+```bash
+plink107 --noweb --bfile brd_region --cow --proxy-assoc snp00706 --proxy-verbose --out proxy1
+```
+
+```text
+       SNP      MAF     GENO       KB      RSQ       OR    CHISQ        P
+  snp00706    0.479    0.994        0        *     2.46     33.1 8.65e-09
+  snp00708    0.445        1     50.6    0.556    0.379     33.6 6.81e-09
+ ...
+Of 60 subhaplotypes considered, 5 met proxy criteria
+           HAP       FREQ        RSQ         OR      CHISQ          P
+         .. TG      0.543      0.588       2.73       36.4   1.57e-09
+```
+
+Read `.. TG` as: skip the two proxy SNPs on the left and use the next two. That two-SNP haplotype has r² = 0.59 with snp00706 and gives the same signal, so the hit is backed by its neighbours. Settings to know: `--proxy-r2`, `--proxy-window 15`, `--proxy-kb 250`; `--proxy-tdt` for families and `--proxy-glm` for measured traits.
+
+## Imputation: filling in SNPs you did not genotype
+
+Suppose your animals were typed on a smaller chip than a reference group. The reference animals show which haplotypes go with which alleles at the missing SNPs, so the missing genotypes can be predicted from the neighbours.
+
+```{mermaid}
+%%| fig-cap: "The idea of imputation. Reference animals (top) are typed at all SNPs; study animals (bottom) are missing some. A matching haplotype in the reference predicts the missing allele."
+flowchart LR
+  R["Reference panel<br/>A-G-<b>T</b>-C<br/>C-T-<b>G</b>-A"] --> M{"Match the study<br/>haplotype A-G-?-C"}
+  S["Study animal<br/>A-G-?-C"] --> M
+  M --> I["Imputed allele: T<br/>(with a probability)"]
+```
+
+PLINK 1.07 treats animals with a missing phenotype as the reference panel. We made 90 animals the reference (phenotype -9), hid 8 SNPs (including snp00706) in the other 261, and asked PLINK to fill them in:
+
+```bash
+plink107 --noweb --file masked --cow --proxy-impute all --proxy-replace --make-bed --out imputed
+```
+
+Because we hid the true genotypes ourselves, we can check the answers:
+
+| Hidden SNP | INFO (quality, 0 to 1) | Study animals given a genotype | Correct calls |
+|---|---|---|---|
+| snp00706 | 0.90 | 101 of 259 | 90.1% |
+| snp00725 | 0.86 | 173 of 258 | 90.8% |
+| snp00720 | 0.71 | 140 of 261 | 95.0% |
+| snp00690 | 0.48 | 98 of 261 | 91.8% |
+| snp00710 | 0.67 | 0 of 260 | |
+| snp00685 | 0.59 | 0 of 261 | |
+
+PLINK only fills a genotype when the best guess has a probability of at least 0.9 (`--proxy-impute-threshold`), so it is careful: when it calls, it is right about 90% of the time, but it leaves most genotypes empty. A panel of 90 animals is small. For real cattle work, impute with BEAGLE 5 against a large reference (such as the 1000 Bull Genomes data) and analyse the dosages with `--dosage` (Chapter 13) or `plink2 --glm`.
+
+::: {.callout-note}
+## PLINK 2.0
+Neither PLINK 1.9 nor 2.0 has haplotype tests, `--chap`, proxy association or the imputation heuristic. PLINK 1.9 keeps the LD tools that support this work: `--ld`, `--r2`, `--blocks` (haplotype blocks, as in Haploview), `--clump` and `--show-tags`. Phase and impute with external software, then bring the dosages back into PLINK 2.0 as `.pgen` files.
+:::

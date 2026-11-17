@@ -1,0 +1,212 @@
+# Families, quantitative traits, interaction and permutation {#sec-qt}
+
+::: {.lead}
+Most livestock traits are measured on a scale (kilograms, litres, days) rather than as sick or healthy. This chapter covers quantitative traits and covariates, family-based tests that cannot be fooled by breed, SNP-by-environment interaction, conditional analysis, permutation and imputed dosages.
+:::
+
+## Quantitative traits
+
+For a trait like weaning weight (WWT), PLINK fits a straight line: weight against the number of copies of allele A1 (0, 1 or 2). The slope, **BETA**, is the average change in kilograms per copy.
+
+$$
+\text{WWT} = \mu + \beta \times (\text{copies of A1}) + \text{covariates} + \text{error}
+$$
+
+You do not pick "case/control" or "quantitative" yourself: PLINK looks at the phenotype. If it only contains 1, 2 and missing, it is case/control; otherwise it is quantitative. The same `--assoc` flag then writes `.assoc` or `.qassoc`.
+
+### Phenotype files
+
+| Option | Meaning |
+|---|---|
+| `--pheno pheno.txt --pheno-name WWT` | Use the column named WWT |
+| `--pheno pheno.txt --mpheno 2` | Use the 2nd trait column (BW); counting starts after FID and IID |
+| `--pheno pheno.txt --all-pheno` | Analyse every column, one output file per trait |
+| `--missing-phenotype -99` | Change the missing code (default -9) |
+| `--1` | Case/control coded 0/1 instead of 1/2 |
+
+### Step 1: the naive test
+
+```bash
+plink --bfile cattle_qc --cow --allow-no-sex --pheno pheno.txt --pheno-name WWT --assoc --adjust --out q_adj
+```
+
+```text
+--adjust: Genomic inflation est. lambda (based on median chisq) = 20.186.
+  27   snp04131    8978640      347     -23.15      1.444     0.4271   -16.04    1.201e-43
+  ...
+  14   snp02145   24936133      347     -0.202      2.391  2.069e-05  -0.0845       0.9327   (rank 4,391)
+```
+
+The real QTL (snp02145) looks completely dead, and λ = 20. Why? N'Dama calves are 50 to 60 kg lighter than Angus and Holstein calves in this simulation, so breed overwhelms everything.
+
+![Mean weaning weight by genotype at snp02145, within each breed. Every breed shows the same downward slope for the T allele, but the breeds start at very different levels.](images/10_wwt_by_genotype.png){#fig-wwt-geno}
+
+The figure shows the problem and the solution. Within every breed, each T allele lowers weight by about 9 kg. But the T allele is more common in the heavy breeds, so across breeds the slopes cancel out. Comparing animals within breed (that is, adjusting for structure) brings the real effect back.
+
+### Step 2: linear regression with covariates
+
+```bash
+plink --bfile cattle_qc --cow --allow-no-sex --pheno pheno.txt --pheno-name WWT \
+      --linear --covar cov_all.txt --hide-covar --adjust --out lin
+```
+
+```text
+--adjust: Genomic inflation est. lambda (based on median chisq) = 1.10172.
+ CHR        SNP         BP   A1       TEST    NMISS       BETA         STAT            P
+  14   snp02145   24936133    T        ADD      347     -9.642       -6.681     9.73e-11
+  14   snp02136   24278467    A        ADD      347     -6.777       -4.869    1.722e-06
+  14   snp02144   24925785    A        ADD      345     -6.958       -4.806    2.321e-06
+```
+
+![Weaning weight Manhattan plots before (top) and after (bottom) adding PCs, sex, feedlot and age as covariates.](images/09_manhattan_wwt.png){#fig-manh-wwt}
+
+The covariate file `cov_all.txt` holds PC1, PC2, SEX_M, FEEDLOT and AGE. BETA = -9.64 means each T allele lowers WWT by 9.6 kg; equivalently each G allele adds 9.6 kg (the simulation planted +9 kg). The second weaning-weight QTL, snp00891 in the LCORL region, ranked 18th (5.1 kg, p = 0.0019): real, but too small to detect with 350 animals.
+
+Without `--hide-covar`, you also see the covariate effects:
+
+```text
+  14   snp02145   24936133    T        PC1      347      412.3        22.65    6.788e-70
+  14   snp02145   24936133    T      SEX_M      347      11.18        5.913    8.202e-09
+  14   snp02145   24936133    T    FEEDLOT      347      14.25         7.77    9.369e-14
+  14   snp02145   24936133    T        AGE      347     0.2143        2.848     0.004666
+```
+
+Bull calves were 11.2 kg heavier, feedlot calves 14.3 kg heavier, and each extra day of age added 0.21 kg. Useful options: `--covar-name PC1,PC2` (choose covariates by name), `--covar-number 1-2`, `--sex` (add sex from the `.fam` as a covariate), `--standard-beta` and `--ci 0.95` (confidence intervals).
+
+`--all-pheno` wrote four files, one per trait: three `.assoc.linear` files and `lin_all.BRD.assoc.logistic`. PLINK saw that BRD is coded 1/2 and switched to logistic regression by itself.
+
+## SNP-by-environment interaction
+
+Does a SNP's effect depend on the environment? In the simulation, snp01540 adds weight **only in the feedlot**.
+
+![Weaning weight (as deviation from breed mean) by genotype at snp01540, on pasture and in the feedlot. The lines are parallel if there is no interaction; here only the feedlot line slopes.](images/10_gxe_lines.png){#fig-gxe}
+
+`--interaction` adds a SNP × covariate term for every covariate, and `--parameters` keeps only the terms you want. The numbering is: 1 = ADD, then the covariates in file order (2 to 6), then ADD × each covariate in the same order (7 to 11). So ADD × FEEDLOT is 10.
+
+```bash
+plink --bfile cattle_qc --cow --allow-no-sex --pheno pheno.txt --pheno-name WWT \
+      --linear --covar cov_all.txt --interaction --parameters 1-6,10 --out lin_int
+```
+
+```text
+  10   snp01540   52104483    T         ADD      347    -0.3653      -0.2039       0.8385
+  10   snp01540   52104483    T     FEEDLOT      347      23.19        7.813    7.086e-14
+  10   snp01540   52104483    T ADDxFEEDLOT      347     -10.51       -4.051    6.322e-05
+```
+
+On pasture (FEEDLOT = 0), the T allele does nothing (BETA -0.37, p = 0.84). In the feedlot, each T allele costs an extra 10.5 kg (p = 6.3 × 10⁻⁵; 12 kg was planted).
+
+PLINK 1.9 also has `--gxe`, which fits the SNP separately in two groups and compares the slopes:
+
+```bash
+plink --bfile cattle_qc --cow --allow-no-sex --pheno pheno.txt --pheno-name WWT --gxe --covar env.txt --out gxe
+```
+
+`env.txt` gives each animal a group (1 or 2). Across all breeds, `--gxe` gave p = 0.13, because it cannot include other covariates and breed differences blur the slopes. Within Holsteins only, the slopes were 0.34 kg (pasture) and -11.5 kg (feedlot), p = 0.0096. So prefer `--linear --interaction` with covariates; for case/control traits use `--logistic --interaction`. Chapter 16 adds continuous environments.
+
+## Conditional analysis: one signal or several?
+
+Several SNPs in the PLAG1 region were significant. Is that one QTL seen through LD, or several? Add the top SNP as a covariate and test again:
+
+```bash
+plink ... --linear --covar cov_all.txt --hide-covar --chr 14 --from-mb 23 --to-mb 27 \
+          --condition snp02145 --out lin_chr14_cond
+```
+
+| SNP | p before | p after conditioning on snp02145 |
+|---|---|---|
+| snp02136 | 1.7 × 10⁻⁶ | 0.0073 |
+| snp02144 | 2.3 × 10⁻⁶ | not in the top 3 |
+
+The region's signal collapses: one QTL. `--condition-list file.txt` conditions on several SNPs. Conditioning genome-wide on snp02145 and snp00891 made the feedlot SNP the top SNP (p = 5.0 × 10⁻⁶).
+
+## Family-based tests
+
+### The transmission disequilibrium test (TDT)
+
+A heterozygous parent (Aa) passes A or a to a calf with a 50:50 chance, whatever its breed. If sick calves received A much more than half the time, A is linked to the disease. Because the comparison is inside the family, breed differences cannot fool it.
+
+$$
+\chi^2_{TDT} = \frac{(T - U)^2}{T + U}
+$$
+
+where T is the number of times A was transmitted from a heterozygous parent to an affected calf, and U the number of times it was not.
+
+```bash
+plink --bfile cattle_qc --cow --allow-no-sex --tdt --out tdt
+```
+
+```text
+ CHR      SNP   A1 A2   T   U   OR   CHISQ      P   A:U_PAR  CHISQ_PAR   P_PAR  CHISQ_COM   P_COM
+   5 snp00706    A  C  16   8    2   2.667 0.1025       9:2      3.769  0.0522      6.081 0.01366
+```
+
+The direction is right (OR = 2) but p = 0.10: our 30 families give only 24 informative transmissions. A TDT needs hundreds of trios. Options: `--tdt poo` splits transmissions by parent of origin (11:5 from sires, 5:3 from dams here), `--tdt exact` gives exact p-values, `--tdt perm` empirical ones.
+
+### Sibship tests: `--dfam`
+
+`--dfam` extends the TDT to sibships and can include unrelated animals for more power. The unrelated part needs clusters, or stratification comes back:
+
+| Command | λ | snp00706 p |
+|---|---|---|
+| `--dfam no-unrelateds` | | 0.10 |
+| `--dfam` | 5.32 | 5.9 × 10⁻⁷, behind many breed SNPs |
+| `--dfam --within breed.clst` | 1.00 | 1.4 × 10⁻⁶, top SNP |
+
+For quantitative traits in families, `--qfam` (within-family test) and `--qfam-total` (total association) exist, but with only 58 animals in sibships, `--qfam` gave the PLAG1 SNP an empirical p of 0.26.
+
+## Asymptotic and empirical p-values
+
+A normal (asymptotic) p-value comes from a formula that assumes a large sample and a well-behaved test. A **permutation test** makes no such assumption: it shuffles the phenotypes among the animals many times, recomputes the test each time, and asks how often a shuffled result beats the real one.
+
+| Option | What it does | Output |
+|---|---|---|
+| `--perm` | Adaptive: stops early for SNPs that are clearly not significant | EMP1, NP (permutations used) |
+| `--mperm 1000` | Exactly 1,000 permutations, with genome-wide correction | EMP1, EMP2 |
+| `--seed 1` | Makes the shuffling repeatable | |
+
+- **EMP1** is the empirical p-value for that SNP alone.
+- **EMP2** is corrected for testing all SNPs. In each permutation PLINK keeps the largest statistic across the genome ("max(T)"), and EMP2 is how often that maximum beats this SNP's real statistic. It is like Bonferroni but accounts for LD.
+- With N permutations, the smallest possible EMP1 is 1/(N + 1): 0.000999 with 1,000 permutations.
+
+```bash
+plink ... --logistic --covar pcs.txt --hide-covar --mperm 1000 --seed 1 --out lg_mperm
+```
+
+snp00706 got EMP1 = 0.000999 and **EMP2 = 0.000999**: significant genome-wide. Its LD neighbour snp00708 got EMP2 = 0.13. With adaptive `--perm`, snp00706 reached EMP1 = 10⁻⁶ after a million permutations while most SNPs stopped early (an average of 191,673 per SNP).
+
+### Clustered permutation: `--within`
+
+Permutation alone does not fix stratification: shuffling all animals breaks the breed-disease link that the real data have, so breed SNPs still look extreme. Shuffling **within breed** keeps that link in every shuffle:
+
+```bash
+plink --bfile cattle_qc --cow --allow-no-sex --assoc --mperm 1000 --seed 1 --within breed.clst --out mperm_within
+```
+
+| SNP | EMP1, shuffling all animals | EMP1, shuffling within breed |
+|---|---|---|
+| snp02679 (breed SNP, naive rank 1) | 0.000999 | 0.039 |
+| snp04131 (breed SNP, naive rank 2) | 0.000999 | 0.455 |
+| snp00706 (true BRD SNP) | 0.000999 | 0.000999 |
+| SNPs with EMP1 < 0.01 | 1,778 | 59 |
+
+## Imputed data: `--dosage`
+
+After imputation you do not know a genotype for sure; you have an expected count of A1 between 0 and 2, the **dosage**. Analysing dosages keeps that uncertainty in the model.
+
+```bash
+plink --fam cattle.fam --cow --allow-no-sex --dosage chr14.dosage format=1 --map chr14.dosage.map \
+      --pheno pheno.txt --pheno-name WWT --covar cov_all.txt --out dos
+```
+
+```text
+ CHR         SNP          BP  A1  A2     FRQ    INFO    BETA      SE        P
+  14    snp02145    24936133   G   T  0.5777  0.8674  9.7368  1.5105  3.92e-10
+```
+
+The same QTL with almost the same effect (+9.7 kg per G allele). **INFO** measures imputation quality from 0 to 1; 23 of the 86 imputed SNPs were below 0.8, a common cut-off. `format=1` means one dosage per animal, `format=2` two genotype probabilities, `format=3` three.
+
+::: {.callout-note}
+## PLINK 2.0
+`--glm` replaces `--linear`, `--logistic` and `--qassoc`, with `interaction`, `--parameters`, `--condition` and `--covar-name` working as in 1.9. Permutation is a modifier (`--glm mperm=1000`), and clustered permutation uses `--permute-within`. `--glm` reads dosages directly from `.pgen`, BGEN or VCF files, so `--dosage` is not needed. `--tdt`, `--dfam`, `--qfam` and `--gxe` are only in PLINK 1.9.
+:::

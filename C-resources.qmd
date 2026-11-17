@@ -1,0 +1,72 @@
+# Resources and references {#sec-resources}
+
+## Documentation
+
+- [PLINK 1.9 documentation](https://www.cog-genomics.org/plink/1.9/)
+- [PLINK 2.0 documentation](https://www.cog-genomics.org/plink/2.0/)
+- [PLINK 1.07 documentation](https://zzz.bwh.harvard.edu/plink/) (haplotypes, proxy association, CNV)
+- [PLINK source code (plink-ng)](https://github.com/chrchang/plink-ng)
+
+## Free courses and tutorials worth reading next
+
+These are other people's teaching materials. They explain some topics from different angles and with different data, and are well worth reading alongside this book.
+
+- Gábor Mészáros, [Genomics Boot Camp](https://genomicsbootcamp.github.io/book/): a livestock-focused introduction to PLINK and R, with video lessons.
+- Matti Pirinen, [GWAS course](https://www.mv.helsinki.fi/home/mjxpirin/GWAS_course/) (University of Helsinki): the statistics behind GWAS, including relatedness, structure, LD, meta-analysis and imputation, with R code.
+- Marees and colleagues, [GWA tutorial](https://github.com/MareesAT/GWA_tutorial): scripts that go with their 2018 paper on QC and association in human data.
+- Nicola Barban and colleagues, [Sociogenomics summer school 2023](https://nicolabarban.com/sociogenomics2023/).
+
+## R packages used or mentioned
+
+| Package | Use | Reference |
+|---|---|---|
+| `bigsnpr` | Large genotype data in R; can download PLINK | Privé et al. (2018) |
+| `genio` | Read and write PLINK files in R | Ochoa, CRAN package |
+| `plinkQC` | Automated QC reports around PLINK | Meyer, CRAN package |
+| `detectRUNS` | Runs of homozygosity; source of the sheep data | Biscarini et al., CRAN package |
+| `synbreedData` | Source of the real cattle data | Wimmer et al. (2012) |
+| `tidyverse`, `ggplot2` | Data handling and plots | Wickham et al. |
+
+## References
+
+**PLINK**
+
+- Purcell S, Neale B, Todd-Brown K, et al. (2007). PLINK: a tool set for whole-genome association and population-based linkage analyses. *American Journal of Human Genetics* 81: 559–575.
+- Chang CC, Chow CC, Tellier LCAM, Vattikuti S, Purcell SM, Lee JJ (2015). Second-generation PLINK: rising to the challenge of larger and richer datasets. *GigaScience* 4: 7.
+
+**Quality control**
+
+- Anderson CA, Pettersson FH, Clarke GM, Cardon LR, Morris AP, Zondervan KT (2010). Data quality control in genetic case-control association studies. *Nature Protocols* 5: 1564–1573.
+- Marees AT, de Kluiver H, Stringer S, et al. (2018). A tutorial on conducting genome-wide association studies: quality control and statistical analysis. *International Journal of Methods in Psychiatric Research* 27: e1608.
+
+**Relatedness, inbreeding and structure**
+
+- Manichaikul A, Mychaleckyj JC, Rich SS, Daly K, Sale M, Chen W-M (2010). Robust relationship inference in genome-wide association studies. *Bioinformatics* 26: 2867–2873.
+- Yang J, Lee SH, Goddard ME, Visscher PM (2011). GCTA: a tool for genome-wide complex trait analysis. *American Journal of Human Genetics* 88: 76–82.
+- VanRaden PM (2008). Efficient methods to compute genomic predictions. *Journal of Dairy Science* 91: 4414–4423.
+- McQuillan R, Leutenegger A-L, Abdel-Rahman R, et al. (2008). Runs of homozygosity in European populations. *American Journal of Human Genetics* 83: 359–372.
+- Price AL, Patterson NJ, Plenge RM, Weinblatt ME, Shadick NA, Reich D (2006). Principal components analysis corrects for stratification in genome-wide association studies. *Nature Genetics* 38: 904–909.
+- Weir BS, Cockerham CC (1984). Estimating F-statistics for the analysis of population structure. *Evolution* 38: 1358–1370.
+
+**Association methods**
+
+- Devlin B, Roeder K (1999). Genomic control for association studies. *Biometrics* 55: 997–1004.
+- Spielman RS, McGinnis RE, Ewens WJ (1993). Transmission test for linkage disequilibrium: the insulin gene region and insulin-dependent diabetes mellitus. *American Journal of Human Genetics* 52: 506–516.
+- Wan X, Yang C, Yang Q, et al. (2010). BOOST: a fast approach to detecting gene-gene interactions in genome-wide case-control studies. *American Journal of Human Genetics* 87: 325–340.
+- Higgins JPT, Thompson SG (2002). Quantifying heterogeneity in a meta-analysis. *Statistics in Medicine* 21: 1539–1558.
+- Willer CJ, Li Y, Abecasis GR (2010). METAL: fast and efficient meta-analysis of genomewide association scans. *Bioinformatics* 26: 2190–2191.
+
+**Imputation and CNV**
+
+- Browning BL, Zhou Y, Browning SR (2018). A one-penny imputed genome from next-generation reference panels. *American Journal of Human Genetics* 103: 338–348.
+- Wang K, Li M, Hadley D, et al. (2007). PennCNV: an integrated hidden Markov model designed for high-resolution copy number variation detection in whole-genome SNP genotyping data. *Genome Research* 17: 1665–1674.
+
+**Data and software**
+
+- Kijas JW, Hadfield T, Naval Sanchez M, Cockett N (2016). Genome-wide association reveals the locus responsible for four-horned ruminant. *Animal Genetics* 47: 258–262.
+- Wimmer V, Albrecht T, Auinger H-J, Schön C-C (2012). synbreed: a framework for the analysis of genomic prediction data using R. *Bioinformatics* 28: 2086–2087.
+- Privé F, Aschard H, Ziyatdinov A, Blum MGB (2018). Efficient analysis of large-scale genome-wide data with two R packages: bigstatsr and bigsnpr. *Bioinformatics* 34: 2781–2787.
+
+## A note on originality
+
+The explanations, worked examples, numbers and figures in this book were written and produced for it, using its own simulated and public data. Standard formulas (Hardy-Weinberg, F, D and r², the GRM, KING, λ, F~ST~) and standard cut-offs (such as the KING relationship categories) are given with their original references. Where a teaching idea is shared with the courses listed above, those courses are acknowledged here and in the Welcome page.

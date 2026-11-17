@@ -1,0 +1,1 @@
+Sitemap: https://megaluno.github.io/PLINK_Tutorial/sitemap.xml

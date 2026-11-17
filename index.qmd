@@ -1,0 +1,68 @@
+# Welcome {.unnumbered}
+
+::: {.lead}
+This is a practical guide to PLINK for people who work with livestock SNP data. You do not need to be a programmer. If you can type a command and read a table, you can follow every chapter.
+:::
+
+I wrote this tutorial because most PLINK material is written for human genetics. The ideas are the same in cattle, sheep and goats, but the details are not: we have 29 cattle autosomes instead of 22, we have big half-sib families, we mix breeds, and our pedigrees are often wrong. Every example here uses livestock data, and every output you see was produced by actually running the command shown.
+
+## How this book works
+
+Each chapter follows the same rhythm:
+
+1. **The idea**, in plain words, usually with a picture.
+2. **The command**, ready to copy.
+3. **The real output**, exactly as PLINK printed it.
+4. **What it means**, and what you should do next.
+
+Boxes like the one below give extra help along the way.
+
+::: {.callout-tip}
+## Tip
+Green boxes give practical advice that saves time.
+:::
+
+::: {.callout-note}
+## PLINK 2.0
+Blue boxes show how to do the same thing in PLINK 2.0.
+:::
+
+::: {.callout-warning}
+## Common mistake
+Orange boxes point out traps that catch almost everyone at least once.
+:::
+
+## What you will learn
+
+| Part | Chapters | You will be able to |
+|---|---|---|
+| Getting started | 1 to 4 | Install PLINK, run it from the terminal and from RStudio, understand the file formats |
+| Managing data | 5 | Convert, subset, merge and fix files |
+| Quality control | 6 to 8 | Remove bad SNPs and bad samples, and explain why |
+| Relationships and structure | 9 to 11 | Measure LD, relatedness and inbreeding, and run and read a PCA |
+| Association analysis | 12 to 16 | Run case/control, quantitative, family, haplotype, CNV, epistasis and meta-analyses |
+| Putting it together | 17 to 19 | Choose thresholds, analyse real cattle and sheep data, and run a full QC pipeline |
+
+## The data
+
+We use two kinds of data.
+
+**A simulated cattle dataset** (361 animals of three breeds, 4,800 SNPs). Because it was simulated, we know the truth: I hid lab errors (bad samples, a duplicate, a wrong sire, sex mix-ups, strand flips) and real genetic effects in it, and the chapters show how PLINK finds each one.
+
+**Two real public datasets**: 500 genotyped cattle with a pedigree (from the synbreedData R package) and 100 sheep of two breeds, Jacob and Navajo-Churro, published by Kijas and colleagues (2016) and shipped with the detectRUNS R package. These show what real data look like, which is always a little messier than a simulation.
+
+Everything is in the [`data/`](https://github.com/Megaluno/PLINK_Tutorial/tree/main/data) and [`scripts/`](https://github.com/Megaluno/PLINK_Tutorial/tree/main/scripts) folders of the GitHub repository, so you can repeat every step.
+
+## Which PLINK?
+
+PLINK has three versions that are still in use. This book uses **PLINK 1.9** for almost everything, gives the **PLINK 2.0** command in a blue box, and uses **PLINK 1.07** only for the old tools that newer versions dropped (haplotype tests and CNV analysis). Chapter 1 explains the differences.
+
+## Acknowledgements
+
+This tutorial stands on the shoulders of excellent open teaching material, especially Gábor Mészáros's [Genomics Boot Camp](https://genomicsbootcamp.github.io/book/), Matti Pirinen's [GWAS course](https://www.mv.helsinki.fi/home/mjxpirin/GWAS_course/) at the University of Helsinki, the [GWAS tutorial of Marees and colleagues (2018)](https://github.com/MareesAT/GWA_tutorial), and of course the [PLINK documentation](https://www.cog-genomics.org/plink/1.9/) by Shaun Purcell and Christopher Chang. Appendix C lists these and other resources.
+
+## How to cite
+
+> Ismaila Emmanuel (2026). *PLINK for Livestock Genomics: a step-by-step tutorial with cattle and sheep data.* https://megaluno.github.io/PLINK_Tutorial/
+
+The text and figures are shared under a [Creative Commons Attribution 4.0](https://creativecommons.org/licenses/by/4.0/) licence. The real datasets keep the licences of the packages they come from (GPL-2 for synbreedData, GPL-3 for detectRUNS).

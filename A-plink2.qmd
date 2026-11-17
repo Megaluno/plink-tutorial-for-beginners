@@ -1,0 +1,42 @@
+# PLINK 1.9 to PLINK 2.0 {#sec-plink2}
+
+PLINK 2.0 is the future of PLINK: it is faster on very large data, handles imputed dosages and multi-allelic variants, and keeps the reference allele fixed. It also drops many older tools. This table translates the commands used in this book.
+
+| Task | PLINK 1.9 | PLINK 2.0 |
+|---|---|---|
+| Binary files | `--bfile`, `--make-bed` | `--pfile`, `--make-pgen` (`--bfile` and `--make-bed` still work) |
+| Text export | `--recode`, `--recode A`, `--recode vcf` | `--export ped`, `--export A`, `--export vcf` |
+| Merge | `--bmerge`, `--merge-list` | `--pmerge`, `--pmerge-list` |
+| Allele frequency | `--freq` (`.frq`) | `--freq` (`.afreq`) |
+| Genotype counts | `--freqx` | `--geno-counts` |
+| Missingness | `--missing` (`.imiss`, `.lmiss`) | `--missing` (`.smiss`, `.vmiss`) |
+| Hardy-Weinberg | `--hardy` | `--hardy` |
+| Heterozygosity / F | `--het` | `--het` |
+| Sex check | `--check-sex` | `--check-sex` (recent builds) |
+| Mendel errors | `--mendel` | `--mendel` (recent builds) |
+| Relatedness | `--genome` | `--make-king-table`, `--king-cutoff` |
+| Relationship matrix | `--make-rel` | `--make-rel` |
+| PCA | `--pca` | `--pca` (`approx` for large samples; `allele-wts` for loadings) |
+| Projection onto PCs | not available | `--score` with the `.eigenvec.allele` file |
+| Clustering / MDS | `--cluster`, `--mds-plot` | not available |
+| LD | `--r2`, `--ld`, `--indep-pairwise` | `--r2-unphased`, `--ld`, `--indep-pairwise` |
+| Case/control and quantitative association | `--assoc`, `--model`, `--logistic`, `--linear` | `--glm` |
+| Dosage association | `--dosage` | `--glm` on `.pgen`, BGEN or VCF dosages |
+| Permutation | `--perm`, `--mperm n` | `--glm` with `perm` or `mperm=n` |
+| Stratified tests | `--mh`, `--bd`, `--homog` | not available; use `--glm` with covariates |
+| Family tests | `--tdt`, `--dfam`, `--qfam` | not available |
+| G × E | `--gxe`, `--interaction` | `--glm interaction` |
+| Epistasis | `--epistasis`, `--fast-epistasis` | `--epistasis`, `--epistasis-boost` (recent builds) |
+| Set-based tests | `--set-test` | not available |
+| Clumping | `--clump` | `--clump` |
+| Meta-analysis | `--meta-analysis` | `--meta-analysis` (recent builds) |
+| Runs of homozygosity | `--homozyg` | `--homozyg` (recent builds) |
+| Haplotypes, proxy, CNV | PLINK 1.07 only | not available |
+
+Three differences catch people out:
+
+1. **Allele order.** PLINK 1.9 makes A1 the minor allele unless you add `--keep-allele-order`. PLINK 2.0 keeps the order from the input and calls the alleles REF and ALT. Effect sizes in `--glm` are for the ALT allele (or the column `A1` in the output).
+2. **Output names.** Files end in `.afreq`, `.smiss`, `.vmiss`, `.glm.logistic.hybrid` and so on. Read the log to see what was written.
+3. **Missing commands.** "Not available" in the table means you should use PLINK 1.9 (or 1.07) for that step, or a dedicated tool. It is common to use both versions in one project.
+
+Check the [PLINK 2.0 documentation](https://www.cog-genomics.org/plink/2.0/) for the build you have; commands marked "recent builds" were added during the alpha phase.

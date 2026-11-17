@@ -1,0 +1,82 @@
+project:
+  type: book
+  output-dir: docs
+
+book:
+  title: "PLINK for Livestock Genomics"
+  subtitle: "A step-by-step tutorial with cattle and sheep data"
+  author: "Ismaila Emmanuel"
+  date: "2026-11-17"
+  date-format: "D MMMM YYYY"
+  site-url: https://megaluno.github.io/PLINK_Tutorial/
+  repo-url: https://github.com/Megaluno/PLINK_Tutorial
+  repo-actions: [issue]
+  downloads: []
+  search: true
+  page-navigation: true
+  sidebar:
+    style: docked
+    collapse-level: 1
+  page-footer:
+    left: "PLINK for Livestock Genomics, by Ismaila Emmanuel"
+    right: "Licensed CC BY 4.0"
+  chapters:
+    - index.qmd
+    - part: "Getting started"
+      chapters:
+        - 01-install.qmd
+        - 02-rstudio.qmd
+        - 03-files.qmd
+        - 04-practice-data.qmd
+    - part: "Managing data"
+      chapters:
+        - 05-data-management.qmd
+    - part: "Quality control"
+      chapters:
+        - 06-missingness.qmd
+        - 07-maf-hwe.qmd
+        - 08-sex-mendel-het.qmd
+    - part: "Relationships and structure"
+      chapters:
+        - 09-ld.qmd
+        - 10-relatedness.qmd
+        - 11-pca.qmd
+    - part: "Association analysis"
+      chapters:
+        - 12-association.qmd
+        - 13-families-traits.qmd
+        - 14-haplotypes.qmd
+        - 15-cnv.qmd
+        - 16-beyond-single-snps.qmd
+    - part: "Putting it together"
+      chapters:
+        - 17-parameters.qmd
+        - 18-real-data.qmd
+        - 19-pipeline.qmd
+  appendices:
+    - A-plink2.qmd
+    - B-glossary.qmd
+    - C-resources.qmd
+
+format:
+  html:
+    theme:
+      light: [cosmo, custom.scss]
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-copy: true
+    code-overflow: wrap
+    code-block-bg: true
+    code-block-border-left: "#0072B2"
+    fig-align: center
+    fig-cap-location: bottom
+    tbl-cap-location: top
+    callout-appearance: default
+    html-math-method: mathjax
+    smooth-scroll: true
+    link-external-newwindow: true
+
+execute:
+  eval: false
+  echo: true

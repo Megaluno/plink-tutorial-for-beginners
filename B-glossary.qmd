@@ -1,0 +1,38 @@
+# Glossary {#sec-glossary}
+
+| Term | Meaning |
+|---|---|
+| A1 / A2 | The two alleles of a SNP in PLINK 1.9 files. Effect sizes (OR, BETA) are always for A1. By default A1 is the minor allele |
+| Allele frequency, MAF | Share of chromosome copies carrying an allele; MAF is the frequency of the rarer one |
+| Call rate / missing rate | Share of genotypes read successfully; call rate = 1 − missing rate |
+| Case / control | Affected (coded 2) / unaffected (coded 1) animal for a yes/no trait |
+| CNV | Copy number variant: a deleted or duplicated stretch of DNA |
+| Covariate | An extra variable in a model (PCs, sex, herd, age) used to remove its influence |
+| D, D′, r² | Measures of linkage disequilibrium between two SNPs (Chapter 9) |
+| Dosage | Expected number of A1 copies after imputation, between 0 and 2 |
+| Eigenvalue | How much variation lies along a principal component |
+| Eigenvector | The direction of a principal component; its values are the PC scores |
+| EMP1 / EMP2 | Empirical p-value from permutation / the same, corrected for all tests |
+| Epistasis | Interaction between two or more loci |
+| F (inbreeding) | Excess homozygosity compared with expectation |
+| F_ROH | Share of the genome covered by runs of homozygosity |
+| F~ST~ | Share of genetic variation that lies between populations |
+| Founder / nonfounder | Animal with both parents unknown / animal with at least one parent in the data |
+| GRM | Genomic relationship matrix: relationships between animals estimated from SNPs |
+| HWE | Hardy-Weinberg equilibrium: genotype shares p², 2pq and q² under random mating |
+| IBS / IBD | Identical by state (same alleles) / identical by descent (same ancestral copy) |
+| Imputation | Predicting genotypes that were not measured, using a reference panel |
+| KING | A relatedness method that does not need population allele frequencies |
+| λ (lambda) | Genomic inflation factor: median test statistic divided by its expected value; close to 1 is good |
+| LD pruning | Removing SNPs so that the remaining ones are not strongly correlated |
+| MDS | Multidimensional scaling of pairwise distances; an alternative to PCA |
+| Mendel error | A calf genotype that is impossible given its parents' genotypes |
+| OR / BETA | Odds ratio (yes/no trait) / regression slope (measured trait) per copy of A1 |
+| PCA | Principal component analysis: a few axes that summarise genetic differences between animals |
+| Phase | Which alleles sit together on the same chromosome copy |
+| PI_HAT | Estimated share of the genome two animals share IBD |
+| Population stratification | False associations caused by differences in both allele frequency and trait between groups |
+| ROH | Run of homozygosity: a long homozygous stretch inherited from a common ancestor |
+| Strand flip | The same SNP reported from the opposite DNA strand (A/G becomes T/C) |
+| TDT | Transmission disequilibrium test: a family-based association test |
+| Wahlund effect | Fewer heterozygotes than expected when separate populations are pooled |

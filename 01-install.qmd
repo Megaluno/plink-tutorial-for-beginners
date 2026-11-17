@@ -1,0 +1,143 @@
+# Installing PLINK and running your first command {#sec-install}
+
+::: {.lead}
+PLINK is a single program file. There is nothing to "install" in the usual sense: you download it, unzip it, and tell your computer where it is. This chapter walks through that on Windows, macOS and Linux, and then runs a first command.
+:::
+
+## What PLINK is
+
+Picture a giant spreadsheet. Each row is an animal, each column is a SNP, and each cell holds two letters, one inherited from the sire and one from the dam (for example `A G`). A 50K chip gives 50,000 columns; a high-density chip gives 777,000. No spreadsheet program can open that. PLINK can. It reads the genotypes, checks their quality, counts things, compares groups of animals and writes small result tables that you can open in R or Excel.
+
+## Three versions
+
+| Version | When to use it | Program name in this book |
+|---|---|---|
+| **PLINK 1.07** (2009) | Only for the old tools that newer versions dropped: haplotype tests, proxy association, CNV analysis | `plink107` |
+| **PLINK 1.9** | Almost everything. Fast, stable, and the version most papers cite | `plink` |
+| **PLINK 2.0** | Very large data, imputed dosages, modern regression (`--glm`) | `plink2` |
+
+You can have all three on the same computer. Just give them different names.
+
+## Step 1: download
+
+Go to the official pages and pick the build for your system:
+
+- PLINK 1.9: <https://www.cog-genomics.org/plink/1.9/>
+- PLINK 2.0: <https://www.cog-genomics.org/plink/2.0/>
+- PLINK 1.07 (only if you need Chapters 14 and 15): <https://zzz.bwh.harvard.edu/plink/download.shtml>
+
+Each download is a small zip file containing the program (`plink`, `plink.exe` or `plink2`) and a few text files.
+
+## Step 2: unzip and put it somewhere sensible
+
+Create one folder for your genomics work, for example `C:/genomics` on Windows or `~/genomics` on macOS and Linux, and unzip PLINK there. Put your data in the same folder at first. Later, when you are comfortable, you can add PLINK to your `PATH` so that it runs from any folder.
+
+::: {.panel-tabset}
+
+## Windows
+
+1. Unzip the file into `C:\genomics`.
+2. Open **Command Prompt** (press the Windows key, type `cmd`, press Enter).
+3. Move into your folder and test PLINK:
+
+```bash
+cd C:\genomics
+plink --version
+```
+
+To run PLINK from any folder, add `C:\genomics` to your PATH: search for "Edit the system environment variables", click **Environment Variables**, select **Path**, click **Edit**, then **New**, and paste `C:\genomics`.
+
+## macOS
+
+1. Unzip the file into `~/genomics` (a folder called `genomics` in your home folder).
+2. Open **Terminal** (Applications, Utilities).
+3. Make the file executable and test it:
+
+```bash
+cd ~/genomics
+chmod +x plink
+./plink --version
+```
+
+The first time, macOS may refuse to open a program from an "unidentified developer". Either right-click the file in Finder and choose **Open**, or run `xattr -d com.apple.quarantine plink` once in the terminal.
+
+## Linux
+
+```bash
+mkdir -p ~/genomics && cd ~/genomics
+unzip plink_linux_x86_64_*.zip
+chmod +x plink
+./plink --version
+# optional: make it available everywhere
+sudo cp plink /usr/local/bin/
+```
+
+:::
+
+If you see a line such as `PLINK v1.9...`, you are ready. On macOS and Linux, `./plink` means "the plink in this folder". Once PLINK is on your PATH, you can type just `plink`.
+
+## Step 3: a few terminal words you need
+
+You only need a handful of commands to use PLINK comfortably.
+
+| What you want | Windows (cmd) | macOS / Linux |
+|---|---|---|
+| See where you are | `cd` | `pwd` |
+| List the files here | `dir` | `ls` |
+| Move into a folder | `cd genomics` | `cd genomics` |
+| Go up one folder | `cd ..` | `cd ..` |
+| Look at the start of a file | `more cattle.bim` | `head cattle.bim` |
+| Count lines in a file | `find /c /v "" cattle.bim` | `wc -l cattle.bim` |
+
+If you prefer to stay in R, Chapter 2 shows how to do all of this from RStudio.
+
+## Anatomy of a PLINK command
+
+Every PLINK command has three parts: what to read, what to do, and where to write.
+
+```bash
+plink --bfile cattle --cow --geno 0.05 --make-bed --out cattle_clean
+#      \___ read ___/ \_______ do ________/ \___ write ___/
+```
+
+- `--bfile cattle` reads the three files `cattle.bed`, `cattle.bim` and `cattle.fam`. You give the name without the extension.
+- Words starting with two dashes are **flags**. Some take a value (`--geno 0.05`); some do not (`--cow`).
+- `--out cattle_clean` sets the start of every output file name. Without it, PLINK calls everything `plink.*` and overwrites your earlier results.
+- The order of flags on the line does not matter. PLINK decides the order of operations itself (Chapter 6 shows why this matters).
+
+## The log file is your best friend
+
+Every run writes a `.log` file with the same name as the output (`cattle_clean.log`). It repeats your command and reports what happened: how many animals and SNPs were read, how many were removed and why, and any warnings. Get into the habit of reading it every time. PLINK usually does exactly what you asked, which is not always what you meant, and the log is where you find out.
+
+## The flag every livestock user needs: `--cow`
+
+PLINK was written for humans. By default it expects chromosomes 1 to 22, and it reads code 23 as X, 24 as Y, 25 as the pseudo-autosomal region (XY) and 26 as mitochondria. Cattle have 29 autosomes. This is what happened when I loaded our cattle file without telling PLINK the species:
+
+```text
+Error: Invalid chromosome code '27' on line 4101 of .map file.
+(This is disallowed for humans.  Check if the problem is with your data, or if
+you forgot to define a different chromosome set with e.g. --chr-set.)
+```
+
+That error is the lucky case. If your file only had chromosomes up to 26, PLINK would have read cattle chromosome 23 as the X and chromosome 24 as the Y without complaining, and your sex checks and association results would be quietly wrong.
+
+| Species | Flag | Autosomes |
+|---|---|---|
+| Cattle (also used for goats) | `--cow` | 29 |
+| Sheep | `--sheep` | 26 |
+| Horse | `--horse` | 31 |
+| Dog | `--dog` | 38 |
+| Pig | `--chr-set 18` | 18 |
+| Any species | `--chr-set N` | N |
+
+From here on, every command uses `--cow` (or `--sheep` for the sheep data).
+
+::: {.callout-note}
+## PLINK 2.0
+The same flags work: `plink2 --bfile cattle --cow ...`. PLINK 2.0 also accepts `--chr-set`.
+:::
+
+::: {.callout-tip}
+## Try it yourself
+Download the practice data (Chapter 4), then run `plink --file cattle --cow --make-bed --out cattle` and open `cattle.log`. How many males and females did PLINK find?
+:::

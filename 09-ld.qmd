@@ -1,0 +1,133 @@
+# Linkage disequilibrium {#sec-ld}
+
+::: {.lead}
+SNPs that sit close together on a chromosome tend to travel together from parent to offspring. Their alleles are therefore correlated. This correlation is called linkage disequilibrium (LD). It is the reason a 50K chip can find a gene it does not contain, and the reason the top SNP in a study is often not the causal one.
+:::
+
+## Where LD comes from
+
+![A new mutation appears on one chromosome. Over generations, recombination cuts the chromosome, but the pieces right next to the mutation are rarely separated from it.](images/07_ld_schematic.png){#fig-ld-schematic}
+
+When a mutation first appears, it sits on one particular chromosome with one particular set of alleles around it. Every copy of the mutation in later generations descends from that first copy, so at first it always comes with the same neighbours. Each generation, recombination swaps pieces between the two chromosomes of a parent. A SNP 10 Mb away is separated from the mutation quickly; a SNP 10 kb away almost never. So LD is strong between nearby SNPs and weak between distant ones.
+
+In livestock, LD extends much further than in humans, because breeds were founded from few animals and a few popular sires have many offspring (a small *effective population size*). That is why 50,000 SNPs are enough for genomic selection in cattle.
+
+## Haplotypes
+
+A **haplotype** is the set of alleles on one chromosome copy. With two SNPs, one with alleles A/C and one with alleles G/T, there are four possible haplotypes: A-G, A-T, C-G and C-T. Each animal carries two haplotypes, one from each parent.
+
+From genotypes alone we often cannot tell which haplotypes an animal has. An animal that is A/C at the first SNP and G/T at the second could carry A-G + C-T, or A-T + C-G. Finding the right pair is called **phasing**. PLINK estimates haplotype frequencies statistically, and dedicated programs such as BEAGLE and SHAPEIT phase whole chromosomes.
+
+## Measuring LD: D, D′ and r²
+
+Write f<sub>A</sub> for the frequency of allele A at SNP 1, f<sub>T</sub> for the frequency of allele T at SNP 2, and f<sub>AT</sub> for the frequency of the A-T haplotype. If the two SNPs were independent, the A-T haplotype frequency would simply be f<sub>A</sub> × f<sub>T</sub>. **D** measures how far reality is from that:
+
+$$
+D = f_{AT} - f_A \, f_T
+$$
+
+D depends on the allele frequencies, so two scaled versions are used:
+
+$$
+r^2 = \frac{D^2}{f_A(1-f_A)\,f_T(1-f_T)}
+\qquad\qquad
+D' = \frac{D}{D_{\max}}
+$$
+
+where D<sub>max</sub> is the largest value D could reach with these allele frequencies. **r²** is the squared correlation between the alleles; it ranges from 0 (independent) to 1 (one SNP perfectly predicts the other). **D′** is 1 when at most three of the four haplotypes exist, even if one of them is rare. For association and genomic prediction, r² is the one to use: it tells you how well one SNP can stand in for another.
+
+### A worked example with real output
+
+```bash
+plink --bfile cattle --cow --ld snp02144 snp02145 --out ld_pair
+```
+
+```text
+   R-sq = 0.382072       D' = 0.642212
+
+   Haplotype     Frequency    Expectation under LE
+   ---------     ---------    --------------------
+          AT      0.323442                0.173290
+          CT      0.102233                0.252385
+          AG      0.083652                0.233804
+          CG      0.490672                0.340520
+
+   In phase alleles are AT/CG
+```
+
+Let us check PLINK's numbers by hand.
+
+1. Allele frequencies: f<sub>A</sub> = AT + AG = 0.323 + 0.084 = 0.407, and f<sub>T</sub> = AT + CT = 0.323 + 0.102 = 0.426.
+2. If independent, AT would be 0.407 × 0.426 = 0.173 (PLINK's "expectation under LE", linkage equilibrium).
+3. D = 0.323 − 0.173 = 0.150.
+4. r² = 0.150² / (0.407 × 0.593 × 0.426 × 0.574) = 0.0225 / 0.0590 = 0.382. ✔
+5. D<sub>max</sub> = min(0.407 × 0.574, 0.593 × 0.426) = 0.234, so D′ = 0.150 / 0.234 = 0.642. ✔
+
+"In phase alleles are AT/CG" means A tends to travel with T, and C with G.
+
+::: {.callout-tip}
+## Why r² can never reach 1 for some pairs
+r² can only be 1 when the two SNPs have the same MAF. A SNP with MAF 0.05 and one with MAF 0.40 can never be perfectly correlated, however close they are. This is one reason rare variants are hard to tag with common chip SNPs.
+:::
+
+## LD across the genome
+
+### Step 1: compute r² for many pairs
+
+```bash
+plink --bfile cattle --cow --autosome --r2 --ld-window-kb 1000 --ld-window 99999 --ld-window-r2 0 --out ld
+```
+
+| Option | Meaning | Default |
+|---|---|---|
+| `--ld-window-kb` | Only pairs closer than this (kb) | 1000 |
+| `--ld-window` | Only pairs fewer than this many SNPs apart | 10 |
+| `--ld-window-r2` | Only report pairs with r² at least this | 0.2 |
+| `--r2 square` | Write a full matrix instead of a list | |
+| `--r` | Report r (with sign) instead of r² | |
+
+The default `--ld-window-r2 0.2` hides weak pairs. To study LD decay you need all pairs, so set it to 0.
+
+### Step 2: plot LD decay
+
+Average r² for SNP pairs in distance bins tells you how far LD reaches:
+
+![LD decay in the simulated cattle and in the two real datasets. The real cattle (one population) and the real sheep keep more LD at long distances.](images/07_ld_decay.png){#fig-ld-decay}
+
+In the simulated three-breed data, average r² falls from 0.14 below 100 kb to 0.04 at 1 Mb. The real cattle and sheep keep about 0.05 to 0.07 even at 2 Mb, which is typical of livestock populations with small effective size.
+
+### Step 3: look at one region as a heatmap
+
+![LD heatmap of the PLAG1 region on chromosome 14 (--r2 square). Dark blocks are groups of SNPs inherited together.](images/07_ld_heatmap.png){#fig-ld-heat}
+
+```bash
+plink --bfile cattle --cow --chr 14 --from-mb 23.5 --to-mb 26.5 --r2 square --out ld14
+```
+
+A square of dark red is a **haplotype block**: SNPs that are rarely separated by recombination. `--blocks` finds such blocks automatically, using the same rules as the Haploview program.
+
+## Why LD matters in practice
+
+**1. Tagging.** A chip SNP does not need to be the causal mutation. If it is in strong LD with the causal variant, it shows the association for it. This is how genome-wide association works.
+
+**2. The top SNP is not necessarily causal.** In Chapter 13 the weaning-weight signal appears at five SNPs in the PLAG1 region, because they are all in LD with each other. Separating the real cause from its neighbours is called fine-mapping. Conditional analysis (`--condition`, Chapter 13) is the PLINK tool for a first look.
+
+**3. Many analyses need independent SNPs.** PCA, relatedness, F and admixture assume each SNP is a separate piece of evidence. In a block of ten SNPs in perfect LD, the region would count ten times. So we **prune**:
+
+```bash
+plink --bfile cattle --cow --autosome --indep-pairwise 50 5 0.2 --out prune
+```
+
+```text
+Pruned 82 variants from chromosome 14, leaving 148.
+Pruning complete.  969 of 4550 variants removed.
+```
+
+`--indep-pairwise 50 5 0.2` looks at a window of 50 SNPs, removes one SNP from every pair with r² above 0.2, then slides the window 5 SNPs along and repeats. It writes `prune.prune.in` (SNPs to keep) and `prune.prune.out`; use them with `--extract prune.prune.in`. The heaviest pruning happened in the dense regions on chromosomes 14, 6 and 5, as expected. Chapter 17 shows how the three numbers change the result.
+
+**4. Summarising association results.** `--clump` groups significant SNPs that are in LD with each other into one "clump" per signal, so that a list of 50 significant SNPs becomes, for example, 3 independent loci.
+
+::: {.callout-note}
+## PLINK 2.0
+`plink2 --r2-unphased` and `--r2-phased` replace `--r2`; `--ld`, `--indep-pairwise` and `--clump` work as in 1.9.
+:::

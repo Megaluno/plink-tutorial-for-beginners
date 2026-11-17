@@ -1,0 +1,173 @@
+# Converting, subsetting and merging data {#sec-manage}
+
+::: {.lead}
+Most of a genomics project is plumbing: getting files into the right format, cutting out the animals or SNPs you need, and joining data from different labs. PLINK does all of this, and doing it carefully here saves weeks of confusion later.
+:::
+
+## Step 1: convert text to binary
+
+```bash
+plink --file cattle --cow --make-bed --out cattle
+```
+
+```text
+Scanning .ped file... done.
+Performing single-pass .bed write (4800 variants, 361 cattle).
+361 cattle (137 males, 222 females, 2 ambiguous) loaded from .fam.
+Warning: Ignoring phenotypes of missing-sex samples.  If you don't want those
+phenotypes to be ignored, use the --allow-no-sex flag.
+Before main variant filters, 301 founders and 60 nonfounders present.
+Warning: 9 het. haploid genotypes present (see cattle.hh ); many commands
+treat these as missing.
+Total genotyping rate is 0.992812.
+4800 variants and 361 cattle pass filters and QC.
+Among remaining phenotypes, 144 are cases and 217 are controls.
+```
+
+Let us read this log line by line, because you will see these lines in every run.
+
+- **137 males, 222 females, 2 ambiguous**: "ambiguous" means sex code 0. Their IDs go to `cattle.nosex`.
+- **Ignoring phenotypes of missing-sex samples**: PLINK 1.9 leaves those two animals out of association tests unless you add `--allow-no-sex`. Chapter 17 shows the difference it makes.
+- **301 founders and 60 nonfounders**: a founder has both parents unknown. Our 60 calves are nonfounders. Allele frequencies and Hardy-Weinberg tests use founders only, so that a sire's alleles are not counted again in each of his calves.
+- **9 het. haploid genotypes**: a bull has one X chromosome, so he cannot be heterozygous on the X. When he looks heterozygous, it is a genotyping error (a few are normal) or a sex error (hundreds in one animal). The file `cattle.hh` lists them.
+- **Total genotyping rate is 0.992812**: 99.3% of all genotype cells are filled in.
+
+## Step 2: write other formats when another program asks for them
+
+| Command | Writes | Size here | Used by |
+|---|---|---|---|
+| `--make-bed` | `.bed .bim .fam` | 0.44 MB | PLINK, GCTA, ADMIXTURE, most tools |
+| `--recode` | `.ped .map` | 6.9 MB | older programs; easy to read |
+| `--recode 12` | `.ped` with alleles 1/2 | 6.9 MB | programs that cannot read letters |
+| `--recode A` | `.raw` (0/1/2) | 3.5 MB | R, Python, genomic prediction |
+| `--recode AD` | `.raw` with additive and dominance columns | 7.1 MB | models with dominance |
+| `--recode transpose` | `.tped .tfam` | 7.1 MB | SNP-by-SNP tools |
+| `--recode vcf` or `vcf-iid` | `.vcf` | 7.1 MB | BEAGLE, bcftools, imputation |
+
+A VCF file has only one name per animal, so when PLINK reads a VCF back it splits that name at `_` into FID and IID. Our names already contain underscores, which gives:
+
+```text
+Error: Multiple instances of '_' in sample ID.
+```
+
+The fix is to say how you want the IDs: `--double-id` (use the whole name as both FID and IID), `--const-fid` (FID = 0), or export with `--recode vcf-iid` in the first place. A VCF also has no sex or phenotype, so add them back with `--update-sex` and `--pheno`.
+
+## Step 3: keep or drop animals and SNPs
+
+Every subsetting flag reads a simple list. Animal lists have two columns (FID IID); SNP lists have one (the SNP name).
+
+| Goal | Add to `plink --bfile cattle --cow ... --make-bed --out new` | Result in our data |
+|---|---|---|
+| Keep listed animals | `--keep nda.txt` | 80 cattle remaining |
+| Drop listed animals | `--remove nda.txt` | 281 remaining |
+| Keep whole families | `--keep-fam families.txt` (one FID per line) | 120 remaining |
+| Keep one breed from a cluster file | `--filter breed.clst HOL --mfilter 1` | 141 remaining |
+| Keep only females / cases / founders | `--filter-females`, `--filter-cases`, `--filter-founders` | 222 females kept |
+| Keep listed SNPs | `--extract chr6_snps.txt` | 210 variants |
+| Drop listed SNPs | `--exclude chr6_snps.txt` | 4,590 variants |
+| One region | `--chr 14 --from-mb 23 --to-mb 27` | 86 variants |
+| Several chromosomes | `--chr 1-5,X` | 1,060 variants |
+| Autosomes only | `--autosome` | 4,550 variants |
+| A window around a SNP | `--snp snp02145 --window 500` (kb each side) | 14 variants |
+| A random share of SNPs | `--thin 0.25 --seed 7` | 1,202 variants |
+| An exact number of random SNPs | `--thin-count 1000 --seed 7` | 1,000 variants |
+
+Two habits worth forming: always set `--seed` with `--thin` so you can repeat the result, and keep your list files, because they are the exact record of what you did.
+
+## Step 4: merge files from two labs
+
+Merging adds new animals as rows and new SNPs as columns. The classic trap is the **DNA strand**. DNA has two strands that pair A with T and C with G. If one lab reports a SNP as A/G and the other reads the opposite strand, it reports T/C for the same SNP, and PLINK sees four alleles.
+
+```{mermaid}
+%%| fig-cap: "The merge workflow. The loop through --flip is usually needed once."
+flowchart LR
+  A[File 1 and File 2] --> B["plink --bmerge"]
+  B -->|works| C[merged file]
+  B -->|"Error: 3+ alleles"| D["SNP list in *-merge.missnp"]
+  D --> E["--flip on File 2"]
+  E --> B
+  C --> F["Remove A/T and C/G SNPs<br/>and check with --flip-scan"]
+```
+
+Our second lab sent 40 animals and 4,200 SNPs, with 40 SNPs on the opposite strand:
+
+```bash
+plink --bfile cattle --cow --allow-no-sex --bmerge batch2 --make-bed --out merged_try1
+```
+
+```text
+40 cattle to be merged from batch2.fam.
+Of these, 40 are new, while 0 are present in the base dataset.
+4200 markers to be merged from batch2.bim.
+Of these, 120 are new, while 4080 are present in the base dataset.
+Error: 39 variants with 3+ alleles present.
+* If you believe this is due to strand inconsistency, try --flip with
+  merged_try1-merge.missnp.
+```
+
+Flip those SNPs in the second file and merge again:
+
+```bash
+plink --bfile batch2 --cow --flip merged_try1-merge.missnp --make-bed --out batch2_flipped
+plink --bfile cattle --cow --allow-no-sex --bmerge batch2_flipped --make-bed --out merged
+# 4920 variants and 401 cattle pass filters and QC.
+```
+
+PLINK caught 39 of the 40. The missing one, snp03921, is a **C/G SNP**: flipping C/G gives G/C, the same two letters, so no error is raised and the alleles are silently swapped. A/T SNPs behave the same way. That is why the safe practice is:
+
+1. Remove strand-ambiguous SNPs (A/T and C/G) before merging data from different sources. Our file had 143 of them:
+   ```bash
+   awk '($5=="A"&&$6=="T")||($5=="T"&&$6=="A")||($5=="C"&&$6=="G")||($5=="G"&&$6=="C"){print $2}' cattle.bim > ambiguous.txt
+   ```
+2. Better still, ask both labs to export with the same allele coding (Illumina TOP or Forward strand).
+3. Run `--flip-scan`, which looks for SNPs whose LD with their neighbours has the wrong sign. It needs strong LD, so on our sparse SNPs it flagged 6 SNPs and missed snp03921. It is useful on dense chips.
+
+Two more things the merge taught us. Without `--allow-no-sex`, PLINK refused to write the merged file because two animals had unknown sex. And SNPs typed by only one lab are missing for every animal of the other lab, so run `--geno` (Chapter 6) after every merge.
+
+### Comparing the same animals genotyped twice: `--merge-mode`
+
+When the same animal is in both files, `--merge-mode` decides what to do with disagreements. Mode 6 does not merge at all; it reports every disagreement. We re-genotyped 10 Angus animals:
+
+```bash
+plink --bfile cattle --cow --allow-no-sex --bmerge regeno --merge-mode 6 --out mm6
+# 48000 overlapping calls, 47754 nonmissing in both filesets.
+# 47650 concordant, for a concordance rate of 0.996904.
+```
+
+| Mode | What happens to a disagreement |
+|---|---|
+| 1 (default) | Set to missing |
+| 2 | Only fill in genotypes missing in the first file |
+| 3 | Take the second file's genotype unless it is missing |
+| 4 / 5 | Never / always overwrite |
+| 6 / 7 | Report disagreements only (7 ignores those involving a missing call) |
+
+### Many files at once
+
+```bash
+printf "part2\npart3\n" > mergelist.txt
+plink --bfile part1 --cow --allow-no-sex --merge-list mergelist.txt --make-bed --out rejoined
+```
+
+## Step 5: fix IDs, sexes, SNP names and alleles
+
+| Goal | Flag and file layout |
+|---|---|
+| Correct sexes | `--update-sex file` (FID IID SEX) |
+| Rename animals | `--update-ids file` (old FID, old IID, new FID, new IID) |
+| Add or fix parents | `--update-parents file` (FID IID sire dam) |
+| Rename SNPs | `--update-name file` (old new) |
+| Update positions | `--update-map file` (SNP bp) |
+| Choose which allele is A1 | `--a1-allele file 2 1` (allele in column 2, SNP name in column 1) |
+| Keep the alleles as they are in the input | `--keep-allele-order` |
+| Reorder animals | `--indiv-sort f order.txt` |
+
+::: {.callout-note}
+## PLINK 2.0
+The `.pgen` format is even smaller (0.35 MB for our data). `--recode` becomes `--export` (`--export A`, `--export vcf bgz`), `--bmerge` becomes `--pmerge`, and `--flip` refuses A/T and C/G SNPs unless you add `permissive`, which is a useful safety catch.
+
+```bash
+plink2 --bfile cattle --cow --make-pgen --out cattle
+plink2 --pfile cattle --cow --export vcf bgz --out cattle
+```
+:::

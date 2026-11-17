@@ -1,0 +1,138 @@
+# Using PLINK from R and RStudio {#sec-rstudio}
+
+::: {.lead}
+PLINK does the heavy lifting; R draws the pictures. Running both from one RStudio project means your commands, results and plots live in one place, and you can re-run the whole analysis with one click.
+:::
+
+There is no "PLINK package" that replaces the PLINK program. In R we do one of two things: we **call the PLINK program** from R, or we **read PLINK's files** into R. This chapter shows both.
+
+## Step 1: install R, RStudio and a few packages
+
+1. Install R from <https://cran.r-project.org>.
+2. Install RStudio Desktop from <https://posit.co/download/rstudio-desktop/>.
+3. In RStudio, install the packages used in this book:
+
+```r
+install.packages(c("tidyverse", "data.table", "bigsnpr", "genio", "plinkQC"))
+```
+
+## Step 2: make an RStudio project
+
+Use **File > New Project > New Directory**, call it `plink_tutorial`, and put the PLINK program and the practice data in that folder. A project sets the working directory for you, so you never need `setwd()` with a long path that only works on your own computer.
+
+```text
+plink_tutorial/
+  plink_tutorial.Rproj
+  plink            (or plink.exe on Windows)
+  data/            (cattle.ped, cattle.map, pheno.txt, ...)
+  results/
+  analysis.R       (or analysis.qmd)
+```
+
+## Step 3: get PLINK into the project
+
+You have three choices. Use whichever works on your computer.
+
+**Option A: download it by hand** (Chapter 1) and copy the file into the project folder.
+
+**Option B: let R download it.** The `bigsnpr` package has helper functions that download the right PLINK build for your system and return its path:
+
+```r
+library(bigsnpr)
+plink  <- download_plink(dir = ".")     # PLINK 1.9
+plink2 <- download_plink2(dir = ".")    # PLINK 2.0
+plink                                    # prints the full path, e.g. "./plink"
+```
+
+**Option C: use the RStudio Terminal.** RStudio has a **Terminal** tab next to the Console. It is a normal command line that opens in your project folder, so every command in this book works there unchanged.
+
+## Step 4: run PLINK from R
+
+R's `system2()` function runs an outside program. Give it the program path and the arguments:
+
+```r
+plink <- "./plink"           # on Windows: "plink.exe"
+
+system2(plink, args = c("--file", "data/cattle", "--cow",
+                        "--make-bed", "--out", "results/cattle"))
+```
+
+The older `system()` function takes the whole command as one string, which is handy for copying commands from this book:
+
+```r
+system("./plink --bfile results/cattle --cow --missing --out results/miss")
+```
+
+On Windows, write paths with forward slashes (`"C:/genomics/plink.exe"`) or doubled backslashes (`"C:\\genomics\\plink.exe"`). A single backslash breaks the string.
+
+A small helper function saves typing and prints PLINK's messages in the Console:
+
+```r
+run_plink <- function(..., exe = "./plink") {
+  args <- c(...)
+  out <- system2(exe, args = args, stdout = TRUE, stderr = TRUE)
+  cat(out, sep = "\n")
+  invisible(out)
+}
+
+run_plink("--bfile", "results/cattle", "--cow", "--freq", "--out", "results/freq")
+```
+
+## Step 5: read the results into R
+
+Almost every PLINK output is a plain text table with a header line and columns separated by spaces. `read.table(header = TRUE)` reads it, and `data.table::fread()` does the same faster for big files.
+
+```r
+library(tidyverse)
+
+imiss <- read.table("results/miss.imiss", header = TRUE)
+lmiss <- read.table("results/miss.lmiss", header = TRUE)
+
+ggplot(imiss, aes(x = F_MISS * 100)) +
+  geom_histogram(binwidth = 0.5, fill = "#E69F00") +
+  geom_vline(xintercept = 5, linetype = "dashed", colour = "red") +
+  labs(x = "Missing genotypes per animal (%)", y = "Number of animals",
+       title = "Missingness per animal") +
+  theme_minimal()
+```
+
+| PLINK output | How to read it in R |
+|---|---|
+| `.frq`, `.hwe`, `.imiss`, `.lmiss`, `.het`, `.genome`, `.assoc`, `.qassoc`, `.assoc.linear` | `read.table(file, header = TRUE)` |
+| `.eigenvec` written with `--pca header` | `read.table(file, header = TRUE)` |
+| `.eigenvec` written without `header` | `read.table(file, col.names = c("FID", "IID", paste0("PC", 1:20)))` |
+| `.eigenval` | `scan(file)` (just a column of numbers) |
+| `.mdist`, `.mibs`, `.rel` (square matrices) | `as.matrix(read.table(file))` |
+| `.raw` from `--recode A` | `read.table(file, header = TRUE)`; genotypes start in column 7 |
+| `.bed/.bim/.fam` themselves | `genio::read_plink("results/cattle")` or `bigsnpr::snp_readBed()` |
+
+Reading the binary genotypes directly is useful when you want to fit your own models, for example genomic prediction:
+
+```r
+library(genio)
+geno <- read_plink("results/cattle")
+dim(geno$X)        # SNPs in rows, animals in columns, values 0/1/2 (count of allele 1) or NA
+head(geno$bim)     # the SNP map
+head(geno$fam)     # the animals
+```
+
+## Step 6: let a package do routine QC for you
+
+The `plinkQC` package by Hannah Meyer wraps PLINK's QC commands (missingness, heterozygosity, sex check, relatedness) and makes clear plots. It follows the QC protocol of Anderson and colleagues (2010).
+
+```r
+library(plinkQC)
+fail_miss_het <- check_het_and_miss(indir = "results", name = "human_data",
+                                     path2plink = "./plink", interactive = TRUE)
+```
+
+It was written for human data and calls PLINK without a species flag, so with cattle files PLINK stops at chromosome codes above 26. For livestock I use it as a model: run the PLINK commands from this book with `--cow`, then copy its plotting ideas into your own ggplot code.
+
+## Keep a record
+
+Write your commands in an R script or a Quarto notebook rather than typing them into the Console. Six months later, when a reviewer asks "which `--geno` threshold did you use?", the answer is in the file, together with the plot it produced.
+
+::: {.callout-warning}
+## Common mistake
+If `system2()` returns status 127 or "cannot find", R is not looking where PLINK is. Check with `file.exists(plink)`, and on macOS or Linux make the file executable once with `Sys.chmod(plink, mode = "0755")`.
+:::

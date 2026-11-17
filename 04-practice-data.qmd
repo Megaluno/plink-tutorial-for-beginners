@@ -1,0 +1,53 @@
+# The practice data {#sec-data}
+
+::: {.lead}
+Learning QC on perfect data is like learning to drive on an empty road. The practice dataset was built with problems hidden inside it, so that every check in this book has something real to find.
+:::
+
+## Download
+
+All files are in the GitHub repository:
+
+- Data: <https://github.com/Megaluno/PLINK_Tutorial/tree/main/data>
+- Scripts that ran every chapter: <https://github.com/Megaluno/PLINK_Tutorial/tree/main/scripts>
+- Everything in one zip: [`downloads/plink_tutorial_data_and_scripts.zip`](https://github.com/Megaluno/PLINK_Tutorial/raw/main/downloads/plink_tutorial_data_and_scripts.zip)
+
+## The simulated cattle
+
+The cattle were simulated with a Python script (`scripts/simulate.py`, random seed 2026), so the truth is known. Positions and gene names such as PLAG1 and LCORL are used only as labels to make the story easier to follow; the effects are invented.
+
+| Item | What is in the data |
+|---|---|
+| Breeds | Angus (ANG), Holstein (HOL), N'Dama (NDA), with different allele frequencies |
+| Animals | 361: 240 unrelated (80 per breed), 30 families of sire + dam + 2 calves (15 Holstein, 15 N'Dama), and 1 repeated sample |
+| Sex | 137 males, 222 females, 2 unknown |
+| SNPs | 4,800: 150 per autosome on chromosomes 1 to 29, extra-dense regions on chromosomes 5, 6 and 14, and 250 on the X |
+| Disease (column 6 of `.ped`) | BRD, bovine respiratory disease: 144 cases (2), 217 controls (1) |
+| Measured traits (`pheno.txt`) | WWT weaning weight (kg), BW birth weight (kg), YWT yearling weight (kg) |
+| Covariates (`covar.txt`) | SEX_M (1 = male), FEEDLOT (1 = feedlot, 0 = pasture), AGE at weaning (days), HERD_N |
+| Other files | `batch2` (40 animals genotyped by a second lab), `chr14.dosage` (imputed dosages), `cattle.cnv` (CNV calls), `genes.txt` (regions), `breed.clst` (breed of each animal) |
+
+### The hidden problems
+
+These are the things the simulation planted. Try to find them yourself before reading the answer key in Chapter 19.
+
+- Some SNPs fail often in the lab, and six animals have poor-quality DNA.
+- One animal was genotyped twice, and one DNA sample was contaminated with another animal's DNA.
+- Two bulls are recorded as cows, and two animals have no recorded sex.
+- One calf has the wrong sire in the pedigree.
+- One animal is highly inbred, one is a crossbred and one is labelled with the wrong breed.
+- Some SNPs have calling errors that break Hardy-Weinberg and Mendel's laws.
+- Some SNPs fail more often in sick animals than in healthy ones.
+- The second lab reported 40 SNPs on the opposite DNA strand.
+- Real effects: two weaning-weight QTL, one BRD risk SNP, one SNP that only matters in the feedlot, and a CNV deletion linked to BRD.
+
+## The real data
+
+Simulations are clean. Real data are not, so Chapter 18 repeats the main analyses on two public datasets.
+
+| Dataset | Animals | SNPs | Source |
+|---|---|---|---|
+| Real cattle | 500 bulls with a pedigree of 1,929 animals | 7,250 on 29 autosomes | `synbreedData` R package (Wimmer and colleagues, GPL-2). The package states that genotypes and pedigree come from a real cattle data set; its phenotypes are artificial, so we do not use them |
+| Real sheep | 100: 64 Jacob, 36 Navajo-Churro | 4,841 on chromosomes 2 and 24 | Kijas and colleagues (2016), *Animal Genetics* 47: 258-262, shipped with the `detectRUNS` R package (GPL-3) |
+
+Both are in `data/real/`. The sheep come as PLINK `.ped`/`.map` files in the `detectRUNS` package; the cattle were converted from the `synbreedData` R data file with `scripts/convert_real_data.py`, which reproduces our files exactly.

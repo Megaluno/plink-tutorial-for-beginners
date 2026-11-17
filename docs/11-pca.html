@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>11&nbsp; Population structure and principal component analysis – PLINK for Livestock Genomics</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./12-association.html" rel="next">
+<link href="./10-relatedness.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-7fa848adb45265dba0bb1d11d8a46fcc.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./09-ld.html">Relationships and structure</a></li><li class="breadcrumb-item"><a href="./11-pca.html"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Population structure and principal component analysis</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">PLINK for Livestock Genomics</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/Megaluno/PLINK_Tutorial" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Welcome</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">Getting started</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-install.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Installing PLINK and running your first command</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-rstudio.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Using PLINK from R and RStudio</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-files.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Genotype files: what PLINK reads and writes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04-practice-data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">The practice data</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">Managing data</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05-data-management.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Converting, subsetting and merging data</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">Quality control</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06-missingness.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Missing genotypes: per SNP and per animal</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07-maf-hwe.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Allele frequency and Hardy-Weinberg equilibrium</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08-sex-mendel-het.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Sample checks: sex, pedigree and heterozygosity</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Relationships and structure</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09-ld.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Linkage disequilibrium</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10-relatedness.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Relatedness, inbreeding and runs of homozygosity</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-pca.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Population structure and principal component analysis</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text">Association analysis</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12-association.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Case/control association</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./13-families-traits.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Families, quantitative traits, interaction and permutation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14-haplotypes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, proxy association and imputation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./15-cnv.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Copy number variants</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./16-beyond-single-snps.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Beyond single SNPs: gene sets, epistasis, environments and meta-analysis</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
+ <span class="menu-text">Putting it together</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./17-parameters.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">How each setting changes your results</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./18-real-data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Real data: cattle and sheep</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./19-pipeline.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">A complete QC pipeline and the answer key</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./A-plink2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">PLINK 1.9 to PLINK 2.0</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./B-glossary.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Glossary</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./C-resources.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">C</span>&nbsp; <span class="chapter-title">Resources and references</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#the-idea-in-two-snps" id="toc-the-idea-in-two-snps" class="nav-link active" data-scroll-target="#the-idea-in-two-snps"><span class="header-section-number">11.1</span> The idea in two SNPs</a></li>
+  <li><a href="#how-plink-computes-it" id="toc-how-plink-computes-it" class="nav-link" data-scroll-target="#how-plink-computes-it"><span class="header-section-number">11.2</span> How PLINK computes it</a></li>
+  <li><a href="#step-1-prepare-the-data" id="toc-step-1-prepare-the-data" class="nav-link" data-scroll-target="#step-1-prepare-the-data"><span class="header-section-number">11.3</span> Step 1: prepare the data</a></li>
+  <li><a href="#step-2-understand-the-output-files" id="toc-step-2-understand-the-output-files" class="nav-link" data-scroll-target="#step-2-understand-the-output-files"><span class="header-section-number">11.4</span> Step 2: understand the output files</a></li>
+  <li><a href="#step-3-how-many-pcs-matter-the-scree-plot" id="toc-step-3-how-many-pcs-matter-the-scree-plot" class="nav-link" data-scroll-target="#step-3-how-many-pcs-matter-the-scree-plot"><span class="header-section-number">11.5</span> Step 3: how many PCs matter? The scree plot</a></li>
+  <li><a href="#step-4-plot-the-animals" id="toc-step-4-plot-the-animals" class="nav-link" data-scroll-target="#step-4-plot-the-animals"><span class="header-section-number">11.6</span> Step 4: plot the animals</a></li>
+  <li><a href="#step-5-make-the-plot-in-r-and-what-each-setting-does" id="toc-step-5-make-the-plot-in-r-and-what-each-setting-does" class="nav-link" data-scroll-target="#step-5-make-the-plot-in-r-and-what-each-setting-does"><span class="header-section-number">11.7</span> Step 5: make the plot in R, and what each setting does</a></li>
+  <li><a href="#step-6-watch-out-for-families-and-duplicates" id="toc-step-6-watch-out-for-families-and-duplicates" class="nav-link" data-scroll-target="#step-6-watch-out-for-families-and-duplicates"><span class="header-section-number">11.8</span> Step 6: watch out for families and duplicates</a></li>
+  <li><a href="#step-7-check-the-snp-loadings" id="toc-step-7-check-the-snp-loadings" class="nav-link" data-scroll-target="#step-7-check-the-snp-loadings"><span class="header-section-number">11.9</span> Step 7: check the SNP loadings</a></li>
+  <li><a href="#pca-and-mds-two-roads-to-the-same-map" id="toc-pca-and-mds-two-roads-to-the-same-map" class="nav-link" data-scroll-target="#pca-and-mds-two-roads-to-the-same-map"><span class="header-section-number">11.10</span> PCA and MDS: two roads to the same map</a></li>
+  <li><a href="#using-clustering-to-name-the-groups" id="toc-using-clustering-to-name-the-groups" class="nav-link" data-scroll-target="#using-clustering-to-name-the-groups"><span class="header-section-number">11.11</span> Using clustering to name the groups</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/Megaluno/PLINK_Tutorial/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./09-ld.html">Relationships and structure</a></li><li class="breadcrumb-item"><a href="./11-pca.html"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Population structure and principal component analysis</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span id="sec-pca" class="quarto-section-identifier"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Population structure and principal component analysis</span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="lead">
+<p>Principal component analysis (PCA) turns thousands of SNPs into a few numbers per animal that you can plot. Breeds, crossbreds, mislabelled animals and family clusters all become visible. The same numbers, used as covariates, protect association studies from false results. This chapter explains what eigenvectors and eigenvalues are, how to run and plot a PCA, and the traps to avoid.</p>
+</div>
+<section id="the-idea-in-two-snps" class="level2" data-number="11.1">
+<h2 data-number="11.1" class="anchored" data-anchor-id="the-idea-in-two-snps"><span class="header-section-number">11.1</span> The idea in two SNPs</h2>
+<p>Imagine only two SNPs, and plot every animal by its (standardised) genotype at SNP A and SNP B. If the two SNPs are correlated, the cloud of points is stretched along a diagonal.</p>
+<div id="fig-pca-toy" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-pca-toy-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/08_pca_toy.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-pca-toy-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11.1: Left: animals plotted by two correlated SNPs. The red arrow (PC1) points along the direction where the animals differ most; the blue arrow (PC2) is at right angles to it. Right: the same animals after rotating the axes onto the PCs.
+</figcaption>
+</figure>
+</div>
+<p>PCA finds new axes for the same cloud:</p>
+<ul>
+<li>The <strong>first principal component (PC1)</strong> is the direction along which the animals differ the most.</li>
+<li><strong>PC2</strong> is the direction of most remaining variation, at right angles to PC1, and so on.</li>
+</ul>
+<p>Each PC is described by two things:</p>
+<ul>
+<li>An <strong>eigenvector</strong>: the direction itself, a list of weights, one per SNP (PLINK calls these the SNP <em>loadings</em> or <em>variant weights</em>). Projecting an animal onto that direction gives its <strong>PC score</strong>: the number you plot.</li>
+<li>An <strong>eigenvalue</strong>: how much of the variation lies along that direction. A big eigenvalue means a PC that separates animals strongly.</li>
+</ul>
+<p>In the toy example, PC1 has eigenvalue 2.09 and PC2 only 0.14: PC1 carries 94% of the variation, so one number per animal describes almost everything the two SNPs say. With real data we do the same thing with thousands of SNPs at once.</p>
+</section>
+<section id="how-plink-computes-it" class="level2" data-number="11.2">
+<h2 data-number="11.2" class="anchored" data-anchor-id="how-plink-computes-it"><span class="header-section-number">11.2</span> How PLINK computes it</h2>
+<p>PLINK first builds the genomic relationship matrix (GRM) from Chapter 10: one row and one column per animal, filled with the standardised genotype products averaged over SNPs. Then it finds the eigenvectors and eigenvalues of that matrix. Each eigenvector of the GRM has one value per animal: those values are the PC scores. In matrix language, if <strong>G</strong> is the GRM,</p>
+<p><span class="math display">\[
+\mathbf{G}\,\mathbf{v}_k = \lambda_k\,\mathbf{v}_k
+\]</span></p>
+<p>where <strong>v</strong><sub>k</sub> is the k-th eigenvector (the scores of all animals on PC k) and λ<sub>k</sub> its eigenvalue. The eigenvalues add up to the total variation, which equals the sum of the diagonal of G (its <em>trace</em>, roughly the number of animals). So the share of variation explained by PC k is</p>
+<p><span class="math display">\[
+\text{\% variance of PC}_k = \frac{\lambda_k}{\text{trace}(\mathbf{G})} \times 100
+\]</span></p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>The most common PCA mistake
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>PLINK only writes the top 20 eigenvalues (or as many as you ask for). Many tutorials divide each eigenvalue by the sum of <em>those</em> values. That gives the share among the first few PCs, not of the total, and it exaggerates badly. In our data PC1 is 45% of the first ten eigenvalues but only <strong>8.6% of the total variation</strong>. To get the true total, run <code>--make-rel</code> on the same SNPs and add up the diagonal (in R: <code>sum(diag(G))</code>), or use the number of animals as an approximation.</p>
+</div>
+</div>
+</section>
+<section id="step-1-prepare-the-data" class="level2" data-number="11.3">
+<h2 data-number="11.3" class="anchored" data-anchor-id="step-1-prepare-the-data"><span class="header-section-number">11.3</span> Step 1: prepare the data</h2>
+<p>PCA is sensitive to things that are not population structure. Before running it:</p>
+<ol type="1">
+<li><strong>Filter rare SNPs</strong> (<code>--maf 0.05</code>). PLINK 1.9 returned all-zero PCs with monomorphic SNPs present, and PLINK 2.0 refuses to run.</li>
+<li><strong>Prune for LD</strong> (<code>--indep-pairwise 50 5 0.2</code>), so that a block of correlated SNPs does not dominate a PC.</li>
+<li><strong>Use autosomes only</strong> (PLINK does this for you).</li>
+<li><strong>Remove duplicates, and ideally close relatives.</strong> A family or a duplicate pair can take over a whole PC (Step 6).</li>
+</ol>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--maf</span> 0.05 <span class="at">--autosome</span> <span class="at">--indep-pairwise</span> 50 5 0.2 <span class="at">--out</span> prune</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--extract</span> prune.prune.in <span class="at">--pca</span> 10 header tabs var-wts <span class="at">--out</span> pca</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Option</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>--pca 10</code></td>
+<td>Compute the first 10 PCs (default 20)</td>
+</tr>
+<tr class="even">
+<td><code>header</code></td>
+<td>Write column names in <code>.eigenvec</code></td>
+</tr>
+<tr class="odd">
+<td><code>tabs</code></td>
+<td>Separate columns with tabs</td>
+</tr>
+<tr class="even">
+<td><code>var-wts</code></td>
+<td>Also write the SNP loadings (<code>.eigenvec.var</code>)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="step-2-understand-the-output-files" class="level2" data-number="11.4">
+<h2 data-number="11.4" class="anchored" data-anchor-id="step-2-understand-the-output-files"><span class="header-section-number">11.4</span> Step 2: understand the output files</h2>
+<p><code>pca.eigenvec</code>: one line per animal, its scores on each PC.</p>
+<pre class="text"><code>FID     IID       PC1        PC2        PC3
+ANG     ANG_001   0.0118239  0.0913939  -0.00673676</code></pre>
+<p><code>pca.eigenval</code>: one number per PC, the eigenvalues.</p>
+<pre class="text"><code>32.9286
+19.061
+2.89977
+2.7953
+...</code></pre>
+<p><code>pca.eigenvec.var</code>: one line per SNP, its loading (weight) on each PC.</p>
+<p>The sign of a PC is arbitrary: two programs, or two runs on slightly different data, can flip PC1 from positive to negative. Only the relative positions of animals matter.</p>
+</section>
+<section id="step-3-how-many-pcs-matter-the-scree-plot" class="level2" data-number="11.5">
+<h2 data-number="11.5" class="anchored" data-anchor-id="step-3-how-many-pcs-matter-the-scree-plot"><span class="header-section-number">11.5</span> Step 3: how many PCs matter? The scree plot</h2>
+<div id="fig-scree" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-scree-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/08_pca_scree.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scree-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11.2: Scree plot. Bars show the share of the total variation (eigenvalue divided by 384.5, the trace of the GRM); numbers on the bars are the raw eigenvalues.
+</figcaption>
+</figure>
+</div>
+<p>The first two eigenvalues (32.9 and 19.1) stand far above the rest, which flatten out near 2.5 to 2.9. That “elbow” after PC2 tells us there are two strong axes of structure: with three breeds, you need two axes to separate them (in general, k groups need k - 1 PCs). After the elbow, PCs mostly describe noise or small family groups. For association studies, people usually include the PCs up to the elbow, and often a few more for safety (Chapter 12 uses PC1 and PC2).</p>
+</section>
+<section id="step-4-plot-the-animals" class="level2" data-number="11.6">
+<h2 data-number="11.6" class="anchored" data-anchor-id="step-4-plot-the-animals"><span class="header-section-number">11.6</span> Step 4: plot the animals</h2>
+<div id="fig-pca-breeds" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-pca-breeds-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/08_pca_breeds.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-pca-breeds-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11.3: PC1 against PC2 and PC1 against PC3, coloured by recorded breed. Axis labels give the share of the total variation.
+</figcaption>
+</figure>
+</div>
+<ul>
+<li><strong>PC1</strong> (8.6%) separates N’Dama from the two European breeds. <strong>PC2</strong> (5.0%) separates Angus from Holstein. That matches what we know about cattle history: the African taurine N’Dama is the most distinct.</li>
+<li><strong>ANG_066</strong>, recorded as Angus, sits inside the Holstein cloud. It is a mislabelled Holstein.</li>
+<li><strong>HOL_077</strong>, recorded as Holstein, sits halfway between Holstein and N’Dama. It is a crossbred: a 50:50 cross falls in the middle of the line between its two parent breeds.</li>
+<li><strong>PC3</strong> (0.8%) spreads out some Holsteins. Step 6 shows why.</li>
+</ul>
+</section>
+<section id="step-5-make-the-plot-in-r-and-what-each-setting-does" class="level2" data-number="11.7">
+<h2 data-number="11.7" class="anchored" data-anchor-id="step-5-make-the-plot-in-r-and-what-each-setting-does"><span class="header-section-number">11.7</span> Step 5: make the plot in R, and what each setting does</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>pca    <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">"pca.eigenvec"</span>, <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>eigval <span class="ot">&lt;-</span> <span class="fu">scan</span>(<span class="st">"pca.eigenval"</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>G      <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(<span class="fu">read.table</span>(<span class="st">"rel.rel"</span>))   <span class="co"># from: plink ... --make-rel square --out rel</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>pct    <span class="ot">&lt;-</span> <span class="fu">round</span>(eigval <span class="sc">/</span> <span class="fu">sum</span>(<span class="fu">diag</span>(G)) <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>breeds <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">"breed.clst"</span>, <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"FID"</span>, <span class="st">"IID"</span>, <span class="st">"breed"</span>))</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>pca    <span class="ot">&lt;-</span> <span class="fu">left_join</span>(pca, breeds, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"FID"</span>, <span class="st">"IID"</span>))</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(pca, <span class="fu">aes</span>(<span class="at">x =</span> PC1, <span class="at">y =</span> PC2, <span class="at">colour =</span> breed)) <span class="sc">+</span>          <span class="co"># 1</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">1.8</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span>                          <span class="co"># 2</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dotted"</span>) <span class="sc">+</span>              <span class="co"># 3</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dotted"</span>) <span class="sc">+</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="at">ANG =</span> <span class="st">"#0072B2"</span>,                <span class="co"># 4</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">HOL =</span> <span class="st">"#E69F00"</span>,</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">NDA =</span> <span class="st">"#009E73"</span>)) <span class="sc">+</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  ggrepel<span class="sc">::</span><span class="fu">geom_text_repel</span>(                                      <span class="co"># 5</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">data =</span> <span class="fu">filter</span>(pca, IID <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"ANG_066"</span>, <span class="st">"HOL_077"</span>)),</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>      <span class="fu">aes</span>(<span class="at">label =</span> IID), <span class="at">colour =</span> <span class="st">"black"</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="fu">paste0</span>(<span class="st">"PC1 ("</span>, pct[<span class="dv">1</span>], <span class="st">"%)"</span>),                        <span class="co"># 6</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="fu">paste0</span>(<span class="st">"PC2 ("</span>, pct[<span class="dv">2</span>], <span class="st">"%)"</span>),</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>       <span class="at">colour =</span> <span class="st">"Breed"</span>,</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"PCA of three cattle breeds"</span>) <span class="sc">+</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_equal</span>() <span class="sc">+</span>                                                <span class="co"># 7</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>)                                  <span class="co"># 8</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"pca_pc1_pc2.png"</span>, <span class="at">width =</span> <span class="dv">7</span>, <span class="at">height =</span> <span class="dv">5</span>, <span class="at">dpi =</span> <span class="dv">300</span>)     <span class="co"># 9</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Line</th>
+<th>Setting</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td><code>colour = breed</code></td>
+<td>Colour by a known label, so you can see whether the genetics agree with the records</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td><code>size</code>, <code>alpha</code></td>
+<td>Small, semi-transparent points so overlapping animals stay visible</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>zero lines</td>
+<td>Help you see which animals are on which side of each PC</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td><code>scale_colour_manual</code></td>
+<td>Choose colours yourself; these are colour-blind safe (Okabe-Ito palette)</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td><code>geom_text_repel</code></td>
+<td>Label only the animals you want to discuss, without labels overlapping</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>axis labels with %</td>
+<td>Tell the reader how much variation each axis carries</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td><code>coord_equal()</code></td>
+<td>Same scale on both axes, so distances are not distorted; drop it if the plot becomes too thin</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td><code>theme_minimal()</code></td>
+<td>A clean background</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td><code>ggsave(..., dpi = 300)</code></td>
+<td>Journal-quality image file</td>
+</tr>
+</tbody>
+</table>
+<p>Other useful variations: <code>shape = sex</code> to use a second variable, <code>facet_wrap(~ herd)</code> for one panel per herd, and plotting PC1 against PC3 and PC2 against PC3 as well, because structure can hide in higher PCs.</p>
+</section>
+<section id="step-6-watch-out-for-families-and-duplicates" class="level2" data-number="11.8">
+<h2 data-number="11.8" class="anchored" data-anchor-id="step-6-watch-out-for-families-and-duplicates"><span class="header-section-number">11.8</span> Step 6: watch out for families and duplicates</h2>
+<p>A group of close relatives can take over a PC of its own, a problem described in many GWAS teaching notes (see Appendix C). It happened to our PC3: the animals with extreme PC3 scores were all members of a few Holstein families (F01, F14, F07, F11), because a sire, a dam and two calves share a lot of genome. PC3 described families, not breeds.</p>
+<p>The fix is to compute the PCs on unrelated animals only and then <strong>project</strong> everyone else onto those PCs, using the SNP loadings. PLINK 2.0 does both steps:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. PCs from the 301 founders only, saving the SNP loadings</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--extract</span> prune.prune.in <span class="at">--keep</span> founders.txt <span class="dt">\</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">--maf</span> 0.05 <span class="at">--freq</span> <span class="at">--pca</span> 10 allele-wts <span class="at">--out</span> pcaF</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. project all 361 animals onto those PCs</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--extract</span> prune.prune.in <span class="at">--read-freq</span> pcaF.afreq <span class="dt">\</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">--score</span> pcaF.eigenvec.allele 2 6 header-read no-mean-imputation variance-standardize <span class="dt">\</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">--score-col-nums</span> 7-16 <span class="at">--out</span> proj</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="fig-pca-proj" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-pca-proj-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/08_pca_projection.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-pca-proj-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11.4: Left: PCs computed on all animals; family members (orange) stretch PC3. Right: PCs computed on founders only, with everyone projected. The families now sit inside their breed.
+</figcaption>
+</figure>
+</div>
+<p>In the right panel the families sit neatly inside their breed. But two animals now stand far out on PC3: HOL_050 and HOL_050_rep, the duplicate sample from Chapter 10. Two identical “founders” are the most extreme family possible. So the rule is: <strong>remove duplicates and relatives first, then compute PCs, then project.</strong></p>
+</section>
+<section id="step-7-check-the-snp-loadings" class="level2" data-number="11.9">
+<h2 data-number="11.9" class="anchored" data-anchor-id="step-7-check-the-snp-loadings"><span class="header-section-number">11.9</span> Step 7: check the SNP loadings</h2>
+<p>The loadings tell you which SNPs build each PC. For population structure they should be spread along the whole genome. A single tall peak means one region (often a large inversion or a region under strong selection) is driving the PC, and your LD pruning was not enough.</p>
+<div id="fig-loadings" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-loadings-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/08_pca_loadings.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-loadings-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11.5: Absolute PC1 loadings along the genome. They are spread evenly, so PC1 reflects genome-wide breed differences.
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="pca-and-mds-two-roads-to-the-same-map" class="level2" data-number="11.10">
+<h2 data-number="11.10" class="anchored" data-anchor-id="pca-and-mds-two-roads-to-the-same-map"><span class="header-section-number">11.10</span> PCA and MDS: two roads to the same map</h2>
+<p>An older alternative to PCA is multidimensional scaling (MDS) of the pairwise distances between animals. PLINK can do it directly:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--extract</span> prune.prune.in <span class="at">--cluster</span> <span class="at">--mds-plot</span> 4 <span class="at">--out</span> mds</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># or: MDS in R from a PLINK distance matrix</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>d   <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(<span class="fu">read.table</span>(<span class="st">"dist.mdist"</span>))          <span class="co"># plink ... --distance-matrix --out dist</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>ids <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">"dist.mdist.id"</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>mds <span class="ot">&lt;-</span> <span class="fu">cmdscale</span>(d, <span class="at">k =</span> <span class="dv">5</span>, <span class="at">eig =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>pct <span class="ot">&lt;-</span> <span class="fu">round</span>(mds<span class="sc">$</span>eig <span class="sc">/</span> <span class="fu">sum</span>(mds<span class="sc">$</span>eig) <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">2</span>)      <span class="co"># here all eigenvalues are available</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>MDS works on IBS distances and PCA on the GRM. In our data both gave the same picture: three tight clouds, ANG_066 with the Holsteins and HOL_077 in the middle. PCA is faster for big data and is the standard choice for covariates, and the PLINK 2.0 <code>--pca approx</code> option handles tens of thousands of animals.</p>
+</section>
+<section id="using-clustering-to-name-the-groups" class="level2" data-number="11.11">
+<h2 data-number="11.11" class="anchored" data-anchor-id="using-clustering-to-name-the-groups"><span class="header-section-number">11.11</span> Using clustering to name the groups</h2>
+<p>PCA shows structure; clustering assigns animals to groups. <code>--cluster --K 3</code> split our animals into 79 Angus; 141 Holsteins plus ANG_066; and 140 N’Dama, with HOL_077 in the Holstein cluster. Chapter 17 shows how <code>--ppc</code> and <code>--mc</code> change the clusters. For admixture proportions (for example, what share of HOL_077 is N’Dama), use ADMIXTURE on the pruned PLINK files.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>PLINK 2.0
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>plink2 --pca 10</code> writes <code>.eigenvec</code> and <code>.eigenval</code>; add <code>allele-wts</code> for loadings and <code>approx</code> for very large samples. Projection uses <code>--score</code> as shown in Step 6. <code>--cluster</code> and <code>--mds-plot</code> are only in PLINK 1.9.</p>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/megaluno\.github\.io\/PLINK_Tutorial\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./10-relatedness.html" class="pagination-link" aria-label="Relatedness, inbreeding and runs of homozygosity">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Relatedness, inbreeding and runs of homozygosity</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./12-association.html" class="pagination-link" aria-label="Case/control association">
+        <span class="nav-page-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Case/control association</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>PLINK for Livestock Genomics, by Ismaila Emmanuel</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Megaluno/PLINK_Tutorial/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>Licensed CC BY 4.0</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+<script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

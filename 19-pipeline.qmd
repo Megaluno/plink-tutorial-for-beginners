@@ -1,0 +1,117 @@
+# A complete QC pipeline and the answer key {#sec-pipeline}
+
+::: {.lead}
+This chapter puts everything together: one script that turns the raw practice file (361 animals, 4,800 SNPs) into the clean file used from Chapter 12 onwards (351 animals, 4,443 SNPs), followed by the answer key to the hidden problems.
+:::
+
+## The pipeline at a glance
+
+```{mermaid}
+%%| fig-cap: "The QC pipeline used in this book. Look first, decide on lists, then apply them with animals before SNPs."
+flowchart TD
+  A["Raw data<br/>361 animals, 4,800 SNPs"] --> B["0. Look<br/>--missing, --freq, --hardy within breed,<br/>--test-missing, --het, --check-sex,<br/>--mendel, --genome, PCA"]
+  B --> C["1. Decide<br/>animals to remove, sexes to fix,<br/>SNPs to exclude, breed labels to fix"]
+  C --> D["2a. Animals<br/>--remove, --update-sex"]
+  D --> E["2b. SNPs<br/>--exclude, --geno 0.05"]
+  E --> F["2c. Safety check<br/>--mind 0.05"]
+  F --> G["2d. --maf 0.01"]
+  G --> H["Clean data<br/>351 animals, 4,443 SNPs"]
+  H --> I["3. Structure for association<br/>prune, PCA"]
+```
+
+## The script
+
+```bash
+# 0. Convert and look (nothing is removed yet)
+plink --file cattle --cow --make-bed --out cattle
+plink --bfile cattle --cow --missing --out miss                                # Chapter 6
+plink --bfile cattle --cow --freq --out freq                                   # Chapter 7
+for b in ANG HOL NDA; do                                                       # Chapter 7: HWE within breed
+  plink --bfile cattle --cow --keep k_$b.txt --hardy --out hwe_$b
+done
+plink --bfile cattle --cow --allow-no-sex --test-missing --out tmiss           # Chapter 6
+plink --bfile cattle --cow --autosome --indep-pairwise 50 5 0.2 --out prune
+plink --bfile cattle --cow --extract prune.prune.in --het --out het            # Chapter 8
+plink --bfile cattle --cow --check-sex --out sexcheck                          # Chapter 8
+plink --bfile cattle --cow --mendel --out mendel                               # Chapter 8
+plink --bfile cattle --cow --extract prune.prune.in --genome --min 0.2 --out ibd   # Chapter 10
+plink --bfile cattle --cow --extract prune.prune.in --maf 0.05 --pca 10 header tabs --out pca  # Chapter 11
+
+# 1. Build the lists from those results (by reading the outputs and plots)
+#    remove_animals.txt : 6 poor-DNA animals, contaminated ANG_030, duplicate HOL_050_rep,
+#                         calf with the wrong sire HOL_F03_C2, crossbred HOL_077
+#    sex_update.txt     : 4 animals set to their genetic sex
+#    snp_exclude.txt    : 12 SNPs failing HWE (p < 1e-6) in any breed
+#                         + 8 SNPs with --test-missing p < 1e-4
+#    breed_fixed.clst   : ANG_066 relabelled as HOL
+
+# 2. Apply them: animals first, then SNPs
+plink --bfile cattle --cow --remove remove_animals.txt --update-sex sex_update.txt --make-bed --out step1
+plink --bfile step1  --cow --exclude snp_exclude.txt --geno 0.05 --make-bed --out step2
+plink --bfile step2  --cow --mind 0.05 --make-bed --out step3
+plink --bfile step3  --cow --maf 0.01 --make-bed --out cattle_qc
+
+# 3. Structure for the association models
+plink --bfile cattle_qc --cow --autosome --indep-pairwise 50 5 0.2 --out qc_prune
+plink --bfile cattle_qc --cow --extract qc_prune.prune.in --pca 10 header tabs --out qc_pca
+```
+
+What the logs reported at each step:
+
+| Step | Log line | Animals | SNPs |
+|---|---|---|---|
+| start | | 361 | 4,800 |
+| step1 | `--update-sex: 4 cattle updated.` `--remove: 351 cattle remaining.` | 351 | 4,800 |
+| step2 | `--exclude: 4780 variants remaining.` then `25 variants removed due to missing genotype data (--geno).` | 351 | 4,755 |
+| step3 | `0 cattle removed due to missing genotype data (--mind).` | 351 | 4,755 |
+| cattle_qc | `312 variants removed due to minor allele threshold(s)` | 351 | 4,443 |
+
+Why the order: decisions about animals come first, so a few poor samples cannot push good SNPs over the missingness cut-off (Chapter 6). The lists come from within-breed statistics, so breed differences do not cause false alarms (Chapters 7 and 8). `--mind` is repeated after the SNP filters as a safety check; removing nobody is the expected result.
+
+::: {.callout-tip}
+## Keep the lists
+The files `remove_animals.txt`, `sex_update.txt` and `snp_exclude.txt` are your QC record. Put them in the repository with your scripts, and report the numbers removed at each step in your methods section.
+:::
+
+## Answer key: the hidden problems and how PLINK found them
+
+| Hidden problem | Found by | What PLINK showed |
+|---|---|---|
+| 25 SNPs with high missingness | `--missing`, `--geno 0.05` | All 25 above 2% missing (Chapter 6) |
+| 6 animals with poor DNA (ANG_012, ANG_045, HOL_023, NDA_017, NDA_061, HOL_F07_C1) | `--missing`, `--mind` | 6.8% to 24.6% missing; the next animal only 0.8% (Chapter 6) |
+| 8 SNPs failing more often in cases | `--test-missing` | Exactly the top 8, p = 3.3 × 10⁻⁹ to 4.9 × 10⁻⁵ (Chapter 6) |
+| 12 SNPs with heterozygote-calling errors | `--hardy` within breed | All 12 at p < 10⁻⁶ within breed; pooling the breeds flagged 114 (Chapter 7) |
+| 4 SNPs with random genotype errors | `--mendel` | Only 2 to 5 Mendel errors each: not caught, which is realistic for 30 families (Chapter 8) |
+| Sex errors ANG_071, NDA_022 (bulls recorded as cows) | `--check-sex` | F on X = 1 with recorded sex 2 (Chapter 8) |
+| Missing sex HOL_064, NDA_009 | `--check-sex` | SNPSEX = 1 (Chapter 8) |
+| Wrong sire for HOL_F03_C2 (true sire HOL_011) | `--mendel`, `--genome` | 534 Mendel errors; PI_HAT 0 with the recorded sire and Z1 = 0.96 with HOL_011 (Chapters 8 and 10) |
+| Contaminated DNA in ANG_030 | `--het`, `--genome` | F = −0.72; looks related to almost everyone (Chapters 8 and 10) |
+| Duplicate sample HOL_050 / HOL_050_rep | `--genome` | PI_HAT 0.98 (Chapter 10); also pulled PC3 in the founders' PCA (Chapter 11) |
+| Inbred animal NDA_040 | `--het`, `--homozyg` | F = 0.43; F_ROH 0.29 (Chapters 8 and 10) |
+| Crossbred HOL_077 (half N'Dama) | PCA | Halfway between Holstein and N'Dama (Chapter 11) |
+| Mislabelled ANG_066 (really Holstein) | PCA, `--cluster --K 3` | Inside the Holstein cloud and cluster (Chapter 11) |
+| 40 strand-flipped SNPs in batch 2 | `--bmerge` error, `--flip` | 39 caught; the C/G SNP snp03921 was invisible (Chapter 5) |
+| BRD risk SNP snp00706 | `--logistic` with PCs, `--mh --within` | Rank 238 naive, rank 1 after correction, p = 2.3 × 10⁻⁸ (Chapter 12) |
+| Weaning-weight QTL snp02145 (PLAG1 region, +9 kg) | `--linear` with covariates, `--dosage`, meta-analysis | p = 0.93 naive, 9.7 × 10⁻¹¹ with covariates; 9.6 kg estimated (Chapter 13) |
+| Weaning-weight QTL snp00891 (LCORL region, +5 kg) | `--linear` | p = 0.0019, rank 18: real but underpowered (Chapter 13) |
+| Feedlot-only effect snp01540 (+12 kg in feedlot) | `--linear --interaction` | ADD × FEEDLOT = −10.5 kg, p = 6.3 × 10⁻⁵ (Chapter 13) |
+| Epistatic pair for BRD (snp00210 × snp03131) | `--epistasis` | Not detected (p = 0.57): almost every animal carried the risk combination (Chapter 16) |
+| Deletion hotspot on chr 7 near 40 Mb, and higher CNV burden in cases | CNV `--mperm`, `--cnv-indiv-perm` | 34 cases against 6 controls, EMP2 = 0.0001; 4.30 against 2.95 CNVs per animal (Chapter 15) |
+
+Almost every planted problem was found, and the two that were not (four SNPs with a handful of random errors, and the weak epistatic pair) are the kind real studies also miss. That is the honest lesson of QC: it catches the big problems reliably and the small ones only sometimes, which is why replication matters.
+
+## Reproduce everything
+
+All data, scripts and figures are in the [GitHub repository](https://github.com/Megaluno/PLINK_Tutorial):
+
+| Folder or file | Contents |
+|---|---|
+| `data/` | The simulated cattle (`cattle.ped/.map`, `batch2`, `pheno.txt`, `covar.txt`, `breed.clst`, `genes.txt`, `chr14.dosage`, `cattle.cnv`, `TRUTH.json`) and `data/real/` (the real cattle and sheep) |
+| `scripts/simulate.py` | Makes the whole simulated dataset (seed 2026) |
+| `scripts/chapters/` | The PLINK commands of every chapter, one script per chapter |
+| `qc_lists/` | The QC lists used to build `cattle_qc` (removed animals, sex updates, excluded SNPs, PCs) |
+| `scripts/convert_real_data.py` | Converts the real cattle data from the `synbreedData` package to PLINK format |
+| `scripts/make_figures.py` | Draws every figure from the PLINK output |
+| `downloads/plink_tutorial_data_and_scripts.zip` | Everything above in one file |
+
+The results were produced with PLINK v1.07, v1.9.2-dev and v2.0.0-b.1.5-dev built from the official source. Another build or random seed can give slightly different numbers.
