@@ -58,11 +58,23 @@ There was a clear gap between bad animals (6.8% to 24.6% missing) and good ones 
 
 Removing bad animals first saved 670 good SNPs. Inside one command, PLINK 1.9 always applies its filters in this order, whatever order you type them in:
 
-```{mermaid}
-%%| fig-cap: "The order in which PLINK 1.9 applies filters inside one command."
-flowchart LR
-  A["--keep / --remove<br/>--extract / --exclude"] --> B["--mind"] --> C["--geno"] --> D["--hwe"] --> E["--maf"] --> F[analysis or --make-bed]
+![The order in which PLINK 1.9 applies filters inside one command.](images/flow_filter_order.png){#fig-filter-order}
+
+You can see this order in any log. Here the flags are typed in the reverse order:
+
+```bash
+plink --bfile cattle --cow --maf 0.01 --hwe 1e-6 --geno 0.05 --mind 0.05 --make-bed --out order_demo
 ```
+
+```text
+6 cattle removed due to missing genotype data (--mind).
+33 variants removed due to missing genotype data (--geno).
+--hwe: 59 variants removed due to Hardy-Weinberg exact test.
+309 variants removed due to minor allele threshold(s)
+4399 variants and 355 cattle pass filters and QC.
+```
+
+The log lines come out as `--mind`, `--geno`, `--hwe`, `--maf`, whatever the order on the command line, and each filter sees only what the previous one left. That is why `--hwe` removed 59 SNPs here but 63 when run alone on the raw file: six samples and 33 SNPs were already gone before it ran.
 
 When in doubt, run each filter as a separate step and report the order (Chapter 6 shows the two-round scheme).
 

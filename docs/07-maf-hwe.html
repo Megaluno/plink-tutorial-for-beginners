@@ -316,7 +316,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./14-haplotypes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, proxy association and imputation</span></span></a>
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, phasing and imputation</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -483,52 +483,52 @@ window.Quarto = {
 <p>So p(C) = 4/16 = 0.25 and p(T) = 12/16 = 0.75. C is the minor allele, and MAF = 0.25. A SNP with MAF = 0 is <strong>monomorphic</strong>: every animal has the same genotype, so it tells us nothing about differences between animals.</p>
 <section id="step-1-compute-frequencies" class="level3" data-number="7.1.1">
 <h3 data-number="7.1.1" class="anchored" data-anchor-id="step-1-compute-frequencies"><span class="header-section-number">7.1.1</span> Step 1: compute frequencies</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--freq</span> <span class="at">--out</span> freq</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>PLINK has four ways to count alleles. All four were run on the same file; here is what each writes and how to read it.</p>
+<p><strong><code>--freq</code>: the minor allele frequency of every SNP</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--freq</span> <span class="at">--out</span> freq</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span> <span class="at">-3</span> freq.frq</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre class="text"><code> CHR        SNP   A1   A2          MAF  NCHROBS
-   1   snp00001    G    A      0.02492      602</code></pre>
-<p>NCHROBS (chromosomes observed) is 602, not 2 × 361 = 722, because PLINK counts <strong>founders only</strong> by default. A calf’s alleles are copies of its parents’ alleles, so counting calves would count some alleles twice. Add <code>--nonfounders</code> to count everyone.</p>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Command</th>
-<th>Output</th>
-<th>Extra information</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>--freq</code></td>
-<td><code>.frq</code></td>
-<td>MAF and number of allele copies</td>
-</tr>
-<tr class="even">
-<td><code>--freq counts</code></td>
-<td><code>.frq.counts</code></td>
-<td>Allele counts instead of frequencies</td>
-</tr>
-<tr class="odd">
-<td><code>--freqx</code></td>
-<td><code>.frqx</code></td>
-<td>Genotype counts (hom A1, het, hom A2, haploid, missing)</td>
-</tr>
-<tr class="even">
-<td><code>--freq --within breed.clst</code></td>
-<td><code>.frq.strat</code></td>
-<td>One line per SNP per breed</td>
-</tr>
-</tbody>
-</table>
-<p>The per-breed version is very informative in livestock:</p>
+   1   snp00001    G    A      0.02492      602
+   1   snp00002    C    A      0.04167      600</code></pre>
+<ul>
+<li><strong>A1</strong> is the minor allele and <strong>MAF</strong> its frequency: G is on 2.5% of chromosomes at snp00001.</li>
+<li><strong>NCHROBS</strong> (chromosomes observed) is 602, not 2 × 361 = 722, because PLINK counts <strong>founders only</strong> by default (the log says <code>Allele frequencies (founders only)</code>). A calf’s alleles are copies of its parents’ alleles, so counting calves would count some alleles twice. snp00002 has 600 because one founder is missing there.</li>
+<li>On the X chromosome a bull carries one copy, so NCHROBS is smaller (497 at snp04551).</li>
+</ul>
+<p>Add <code>--nonfounders</code> to count all 361 animals: snp00001 then has MAF 0.0292 from 720 chromosomes. Use the default for QC; <code>--nonfounders</code> is for a population with no pedigree recorded, where every animal is a founder anyway.</p>
+<p><strong><code>--freq counts</code>: the counts behind the frequency</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--freq</span> counts <span class="at">--out</span> freqc</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span> <span class="at">-3</span> freqc.frq.counts</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text"><code> CHR        SNP   A1   A2     C1     C2     G0
+   1   snp00001    G    A     15    587      0
+   1   snp00002    C    A     25    575      1</code></pre>
+<p>C1 and C2 are the numbers of A1 and A2 copies (15 / 602 = 0.0249, the MAF above), and G0 the number of founders with a missing genotype. Counts are what you need for minor allele count filters (<code>--mac</code>) and for small samples, where “MAF 0.01” might mean a single copy.</p>
+<p><strong><code>--freqx</code>: genotype counts</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--freqx</span> <span class="at">--out</span> freqx</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span> <span class="at">-3</span> freqx.frqx</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text"><code>CHR  SNP       A1  A2  C(HOM A1)  C(HET)  C(HOM A2)  C(HAP A1)  C(HAP A2)  C(MISSING)
+1    snp00001  G   A   0          15      286        0          0          0
+1    snp00002  C   A   1          23      276        0          0          1</code></pre>
+<p>Instead of alleles, it counts animals: at snp00001 no founder is G/G, 15 are G/A and 286 are A/A. The HAP columns are for haploid calls (bulls on the X). These are the counts you would check by hand for a Hardy-Weinberg calculation, or use to spot a SNP with no heterozygotes at all.</p>
+<p><strong><code>--freq --within breed.clst</code>: one line per SNP per group</strong></p>
+<p>The cluster file has three columns, FID, IID and group, with no header:</p>
+<pre class="text"><code>ANG ANG_001 ANG
+ANG ANG_002 ANG</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--freq</span> <span class="at">--within</span> breed.clst <span class="at">--out</span> freq_breed</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-E</span> <span class="st">"snp00001|snp00706"</span> freq_breed.frq.strat</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre class="text"><code> CHR        SNP     CLST   A1   A2      MAF    MAC  NCHROBS
    1   snp00001      ANG    G    A   0.0125      2      160
    1   snp00001      HOL    G    A        0      0      222
-   1   snp00001      NDA    G    A  0.05909     13      220</code></pre>
-<p>The G allele is absent in Holstein but present in 6% of N’Dama chromosomes. A SNP can be rare overall and common in one breed.</p>
+   1   snp00001      NDA    G    A  0.05909     13      220
+   5   snp00706      ANG    A    C   0.6456    102      158
+   5   snp00706      HOL    A    C   0.4545    100      220
+   5   snp00706      NDA    A    C   0.3909     86      220</code></pre>
+<p>The output (<code>.frq.strat</code>) has 3 lines per SNP here (14,400 lines). <strong>MAC</strong> is the minor allele count in that group. Two things catch people out:</p>
+<ol type="1">
+<li>The column called MAF is the frequency of <strong>A1 as chosen for the whole file</strong>, not the minor allele within each breed. At snp00706 the A allele is the minor allele overall, but in Angus its frequency is 0.65: in Angus, C is the minor allele. Read the column as “frequency of A1 in this group”.</li>
+<li>Founders only, as before: the 120 family animals are left out, so the Holstein and N’Dama groups have 222 and 220 chromosomes (111 and 110 founders), not 282 and 280.</li>
+</ol>
+<p>Use the per-breed version to find SNPs that are rare overall but common in one breed (snp00001 is absent in Holstein but at 6% in N’Dama), and to apply MAF filters within breed.</p>
 </section>
 <section id="step-2-look-at-the-distribution-and-choose-a-threshold" class="level3" data-number="7.1.2">
 <h3 data-number="7.1.2" class="anchored" data-anchor-id="step-2-look-at-the-distribution-and-choose-a-threshold"><span class="header-section-number">7.1.2</span> Step 2: look at the distribution and choose a threshold</h3>
@@ -592,7 +592,7 @@ Figure&nbsp;7.2: A SNP with too few heterozygotes. Observed counts (orange) diff
 <p>But genotyping errors are not the only cause of departure from HWE. Selection, inbreeding, a deletion on the SNP, and above all <strong>mixing populations</strong> also do it. That last one is the important trap in livestock.</p>
 <section id="step-3-run-the-test" class="level3" data-number="7.2.1">
 <h3 data-number="7.2.1" class="anchored" data-anchor-id="step-3-run-the-test"><span class="header-section-number">7.2.1</span> Step 3: run the test</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--hardy</span> <span class="at">--out</span> hwe</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--hardy</span> <span class="at">--out</span> hwe</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre class="text"><code> CHR        SNP     TEST   A1   A2                 GENO   O(HET)   E(HET)            P
    1   snp00001      ALL    G    A             0/15/286  0.04983  0.04859            1
    1   snp00001      AFF    G    A              0/3/116  0.02521  0.02489            1
@@ -654,46 +654,29 @@ Figure&nbsp;7.3: The same SNPs tested two ways. Pooling three breeds makes 114 S
 </tbody>
 </table>
 <p>Pooled at 10⁻⁶, the filter would have thrown away 102 perfectly good SNPs. Within breed, it found exactly the 12 bad ones. So in multi-breed data, run the test in each breed and remove a SNP if it fails in any of them:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> b <span class="kw">in</span> ANG HOL NDA<span class="kw">;</span> <span class="cf">do</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">awk</span> <span class="at">-v</span> b=<span class="va">$b</span> <span class="st">'$3==b {print $1, $2}'</span> breed.clst <span class="op">&gt;</span> keep_<span class="va">$b</span>.txt</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--keep</span> keep_<span class="va">$b</span>.txt <span class="at">--hardy</span> <span class="at">--out</span> hwe_<span class="va">$b</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="st">'$3=="ALL" &amp;&amp; $9 &lt; 1e-6 {print $2}'</span> hwe_ANG.hwe hwe_HOL.hwe hwe_NDA.hwe <span class="kw">|</span> <span class="fu">sort</span> <span class="at">-u</span> <span class="op">&gt;</span> hwe_fail.txt</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--exclude</span> hwe_fail.txt <span class="at">--make-bed</span> <span class="at">--out</span> cattle_hwe</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> b <span class="kw">in</span> ANG HOL NDA<span class="kw">;</span> <span class="cf">do</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">awk</span> <span class="at">-v</span> b=<span class="va">$b</span> <span class="st">'$3==b {print $1, $2}'</span> breed.clst <span class="op">&gt;</span> keep_<span class="va">$b</span>.txt</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--keep</span> keep_<span class="va">$b</span>.txt <span class="at">--hardy</span> <span class="at">--out</span> hwe_<span class="va">$b</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="st">'$3=="ALL" &amp;&amp; $9 &lt; 1e-6 {print $2}'</span> hwe_ANG.hwe hwe_HOL.hwe hwe_NDA.hwe <span class="kw">|</span> <span class="fu">sort</span> <span class="at">-u</span> <span class="op">&gt;</span> hwe_fail.txt</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--exclude</span> hwe_fail.txt <span class="at">--make-bed</span> <span class="at">--out</span> cattle_hwe</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="step-5-choose-a-threshold" class="level3" data-number="7.2.3">
 <h3 data-number="7.2.3" class="anchored" data-anchor-id="step-5-choose-a-threshold"><span class="header-section-number">7.2.3</span> Step 5: choose a threshold</h3>
 <p>The p-value threshold works in the opposite direction from MAF: <strong>a smaller number is gentler.</strong> <code>--hwe 0.001</code> removes more SNPs than <code>--hwe 1e-10</code>. In livestock association studies, 10⁻⁶ applied within breed is a common choice. For selection-signature work be careful, because strong selection can itself push a SNP out of HWE, and that is exactly what you are looking for.</p>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Option</th>
-<th>What it does</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>--hwe 1e-6</code></td>
-<td>Remove SNPs with HWE p &lt; 10⁻⁶ (controls only when case/control)</td>
-</tr>
-<tr class="even">
-<td><code>--hwe 1e-6 include-nonctrl</code></td>
-<td>Use all animals</td>
-</tr>
-<tr class="odd">
-<td><code>--hwe 1e-6 midp</code></td>
-<td>Mid-p version of the exact test, slightly less conservative</td>
-</tr>
-<tr class="even">
-<td><code>--hardy midp</code></td>
-<td>Report mid-p values</td>
-</tr>
-</tbody>
-</table>
+<p>The options change which animals are tested and how the p-value is computed. On the raw file:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--hwe</span> 1e-6 <span class="at">--make-bed</span> <span class="at">--out</span> h1                     <span class="co"># controls (and founders) only</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--hwe</span> 1e-6 midp <span class="at">--make-bed</span> <span class="at">--out</span> h2                <span class="co"># mid-p exact test</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--hwe</span> 1e-6 include-nonctrl <span class="at">--make-bed</span> <span class="at">--out</span> h3     <span class="co"># cases too</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text"><code>h1: --hwe: 63 variants removed due to Hardy-Weinberg exact test.
+h2: --hwe: 66 variants removed due to Hardy-Weinberg exact test.
+h3: --hwe: 114 variants removed due to Hardy-Weinberg exact test.</code></pre>
+<ul>
+<li><strong>Default</strong>: when a case/control phenotype is loaded, PLINK 1.9 tests <strong>controls only</strong>, so a real disease SNP that is out of HWE in cases is not thrown away. Like <code>--freq</code>, it uses founders only; add <code>--nonfounders</code> to include calves (which breaks the independence the test assumes).</li>
+<li><strong><code>midp</code></strong>: the mid-p version of the exact test gives slightly smaller p-values (snp02321: 3.7 × 10⁻⁶ instead of 4.7 × 10⁻⁶), so it removes a few more SNPs (66 instead of 63). It is a little less conservative and is often recommended; say which one you used. <code>--hardy midp</code> reports mid-p values.</li>
+<li><strong><code>include-nonctrl</code></strong>: tests all founders, cases included. Use it for quantitative traits or when no phenotype is loaded (then it makes no difference).</li>
+<li>On the X chromosome, bulls carry one copy, so PLINK leaves them out of the test.</li>
+</ul>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -704,7 +687,11 @@ Figure&nbsp;7.3: The same SNPs tested two ways. Pooling three breeds makes 114 S
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><code>plink2 --freq</code> writes <code>.afreq</code>, <code>--geno-counts</code> replaces <code>--freqx</code>, and <code>--hardy</code> writes <code>.hardy</code> (autosomes) and <code>.hardy.x</code>. The filters <code>--maf</code> and <code>--hwe</code> work as in 1.9.</p>
+<p><code>plink2 --freq</code> writes <code>.afreq</code>, <code>--geno-counts</code> replaces <code>--freqx</code>, and <code>--hardy</code> writes <code>.hardy</code> (autosomes) and <code>.hardy.x</code>. <code>--maf</code> works as in 1.9, but <code>--hwe</code> does not: PLINK 2.0 has <strong>no special handling of cases and controls</strong>, so it tests all founders, cases included. On the raw practice file, <code>plink2 --hwe 1e-6</code> removed 113 SNPs where PLINK 1.9 (controls only) removed 63 (Chapter 17). For a controls-only filter, test the controls in one run and exclude the failures in the next (60 autosomal SNPs here; the other 3 that PLINK 1.9 flagged are on the X, which PLINK 2.0 tests separately and reports in <code>hwe_ctrl.hardy.x</code>):</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--keep-if</span> <span class="st">"PHENO1 == 1"</span> <span class="at">--hardy</span> <span class="at">--out</span> hwe_ctrl   <span class="co"># 217 controls</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="st">'NR &gt; 1 &amp;&amp; $NF &lt; 1e-6 {print $2}'</span> hwe_ctrl.hardy <span class="op">&gt;</span> hwe_fail.txt</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--exclude</span> hwe_fail.txt <span class="at">--make-pgen</span> <span class="at">--out</span> cattle_hwe</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>--hwe</code> also takes an optional second number k that tightens the threshold as the sample grows (the cut-off becomes p × 10<sup>-nk</sup> for n animals). PLINK 2.0 prints a warning suggesting it when the number of genotyped animals varies between SNPs; in multi-breed livestock data the within-breed test above matters far more.</p>
 </div>
 </div>
 
@@ -1134,7 +1121,7 @@ Figure&nbsp;7.3: The same SNPs tested two ways. Pooling three breeds makes 114 S
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-<p>PLINK for Livestock Genomics, by Ismaila Emmanuel</p>
+<p>PLINK for Livestock Genomics, by Ismaila Emmanuel Oluwasegun</p>
 </div>   
     <div class="nav-footer-center">
       &nbsp;

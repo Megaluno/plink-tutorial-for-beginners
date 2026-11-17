@@ -21,34 +21,87 @@ So p(C) = 4/16 = 0.25 and p(T) = 12/16 = 0.75. C is the minor allele, and MAF = 
 
 ### Step 1: compute frequencies
 
+PLINK has four ways to count alleles. All four were run on the same file; here is what each writes and how to read it.
+
+**`--freq`: the minor allele frequency of every SNP**
+
 ```bash
 plink --bfile cattle --cow --freq --out freq
+head -3 freq.frq
 ```
 
 ```text
  CHR        SNP   A1   A2          MAF  NCHROBS
    1   snp00001    G    A      0.02492      602
+   1   snp00002    C    A      0.04167      600
 ```
 
-NCHROBS (chromosomes observed) is 602, not 2 × 361 = 722, because PLINK counts **founders only** by default. A calf's alleles are copies of its parents' alleles, so counting calves would count some alleles twice. Add `--nonfounders` to count everyone.
+- **A1** is the minor allele and **MAF** its frequency: G is on 2.5% of chromosomes at snp00001.
+- **NCHROBS** (chromosomes observed) is 602, not 2 × 361 = 722, because PLINK counts **founders only** by default (the log says `Allele frequencies (founders only)`). A calf's alleles are copies of its parents' alleles, so counting calves would count some alleles twice. snp00002 has 600 because one founder is missing there.
+- On the X chromosome a bull carries one copy, so NCHROBS is smaller (497 at snp04551).
 
-| Command | Output | Extra information |
-|---|---|---|
-| `--freq` | `.frq` | MAF and number of allele copies |
-| `--freq counts` | `.frq.counts` | Allele counts instead of frequencies |
-| `--freqx` | `.frqx` | Genotype counts (hom A1, het, hom A2, haploid, missing) |
-| `--freq --within breed.clst` | `.frq.strat` | One line per SNP per breed |
+Add `--nonfounders` to count all 361 animals: snp00001 then has MAF 0.0292 from 720 chromosomes. Use the default for QC; `--nonfounders` is for a population with no pedigree recorded, where every animal is a founder anyway.
 
-The per-breed version is very informative in livestock:
+**`--freq counts`: the counts behind the frequency**
+
+```bash
+plink --bfile cattle --cow --freq counts --out freqc
+head -3 freqc.frq.counts
+```
+
+```text
+ CHR        SNP   A1   A2     C1     C2     G0
+   1   snp00001    G    A     15    587      0
+   1   snp00002    C    A     25    575      1
+```
+
+C1 and C2 are the numbers of A1 and A2 copies (15 / 602 = 0.0249, the MAF above), and G0 the number of founders with a missing genotype. Counts are what you need for minor allele count filters (`--mac`) and for small samples, where "MAF 0.01" might mean a single copy.
+
+**`--freqx`: genotype counts**
+
+```bash
+plink --bfile cattle --cow --freqx --out freqx
+head -3 freqx.frqx
+```
+
+```text
+CHR  SNP       A1  A2  C(HOM A1)  C(HET)  C(HOM A2)  C(HAP A1)  C(HAP A2)  C(MISSING)
+1    snp00001  G   A   0          15      286        0          0          0
+1    snp00002  C   A   1          23      276        0          0          1
+```
+
+Instead of alleles, it counts animals: at snp00001 no founder is G/G, 15 are G/A and 286 are A/A. The HAP columns are for haploid calls (bulls on the X). These are the counts you would check by hand for a Hardy-Weinberg calculation, or use to spot a SNP with no heterozygotes at all.
+
+**`--freq --within breed.clst`: one line per SNP per group**
+
+The cluster file has three columns, FID, IID and group, with no header:
+
+```text
+ANG ANG_001 ANG
+ANG ANG_002 ANG
+```
+
+```bash
+plink --bfile cattle --cow --freq --within breed.clst --out freq_breed
+grep -E "snp00001|snp00706" freq_breed.frq.strat
+```
 
 ```text
  CHR        SNP     CLST   A1   A2      MAF    MAC  NCHROBS
    1   snp00001      ANG    G    A   0.0125      2      160
    1   snp00001      HOL    G    A        0      0      222
    1   snp00001      NDA    G    A  0.05909     13      220
+   5   snp00706      ANG    A    C   0.6456    102      158
+   5   snp00706      HOL    A    C   0.4545    100      220
+   5   snp00706      NDA    A    C   0.3909     86      220
 ```
 
-The G allele is absent in Holstein but present in 6% of N'Dama chromosomes. A SNP can be rare overall and common in one breed.
+The output (`.frq.strat`) has 3 lines per SNP here (14,400 lines). **MAC** is the minor allele count in that group. Two things catch people out:
+
+1. The column called MAF is the frequency of **A1 as chosen for the whole file**, not the minor allele within each breed. At snp00706 the A allele is the minor allele overall, but in Angus its frequency is 0.65: in Angus, C is the minor allele. Read the column as "frequency of A1 in this group".
+2. Founders only, as before: the 120 family animals are left out, so the Holstein and N'Dama groups have 222 and 220 chromosomes (111 and 110 founders), not 282 and 280.
+
+Use the per-breed version to find SNPs that are rare overall but common in one breed (snp00001 is absent in Holstein but at 6% in N'Dama), and to apply MAF filters within breed.
 
 ### Step 2: look at the distribution and choose a threshold
 
@@ -120,14 +173,34 @@ plink --bfile cattle --cow --exclude hwe_fail.txt --make-bed --out cattle_hwe
 
 The p-value threshold works in the opposite direction from MAF: **a smaller number is gentler.** `--hwe 0.001` removes more SNPs than `--hwe 1e-10`. In livestock association studies, 10⁻⁶ applied within breed is a common choice. For selection-signature work be careful, because strong selection can itself push a SNP out of HWE, and that is exactly what you are looking for.
 
-| Option | What it does |
-|---|---|
-| `--hwe 1e-6` | Remove SNPs with HWE p < 10⁻⁶ (controls only when case/control) |
-| `--hwe 1e-6 include-nonctrl` | Use all animals |
-| `--hwe 1e-6 midp` | Mid-p version of the exact test, slightly less conservative |
-| `--hardy midp` | Report mid-p values |
+The options change which animals are tested and how the p-value is computed. On the raw file:
+
+```bash
+plink --bfile cattle --cow --hwe 1e-6 --make-bed --out h1                     # controls (and founders) only
+plink --bfile cattle --cow --hwe 1e-6 midp --make-bed --out h2                # mid-p exact test
+plink --bfile cattle --cow --hwe 1e-6 include-nonctrl --make-bed --out h3     # cases too
+```
+
+```text
+h1: --hwe: 63 variants removed due to Hardy-Weinberg exact test.
+h2: --hwe: 66 variants removed due to Hardy-Weinberg exact test.
+h3: --hwe: 114 variants removed due to Hardy-Weinberg exact test.
+```
+
+- **Default**: when a case/control phenotype is loaded, PLINK 1.9 tests **controls only**, so a real disease SNP that is out of HWE in cases is not thrown away. Like `--freq`, it uses founders only; add `--nonfounders` to include calves (which breaks the independence the test assumes).
+- **`midp`**: the mid-p version of the exact test gives slightly smaller p-values (snp02321: 3.7 × 10⁻⁶ instead of 4.7 × 10⁻⁶), so it removes a few more SNPs (66 instead of 63). It is a little less conservative and is often recommended; say which one you used. `--hardy midp` reports mid-p values.
+- **`include-nonctrl`**: tests all founders, cases included. Use it for quantitative traits or when no phenotype is loaded (then it makes no difference).
+- On the X chromosome, bulls carry one copy, so PLINK leaves them out of the test.
 
 ::: {.callout-note}
 ## PLINK 2.0
-`plink2 --freq` writes `.afreq`, `--geno-counts` replaces `--freqx`, and `--hardy` writes `.hardy` (autosomes) and `.hardy.x`. The filters `--maf` and `--hwe` work as in 1.9.
+`plink2 --freq` writes `.afreq`, `--geno-counts` replaces `--freqx`, and `--hardy` writes `.hardy` (autosomes) and `.hardy.x`. `--maf` works as in 1.9, but `--hwe` does not: PLINK 2.0 has **no special handling of cases and controls**, so it tests all founders, cases included. On the raw practice file, `plink2 --hwe 1e-6` removed 113 SNPs where PLINK 1.9 (controls only) removed 63 (Chapter 17). For a controls-only filter, test the controls in one run and exclude the failures in the next (60 autosomal SNPs here; the other 3 that PLINK 1.9 flagged are on the X, which PLINK 2.0 tests separately and reports in `hwe_ctrl.hardy.x`):
+
+```bash
+plink2 --bfile cattle --cow --keep-if "PHENO1 == 1" --hardy --out hwe_ctrl   # 217 controls
+awk 'NR > 1 && $NF < 1e-6 {print $2}' hwe_ctrl.hardy > hwe_fail.txt
+plink2 --bfile cattle --cow --exclude hwe_fail.txt --make-pgen --out cattle_hwe
+```
+
+`--hwe` also takes an optional second number k that tightens the threshold as the sample grows (the cut-off becomes p × 10<sup>-nk</sup> for n animals). PLINK 2.0 prints a warning suggesting it when the number of genotyped animals varies between SNPs; in multi-breed livestock data the within-breed test above matters far more.
 :::

@@ -72,6 +72,34 @@ chmod +x plink
 sudo cp plink /usr/local/bin/
 ```
 
+## Linux or macOS with conda
+
+If you already use conda (Miniconda, Anaconda, Miniforge or micromamba), the Bioconda channel has ready-made packages called `plink` (PLINK 1.9) and `plink2`. Conda puts the programs on your PATH inside the environment, so you do not have to unzip anything or run `chmod`.
+
+```bash
+# 1. once only: tell conda where to look (Bioconda needs conda-forge)
+conda config --add channels bioconda
+conda config --add channels conda-forge
+conda config --set channel_priority strict
+
+# 2. a separate environment for this course, with both versions
+conda create -n plink_course plink plink2
+conda activate plink_course
+
+# 3. check
+plink --version
+plink2 --version
+which plink          # e.g. /home/you/miniforge3/envs/plink_course/bin/plink
+```
+
+Things to know:
+
+- Run `conda activate plink_course` in every new terminal before using PLINK; otherwise `plink: command not found`.
+- `mamba` or `micromamba` accept the same commands and solve environments faster.
+- Bioconda's builds can lag behind the newest PLINK 2.0 build on the official page. If a flag from the PLINK 2.0 documentation is missing, compare `plink2 --version` with the date on the website and download the newer build by hand.
+- The Bioconda `plink` package is PLINK 1.9. For PLINK 1.07 (Chapters 14 and 15), download it by hand as above.
+- On Windows, use the zip download (or conda inside WSL, the Windows Subsystem for Linux).
+
 :::
 
 If you see a line such as `PLINK v1.9...`, you are ready. On macOS and Linux, `./plink` means "the plink in this folder". Once PLINK is on your PATH, you can type just `plink`.

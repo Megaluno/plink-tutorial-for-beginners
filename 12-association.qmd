@@ -89,7 +89,15 @@ plink --bfile cattle_qc --cow --allow-no-sex --logistic --covar pcs.txt --hide-c
 | HOLM, SIDAK_SS, SIDAK_SD | Step-down and Šidák versions of Bonferroni |
 | FDR_BH, FDR_BY | False discovery rate (Benjamini-Hochberg, Benjamini-Yekutieli) |
 
-After Bonferroni correction, snp00706 still has p = 1.0 × 10⁻⁴.
+The file is sorted from the smallest p-value down; here are its first two lines:
+
+```text
+ CHR        SNP      UNADJ         GC       BONF       HOLM   SIDAK_SS   SIDAK_SD     FDR_BH     FDR_BY
+   5   snp00706  2.294e-08  4.018e-08  0.0001018  0.0001018  0.0001018  0.0001018  0.0001018  0.0009139
+   5   snp00708  6.768e-05  9.067e-05     0.3004     0.3003     0.2595     0.2594     0.1502          1
+```
+
+Read each column as "the p-value after this correction": compare it with 0.05. snp00706 stays significant under every correction (Bonferroni: 2.29 × 10⁻⁸ × 4,439 tests = 1.0 × 10⁻⁴). Its neighbour snp00708 is significant before correction (6.8 × 10⁻⁵) but not after any (Bonferroni 0.30, FDR_BH 0.15). Bonferroni, Holm and Šidák control the chance of even one false positive and are strict; FDR_BH controls the expected *share* of false positives among the hits and is gentler, which suits screening many SNPs. GC divides each chi-square by λ, so it only makes sense when λ is close to 1 and the inflation is spread evenly. Note that these corrections treat the SNPs as independent; with SNPs in LD they are conservative, which is why permutation (Chapter 13) gives a sharper genome-wide threshold.
 
 ## Step 4: other tests for the same question
 
@@ -174,19 +182,25 @@ The same allele raises the risk in all three breeds.
 
 ## Which test should I use?
 
-```{mermaid}
-%%| fig-cap: "A simple guide to choosing a case/control test."
-flowchart TD
-  A[Case/control trait] --> B{More than one breed,<br/>herd or batch?}
-  B -- no --> C{Rare SNPs or<br/>small study?}
-  C -- yes --> D["--assoc fisher"]
-  C -- no --> E["--assoc or --model<br/>(check lambda with --adjust)"]
-  B -- yes --> F["--logistic with PCs or breed covariates<br/>or --mh --within"]
-  F --> G{Same effect in<br/>each group?}
-  G --> H["--bd or --homog"]
-  F --> I{Additive?}
-  I --> J["--logistic --genotypic<br/>(look at DOMDEV)"]
+![A simple guide to choosing a case/control test, with the PLINK command for each box.](images/flow_assoc_choice.png){#fig-assoc-choice}
+
+Each box of the figure as a command on the cleaned data, with the result for the BRD SNP snp00706 from the sections above:
+
+```bash
+# one breed, rare SNPs or a small study: exact test
+plink --bfile cattle_qc --cow --allow-no-sex --assoc fisher --out a_fisher          # p = 1.4e-08
+# one breed, common SNPs: allelic and genotype tests, and check lambda
+plink --bfile cattle_qc --cow --allow-no-sex --model --out m_all                    # TREND p = 9.8e-09
+plink --bfile cattle_qc --cow --allow-no-sex --assoc --adjust --out a_basic         # lambda = 10.19 here!
+# several breeds: model the structure
+plink --bfile cattle_qc --cow --allow-no-sex --logistic --covar pcs.txt --hide-covar --adjust --out lg_pc   # p = 2.3e-08, lambda 1.04
+plink --bfile cattle_qc --cow --allow-no-sex --mh --within breed.clst --out mh                              # p = 9.9e-09
+# then: same effect in every breed? additive?
+plink --bfile cattle_qc --cow --allow-no-sex --bd --within breed.clst --out bd                              # Breslow-Day p = 0.59
+plink --bfile cattle_qc --cow --allow-no-sex --logistic --covar pcs.txt --genotypic --out lg_geno          # DOMDEV p = 0.92
 ```
+
+Our data have three breeds, so the right-hand branch applies; the λ of 10.19 from the plain `--assoc` is the warning sign that sends you there.
 
 ::: {.callout-note}
 ## PLINK 2.0

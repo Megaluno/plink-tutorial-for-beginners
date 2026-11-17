@@ -107,6 +107,71 @@ plink --bfile cattle_real_qc --cow --r2 --ld-window-kb 5000 --ld-window 99999 --
 
 LD in both species stays above background over several megabases (@fig-ld-decay). That is typical of livestock: breeds were founded from few animals and selected hard, so their effective population size is small and long haplotypes survive. In practice it means a 50K chip tags most of the genome in a single breed, but LD-based results (pruning, clumping, imputation) must be redone for each breed.
 
+## Ascertainment bias: the chip decides part of the answer
+
+Every SNP chip is a selection. Its makers first found SNPs by sequencing a few animals (the *discovery panel*), then kept the SNPs that were common in those animals. That choice, called **SNP ascertainment**, shapes every statistic you compute from the chip. Breeds like the discovery animals look diverse; breeds that were not in the panel carry many chip SNPs that do not vary in them at all, and look less diverse than they are. For cattle this is well documented: the Bovine HapMap study found that African and Indian cattle had higher heterozygosity than European cattle in sequence data, but lower heterozygosity on SNP arrays, whose SNPs had mostly been found in taurine cattle (The Bovine HapMap Consortium, 2009). This matters directly for work on African breeds such as N'Dama, Sanga or zebu.
+
+### A simulation where we know the truth
+
+`scripts/simulate_ascertainment.py` simulates three breeds with msprime: two European-type breeds, EUR1 and EUR2, that split 40 generations ago, and an African-type breed, AFR, with a larger effective population size and therefore **more** diversity. From the same 150 study animals (50 per breed) it builds three SNP sets on five 20 Mb chromosomes:
+
+| SNP set | How the SNPs were chosen | SNPs |
+|---|---|---|
+| `seq` | A random sample of all SNPs that vary in the 150 animals, as from sequencing | 3,692 |
+| `chipEUR` | MAF ≥ 0.05 in a discovery panel of 10 extra EUR1 animals, about one per 25 kb (like a chip designed in one breed) | 3,692 |
+| `chipALL` | MAF ≥ 0.05 in a discovery panel with 10 animals of each breed, same density, thinned to the same number | 3,692 |
+
+Then every set went through the same PLINK commands (`scripts/ascertainment_pipeline.sh`):
+
+```bash
+plink --bfile chipEUR --cow --freq --within breeds.clst --out f_chipEUR     # allele frequency per breed
+plink --bfile chipEUR --cow --het --out h_chipEUR                           # observed heterozygosity per animal
+plink --bfile chipEUR --cow --keep EUR1_AFR.txt --fst --within breeds.clst --out fst_chipEUR
+plink --bfile chipEUR --cow --homozyg --homozyg-snp 40 --homozyg-kb 1000 --homozyg-density 100 \
+      --homozyg-gap 1000 --homozyg-window-snp 40 --out roh_chipEUR
+```
+
+![Left: expected heterozygosity of each breed on the three SNP sets. Right: the allele frequency spectrum within EUR1 and AFR on sequence and on the chip discovered in EUR1.](images/18_ascertainment.png){#fig-ascertainment}
+
+### How it shows up in PLINK output
+
+| Statistic (PLINK command) | Breed | Sequence (truth) | Chip found in EUR1 | Chip found in all breeds |
+|---|---|---|---|---|
+| SNPs monomorphic in the breed (`--freq --within`) | EUR1 | 53.5% | **0.6%** | 31.9% |
+| | AFR | 21.9% | **40.9%** | 24.5% |
+| Expected heterozygosity, mean 2pq (`--freq --within`) | EUR1 | 0.143 | 0.328 | 0.221 |
+| | EUR2 | 0.144 | 0.289 | 0.227 |
+| | AFR | **0.186** | **0.200** | **0.258** |
+| Observed heterozygosity (`--het`) | EUR1 / AFR | 0.140 / 0.190 | 0.321 / 0.205 | 0.216 / 0.264 |
+| F<sub>ST</sub> EUR1 vs AFR (`--fst`) | | 0.313 | 0.285 | 0.321 |
+| F<sub>ST</sub> EUR1 vs EUR2 (`--fst`) | | 0.120 | 0.118 | 0.128 |
+| F<sub>ROH</sub>, runs ≥ 1 Mb (`--homozyg`) | EUR1 / AFR | 0.257 / 0.055 | 0.174 / 0.049 | 0.196 / 0.027 |
+| Variance on PC1 / PC2 (`--pca`) | | 21.5% / 4.8% | 19.0% / 7.8% | 24.7% / 6.0% |
+
+The signs to look for in your own output:
+
+1. **`--freq --within` shows many SNPs with frequency 0 or 1 in one breed only.** On the EUR1-designed chip, 41% of SNPs did not vary at all in AFR, against 0.6% in EUR1. When one breed has far more monomorphic chip SNPs than the others, suspect that it was missing from the discovery panel.
+2. **The ranking of breeds by heterozygosity can turn upside down.** The truth is that AFR is the most diverse breed (0.186 against 0.143). On the EUR1 chip, AFR came out the *least* diverse (0.200 against 0.328 for EUR1). The multi-breed chip put the breeds back in the right order.
+3. **The allele frequency spectrum is flat instead of falling.** In sequence data most variants are rare (the grey AFR line falls steeply from the left). On the chip, rare variants are almost absent in the discovery breed, because the panel only kept common SNPs. Any statistic that depends on rare variants (Tajima's D, some selection scans, demographic inference) is distorted.
+4. **Absolute values cannot be compared across SNP sets.** Every chip gives far higher heterozygosity than sequence (0.33 against 0.14 in EUR1), simply because it selected variable SNPs. Never compare a heterozygosity from a 50K chip with one from sequence, from another chip, or from another study's SNP set.
+5. **F<sub>ST</sub> between the discovery breed and an outside breed is underestimated** (0.285 against 0.313), as reported for cattle when SNPs are chosen from some groups only (McTavish and Hillis, 2015). Between two breeds that are both close to the discovery panel, F<sub>ST</sub> was hardly affected.
+6. **Runs of homozygosity change with the SNP set.** A SNP that does not vary in a breed always looks homozygous, so it helps a run continue. AFR's F<sub>ROH</sub> was 0.049 on the EUR1 chip but 0.027 on the multi-breed chip, while EUR1's moved the other way (0.174 against 0.196). Compare F<sub>ROH</sub> only between animals typed on the same chip, and be careful comparing breeds that differ in how well the chip suits them.
+7. **PCA is the most robust.** The breeds separated in the same way on all three SNP sets, though the split of variance between PC1 and PC2 shifted. Malomane and colleagues (2018) found the same in chickens, comparing arrays with sequence.
+
+### Limiting the damage
+
+| Strategy | What it does | In our simulation |
+|---|---|---|
+| **Know your chip's discovery panel** | Read the chip paper. For the BovineSNP50 chip, SNPs were found mainly in taurine breeds (Matukumalli and colleagues, 2009); African Sanga breeds were not in the discovery process | |
+| **Use a chip discovered in all the breeds you compare, or sequence** | Removes the cause | Correct ranking of breeds, F<sub>ST</sub> 0.321 against 0.313 |
+| **LD pruning before diversity statistics** | Removes the dense clusters of SNPs the panel favoured; the best of several filtering strategies tested by Malomane and colleagues (2018) | Narrowed the gap (AFR 0.291, EUR1 0.323) but did not restore the right order, and lowered F<sub>ST</sub> (0.160 against 0.313), as they also reported |
+| **Compare within the same SNP set only** | Use chip results for relative comparisons (animals, herds, generations of one breed), not as absolute diversity | |
+| **Filter monomorphic SNPs per breed before per-breed analyses** | `--maf` within each breed (Chapter 7), so each breed is described by SNPs that vary in it; report how many were removed per breed | |
+| **Model the ascertainment** | Methods that correct the frequency spectrum when the discovery process is known (Nielsen and colleagues, 2004; reviewed by Lachance and Tishkoff, 2013) | |
+| **Report it** | Name the chip, its discovery breeds and your SNP filters, so readers can judge how far the comparison is fair | |
+
+The short version: a SNP chip is a good tool for questions *within* the breeds it was designed for, and a biased one for comparing diversity *between* breeds, especially when some of them, like many African breeds, were not in the discovery panel. LD pruning helps a little; sequence data, or a chip discovered across all the breeds you study, help most.
+
 ## What real data taught us
 
 | Lesson | Where it showed up |
@@ -117,3 +182,4 @@ LD in both species stays above background over several megabases (@fig-ld-decay)
 | Many related pairs are normal in a breed | Step 3 |
 | Multi-breed data need per-breed HWE, and F~ST~ measures breed separation | Steps 1 and 4 |
 | LD extends far in livestock, and differs between breeds | Step 5 |
+| A chip designed in other breeds can reverse the diversity ranking of breeds | Ascertainment bias |

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>14&nbsp; Haplotypes, proxy association and imputation – PLINK for Livestock Genomics</title>
+<title>14&nbsp; Haplotypes, phasing and imputation – PLINK for Livestock Genomics</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -106,9 +106,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
-<script src="site_libs/quarto-diagram/mermaid.min.js"></script>
-<script src="site_libs/quarto-diagram/mermaid-init.js"></script>
-<link href="site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 
 
 </head>
@@ -122,7 +119,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./12-association.html">Association analysis</a></li><li class="breadcrumb-item"><a href="./14-haplotypes.html"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, proxy association and imputation</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./12-association.html">Association analysis</a></li><li class="breadcrumb-item"><a href="./14-haplotypes.html"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, phasing and imputation</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -290,7 +287,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./14-haplotypes.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, proxy association and imputation</span></span></a>
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, phasing and imputation</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -379,16 +376,32 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#haplotype-frequencies-and-a-casecontrol-test" id="toc-haplotype-frequencies-and-a-casecontrol-test" class="nav-link" data-scroll-target="#haplotype-frequencies-and-a-casecontrol-test"><span class="header-section-number">14.2</span> Haplotype frequencies and a case/control test</a></li>
   <li><a href="#is-it-one-snp-or-the-whole-haplotype---chap" id="toc-is-it-one-snp-or-the-whole-haplotype---chap" class="nav-link" data-scroll-target="#is-it-one-snp-or-the-whole-haplotype---chap"><span class="header-section-number">14.3</span> Is it one SNP or the whole haplotype? <code>--chap</code></a></li>
   <li><a href="#proxy-association-do-the-neighbours-agree" id="toc-proxy-association-do-the-neighbours-agree" class="nav-link" data-scroll-target="#proxy-association-do-the-neighbours-agree"><span class="header-section-number">14.4</span> Proxy association: do the neighbours agree?</a></li>
-  <li><a href="#imputation-filling-in-snps-you-did-not-genotype" id="toc-imputation-filling-in-snps-you-did-not-genotype" class="nav-link" data-scroll-target="#imputation-filling-in-snps-you-did-not-genotype"><span class="header-section-number">14.5</span> Imputation: filling in SNPs you did not genotype</a></li>
+  <li><a href="#phasing-whole-chromosomes" id="toc-phasing-whole-chromosomes" class="nav-link" data-scroll-target="#phasing-whole-chromosomes"><span class="header-section-number">14.5</span> Phasing whole chromosomes</a>
+  <ul class="collapse">
+  <li><a href="#why-you-would-want-phased-data" id="toc-why-you-would-want-phased-data" class="nav-link" data-scroll-target="#why-you-would-want-phased-data"><span class="header-section-number">14.5.1</span> Why you would want phased data</a></li>
+  <li><a href="#the-practice-data-for-this-part" id="toc-the-practice-data-for-this-part" class="nav-link" data-scroll-target="#the-practice-data-for-this-part"><span class="header-section-number">14.5.2</span> The practice data for this part</a></li>
+  <li><a href="#how-a-vcf-and-plink-2.0-store-phase" id="toc-how-a-vcf-and-plink-2.0-store-phase" class="nav-link" data-scroll-target="#how-a-vcf-and-plink-2.0-store-phase"><span class="header-section-number">14.5.3</span> How a VCF and PLINK 2.0 store phase</a></li>
+  <li><a href="#why-we-do-not-phase-with-plink" id="toc-why-we-do-not-phase-with-plink" class="nav-link" data-scroll-target="#why-we-do-not-phase-with-plink"><span class="header-section-number">14.5.4</span> Why we do not phase with PLINK</a></li>
+  <li><a href="#how-beagle-shapeit-and-eagle-phase" id="toc-how-beagle-shapeit-and-eagle-phase" class="nav-link" data-scroll-target="#how-beagle-shapeit-and-eagle-phase"><span class="header-section-number">14.5.5</span> How BEAGLE, SHAPEIT and Eagle phase</a></li>
+  </ul></li>
+  <li><a href="#imputation-filling-in-the-snps-you-did-not-genotype" id="toc-imputation-filling-in-the-snps-you-did-not-genotype" class="nav-link" data-scroll-target="#imputation-filling-in-the-snps-you-did-not-genotype"><span class="header-section-number">14.6</span> Imputation: filling in the SNPs you did not genotype</a>
+  <ul class="collapse">
+  <li><a href="#step-1-prepare-the-two-files-so-they-match" id="toc-step-1-prepare-the-two-files-so-they-match" class="nav-link" data-scroll-target="#step-1-prepare-the-two-files-so-they-match"><span class="header-section-number">14.6.1</span> Step 1: prepare the two files so they match</a></li>
+  <li><a href="#step-2-run-the-imputation" id="toc-step-2-run-the-imputation" class="nav-link" data-scroll-target="#step-2-run-the-imputation"><span class="header-section-number">14.6.2</span> Step 2: run the imputation</a></li>
+  <li><a href="#step-3-how-good-is-it" id="toc-step-3-how-good-is-it" class="nav-link" data-scroll-target="#step-3-how-good-is-it"><span class="header-section-number">14.6.3</span> Step 3: how good is it?</a></li>
+  <li><a href="#step-4-bring-the-imputed-data-into-plink-2.0" id="toc-step-4-bring-the-imputed-data-into-plink-2.0" class="nav-link" data-scroll-target="#step-4-bring-the-imputed-data-into-plink-2.0"><span class="header-section-number">14.6.4</span> Step 4: bring the imputed data into PLINK 2.0</a></li>
+  <li><a href="#plink-1.07s-own-imputation-heuristic" id="toc-plink-1.07s-own-imputation-heuristic" class="nav-link" data-scroll-target="#plink-1.07s-own-imputation-heuristic"><span class="header-section-number">14.6.5</span> PLINK 1.07’s own imputation heuristic</a></li>
+  <li><a href="#imputation-in-livestock-practical-advice" id="toc-imputation-in-livestock-practical-advice" class="nav-link" data-scroll-target="#imputation-in-livestock-practical-advice"><span class="header-section-number">14.6.6</span> Imputation in livestock: practical advice</a></li>
+  </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Megaluno/plink-tutorial-for-beginners/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./12-association.html">Association analysis</a></li><li class="breadcrumb-item"><a href="./14-haplotypes.html"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, proxy association and imputation</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./12-association.html">Association analysis</a></li><li class="breadcrumb-item"><a href="./14-haplotypes.html"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, phasing and imputation</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span id="sec-hap" class="quarto-section-identifier"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, proxy association and imputation</span></span></h1>
+<h1 class="title"><span id="sec-hap" class="quarto-section-identifier"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, phasing and imputation</span></span></h1>
 </div>
 
 
@@ -406,7 +419,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <div class="lead">
-<p>A single SNP is one letter. A haplotype is a short word: the alleles that travel together on one chromosome copy. Haplotype tests can pick up an effect that no single SNP tags well, and they can tell you whether one SNP explains a whole region. This chapter also shows how neighbouring SNPs can stand in for a missing one, which is the idea behind imputation.</p>
+<p>A single SNP is one letter. A haplotype is a short word: the alleles that travel together on one chromosome copy. The first half of this chapter uses haplotypes of a few SNPs to test a region and to check a hit. The second half works on whole chromosomes: how phase is stored in PLINK 2.0, why PLINK is not the tool for phasing, how BEAGLE, SHAPEIT and Eagle do it, and how imputation turns a cheap chip into a dense one.</p>
 </div>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -418,7 +431,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>PLINK 1.9 and 2.0 dropped the haplotype tools, so this chapter uses the old PLINK 1.07 (<code>plink107</code>). Every 1.07 command needs <code>--noweb</code>, which stops it trying to check for updates online. Today most people phase with BEAGLE or SHAPEIT and impute with BEAGLE, Minimac or IMPUTE5, but the logic below is the same, and it is easier to see on a small example.</p>
+<p>PLINK 1.9 and 2.0 dropped the haplotype tests, so the first half of this chapter uses the old PLINK 1.07 (<code>plink107</code>). Every 1.07 command needs <code>--noweb</code>, which stops it trying to check for updates online. The second half uses PLINK 2.0 to store and analyse phased and imputed data, while the phasing and imputation themselves are done by other programs.</p>
 </div>
 </div>
 <p>We work on one small region around the BRD SNP, cut out with PLINK 1.9:</p>
@@ -576,27 +589,524 @@ Of 60 subhaplotypes considered, 5 met proxy criteria
          .. TG      0.543      0.588       2.73       36.4   1.57e-09</code></pre>
 <p>Read <code>.. TG</code> as: skip the two proxy SNPs on the left and use the next two. That two-SNP haplotype has r² = 0.59 with snp00706 and gives the same signal, so the hit is backed by its neighbours. Settings to know: <code>--proxy-r2</code>, <code>--proxy-window 15</code>, <code>--proxy-kb 250</code>; <code>--proxy-tdt</code> for families and <code>--proxy-glm</code> for measured traits.</p>
 </section>
-<section id="imputation-filling-in-snps-you-did-not-genotype" class="level2" data-number="14.5">
-<h2 data-number="14.5" class="anchored" data-anchor-id="imputation-filling-in-snps-you-did-not-genotype"><span class="header-section-number">14.5</span> Imputation: filling in SNPs you did not genotype</h2>
-<p>Suppose your animals were typed on a smaller chip than a reference group. The reference animals show which haplotypes go with which alleles at the missing SNPs, so the missing genotypes can be predicted from the neighbours.</p>
-<div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>flowchart LR</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  R["Reference panel&lt;br/&gt;A-G-&lt;b&gt;T&lt;/b&gt;-C&lt;br/&gt;C-T-&lt;b&gt;G&lt;/b&gt;-A"] --&gt; M{"Match the study&lt;br/&gt;haplotype A-G-?-C"}</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  S["Study animal&lt;br/&gt;A-G-?-C"] --&gt; M</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  M --&gt; I["Imputed allele: T&lt;br/&gt;(with a probability)"]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<p></p><figure class="figure"><p></p>
-<div>
-
+<section id="phasing-whole-chromosomes" class="level2" data-number="14.5">
+<h2 data-number="14.5" class="anchored" data-anchor-id="phasing-whole-chromosomes"><span class="header-section-number">14.5</span> Phasing whole chromosomes</h2>
+<p>So far PLINK has dealt with phase a few SNPs at a time, and only as haplotype <em>frequencies</em> in the group, or as several weighted guesses per animal. Many modern analyses need more: for every animal, the actual sequence of alleles on each of its two chromosome copies, from one end of the chromosome to the other.</p>
+<section id="why-you-would-want-phased-data" class="level3" data-number="14.5.1">
+<h3 data-number="14.5.1" class="anchored" data-anchor-id="why-you-would-want-phased-data"><span class="header-section-number">14.5.1</span> Why you would want phased data</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Use</th>
+<th>Why phase is needed</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Imputation</strong> (next section)</td>
+<td>The program matches each of the animal’s two haplotypes to haplotypes in a reference panel; nearly every imputation program phases the targets first or while it imputes</td>
+</tr>
+<tr class="even">
+<td><strong>Haplotype-based selection signatures</strong> (EHH, iHS, XP-EHH)</td>
+<td>These statistics follow how far a haplotype stays intact around a core SNP</td>
+</tr>
+<tr class="odd">
+<td><strong>Parent-of-origin effects and imprinting</strong></td>
+<td>You need to know which allele came from the sire and which from the dam</td>
+</tr>
+<tr class="even">
+<td><strong>Haplotype models in genomic prediction</strong>, local ancestry in crossbreds</td>
+<td>The units of the model are haplotypes or haplotype blocks, not single SNPs</td>
+</tr>
+<tr class="odd">
+<td><strong>Phased r², LD-based estimates of effective population size</strong></td>
+<td>The formulas assume haplotype frequencies (Chapter 9)</td>
+</tr>
+</tbody>
+</table>
+<p>Single-SNP QC, PCA, relatedness and ordinary association tests do <strong>not</strong> need phase: they work on genotype counts.</p>
+</section>
+<section id="the-practice-data-for-this-part" class="level3" data-number="14.5.2">
+<h3 data-number="14.5.2" class="anchored" data-anchor-id="the-practice-data-for-this-part"><span class="header-section-number">14.5.2</span> The practice data for this part</h3>
+<p>The cattle file from Chapter 4 has only a few hundred SNPs per chromosome, which is too sparse for imputation. So this part uses a second simulation, made with the coalescent simulator msprime by <code>scripts/simulate_phasing.py</code> (files in <code>data/phasing/</code>). It models 10 Mb of chromosome 14 (20 to 30 Mb) in two breeds, A and B, that separated 60 generations ago and have each had an effective population size of 150 since then. The two breeds end up with an F<sub>ST</sub> of about 0.08, roughly the distance between two European beef breeds.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>File</th>
+<th>Animals</th>
+<th>SNPs</th>
+<th>Phased?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>ref_A_hd.vcf.gz</code></td>
+<td>150 of breed A, typed on a dense “HD” panel</td>
+<td>2,080</td>
+<td>Yes (the reference panel)</td>
+</tr>
+<tr class="even">
+<td><code>ref_B_hd.vcf.gz</code></td>
+<td>150 of breed B, same panel</td>
+<td>2,080</td>
+<td>Yes</td>
+</tr>
+<tr class="odd">
+<td><code>target_chip.vcf.gz</code></td>
+<td>100 other animals of breed A, typed on a sparser “chip” (148 calls missing, 30 genotyping errors)</td>
+<td>294</td>
+<td>No</td>
+</tr>
+<tr class="even">
+<td><code>truth_target_hd.vcf.gz</code></td>
+<td>The same 100 animals, all 2,080 SNPs, true haplotypes</td>
+<td>2,080</td>
+<td>Yes: the answer key, which never exists in real life</td>
+</tr>
+<tr class="odd">
+<td><code>target_pheno.txt</code></td>
+<td>Weaning weight of the 100 targets, with a QTL at a SNP that is <strong>not</strong> on the chip</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>chr14.map</code></td>
+<td>Genetic map in PLINK format (1 cM per Mb)</td>
+<td>2,080</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="how-a-vcf-and-plink-2.0-store-phase" class="level3" data-number="14.5.3">
+<h3 data-number="14.5.3" class="anchored" data-anchor-id="how-a-vcf-and-plink-2.0-store-phase"><span class="header-section-number">14.5.3</span> How a VCF and PLINK 2.0 store phase</h3>
+<p>In a VCF, a genotype written with a slash, <code>0/1</code>, is unphased: the animal carries one REF and one ALT allele, in unknown order. A genotype written with a bar, <code>0|1</code>, is phased: REF is on the first chromosome copy and ALT on the second, and <code>1|0</code> is the opposite. Read along a chromosome, the left-hand alleles form one haplotype and the right-hand alleles the other.</p>
+<p>PLINK 2.0’s <code>.pgen</code> format keeps this information. PLINK 1.9’s <code>.bed</code> format cannot: it stores only the number of copies of an allele, so phase is lost the moment data pass through a <code>.bed</code> file.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--vcf</span> ref_A_hd.vcf.gz <span class="at">--chr-set</span> 29 <span class="at">--make-pgen</span> <span class="at">--out</span> refA</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--pfile</span> refA <span class="at">--pgen-info</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>These files hold only chromosome 14 and no sexes, so <code>--chr-set 29</code> (29 autosomes) is all PLINK needs; <code>--cow</code> gives the same results.</p>
+<pre class="text"><code>--pgen-info on refA.pgen:
+  Variants: 2080
+  Samples: 150
+  REF alleles are all known
+  Maximum allele count for a single variant: 2
+  Explicitly phased hardcalls present
+  No dosages present</code></pre>
+<p>We then sent the same data along three routes and looked at the first SNP of the first six animals in the VCF that came out:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Route</th>
+<th>Commands</th>
+<th>REF, ALT</th>
+<th>Genotypes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Original file</td>
+<td></td>
+<td>A, G</td>
+<td><code>1\|1 1\|1 0\|0 0\|1 1\|1 1\|1</code></td>
+</tr>
+<tr class="even">
+<td><code>.pgen</code> and back</td>
+<td><code>--make-pgen</code>, then <code>--export vcf</code></td>
+<td>A, G</td>
+<td><code>1\|1 1\|1 0\|0 0\|1 1\|1 1\|1</code></td>
+</tr>
+<tr class="odd">
+<td>Through a <code>.bed</code></td>
+<td><code>--make-bed</code>, then <code>plink2 --bfile ... --export vcf</code></td>
+<td>A, G (INFO: <code>PR</code>)</td>
+<td><code>1/1 1/1 0/0 0/1 1/1 1/1</code></td>
+</tr>
+<tr class="even">
+<td>Through PLINK 1.9</td>
+<td><code>plink --vcf ... --make-bed</code>, then <code>plink --recode vcf-iid</code></td>
+<td><strong>G, A</strong> (INFO: <code>PR</code>)</td>
+<td><code>0/0 0/0 1/1 0/1 0/0 0/0</code></td>
+</tr>
+</tbody>
+</table>
+<p>The <code>.bed</code> route lost the phase: <code>--pgen-info</code> on a file made from it says “No hardcalls are explicitly phased” and “REF alleles are all provisional” (the <code>PR</code> flag in the VCF). The PLINK 1.9 route did worse: PLINK 1.9 made the minor allele A1 (Chapter 3) and wrote A1 as ALT, so REF and ALT swapped places and every genotype was recoded. The genotypes are still correct, but this file no longer matches the reference panel, and imputation programs will refuse those SNPs or, worse, treat them as different SNPs. We come back to this below.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
 </div>
-<p></p><figcaption> The idea of imputation. Reference animals (top) are typed at all SNPs; study animals (bottom) are missing some. A matching haplotype in the reference predicts the missing allele.</figcaption> </figure><p></p>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Keep phased data out of <code>.bed</code> files
 </div>
 </div>
+<div class="callout-body-container callout-body">
+<p>Once data are phased, store them as <code>.pgen</code> or as VCF/BCF, never as <code>.bed</code>. If you must use PLINK 1.9 on them, keep the phased VCF as the master copy. <code>--make-pgen erase-phase</code> removes phase deliberately when you need to.</p>
 </div>
-<p>PLINK 1.07 treats animals with a missing phenotype as the reference panel. We made 90 animals the reference (phenotype -9), hid 8 SNPs (including snp00706) in the other 261, and asked PLINK to fill them in:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink107</span> <span class="at">--noweb</span> <span class="at">--file</span> masked <span class="at">--cow</span> <span class="at">--proxy-impute</span> all <span class="at">--proxy-replace</span> <span class="at">--make-bed</span> <span class="at">--out</span> imputed</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Because we hid the true genotypes ourselves, we can check the answers:</p>
+</div>
+<p>PLINK 2.0 can write phased data in the formats phasing and haplotype programs read:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--pfile</span> refA <span class="at">--chr-set</span> 29 <span class="at">--export</span> haps ref-first <span class="at">--out</span> refA_haps    <span class="co"># .haps + .sample (SHAPEIT, IMPUTE, selscan)</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--pfile</span> refA <span class="at">--chr-set</span> 29 <span class="at">--export</span> vcf bgz <span class="at">--out</span> refA_phased         <span class="co"># phased VCF, block-gzipped</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--pfile</span> refA <span class="at">--chr-set</span> 29 <span class="at">--export</span> beagle-phased <span class="at">--out</span> refA_bgl      <span class="co"># old BEAGLE 3 format</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>--export haps</code> stops with <code>Error: '--export haps' must be used with a fully phased dataset.</code> when you give it the unphased <code>.bed</code> version, a useful safety check. Without <code>ref-first</code>, PLINK lists the ALT allele first in each <code>.haps</code> line, so a 0 means ALT; with <code>ref-first</code>, 0 means REF, as in a VCF. Check which convention the next program expects.</p>
+<p><code>--r2-phased</code> (Chapter 9) uses the real phase when it is there. With unphased data it falls back on EM, and for single pairs of SNPs EM works well: over 85,189 pairs of SNPs less than 200 kb apart, the r² from EM differed from the r² computed with the true phase by 0.003 on average (only 376 pairs by more than 0.05). The unphased r² differed from both by 0.017 on average. So <strong>pairwise LD does not need phased data. Whole haplotypes do.</strong></p>
+</section>
+<section id="why-we-do-not-phase-with-plink" class="level3" data-number="14.5.4">
+<h3 data-number="14.5.4" class="anchored" data-anchor-id="why-we-do-not-phase-with-plink"><span class="header-section-number">14.5.4</span> Why we do not phase with PLINK</h3>
+<p>Three reasons, from the simplest to the most important.</p>
+<ol type="1">
+<li><p><strong>PLINK 1.9 and 2.0 have no phasing algorithm.</strong> They store, convert, filter and export phased data, but every phased genotype in a <code>.pgen</code> file was phased by another program.</p></li>
+<li><p><strong>PLINK 1.07 phases only short windows, each on its own.</strong> Its EM algorithm must consider every possible haplotype in a window, and the number of possible haplotypes doubles with each extra SNP (2<sup>k</sup> for k SNPs). So it works in windows of a few SNPs, and it phases each window separately. We ran it on the 100 target animals:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--vcf</span> target_fixed.vcf.gz <span class="at">--chr-set</span> 29 <span class="at">--double-id</span> <span class="at">--keep-allele-order</span> <span class="at">--recode</span> <span class="at">--out</span> target</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink107</span> <span class="at">--noweb</span> <span class="at">--file</span> target <span class="at">--cow</span> <span class="at">--hap-window</span> 6 <span class="at">--hap-phase</span> <span class="at">--out</span> p107</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>It wrote 289 separate files (<code>p107.phase-WIN1</code> to <code>p107.phase-WIN289</code>), one per window of 6 SNPs. Within a window it did well: compared with the true haplotypes, it got the phase right in 96.0% of the 17,397 animal-windows that had at least two heterozygous SNPs. But nothing links window 1 to window 2. To build a chromosome-long haplotype you would have to decide 288 times which haplotype of one window continues which haplotype of the next, and PLINK gives no help with that.</p></li>
+<li><p><strong>It cannot use the information that makes phasing accurate.</strong> Good phasing borrows from many other animals at once, models recombination along the chromosome, allows for genotyping errors, can use a phased reference panel and, in livestock, the pedigree. PLINK 1.07 uses only haplotype frequencies inside each window.</p></li>
+</ol>
+</section>
+<section id="how-beagle-shapeit-and-eagle-phase" class="level3" data-number="14.5.5">
+<h3 data-number="14.5.5" class="anchored" data-anchor-id="how-beagle-shapeit-and-eagle-phase"><span class="header-section-number">14.5.5</span> How BEAGLE, SHAPEIT and Eagle phase</h3>
+<p>Nearly all modern programs build on one idea, the <em>copying model</em> of Li and Stephens (2003). An animal’s chromosome is not unique: over short distances it looks like the chromosomes of other animals in the population, because they share ancestors. So the program describes each chromosome copy of the animal as a <strong>mosaic of pieces copied from other haplotypes</strong> (the reference panel, or the other animals in the study). Moving along the chromosome, the copy usually continues from the same haplotype, and switches to another one only where a recombination happened in their shared history. Switches are more likely over long genetic distances, and a few mismatches are allowed for mutations and genotyping errors. This is a <em>hidden Markov model</em>: the hidden state is “which pair of haplotypes is being copied here”, and the genotypes are the observations.</p>
+<div id="fig-ls-mosaic" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ls-mosaic-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/16_ls_mosaic.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ls-mosaic-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;14.1: The copying model in action, for one target animal of the practice data. Each colour is one reference haplotype. With a reference of only 10 animals, each chromosome is copied in many short pieces from different haplotypes; with 150 animals, a close relative in the reference carries the same haplotype along all 10 Mb.
+</figcaption>
+</figure>
+</div>
+<p>The figure comes from <code>scripts/ls_impute.py</code>, a short program written for this book. It fits the Li and Stephens model directly: it tries every pair of reference haplotypes at every chip SNP, so you can read every step. The Viterbi path of the model (the single most likely mosaic) gives the phased genotypes, and the forward-backward probabilities give the imputed dosages. Real programs do the same job thousands of times faster with clever shortcuts:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Program</th>
+<th>How it speeds up the copying model</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>BEAGLE 5</strong> (Browning and colleagues, 2018, 2021)</td>
+<td>Imputes from a small set of “composite” reference haplotypes built for each target animal; phases in two stages (common variants first, then rare ones); works in overlapping windows</td>
+<td>Phases and imputes in one run; reads VCF or its fast <code>bref3</code> reference format</td>
+</tr>
+<tr class="even">
+<td><strong>SHAPEIT5</strong> (Hofmeister and colleagues, 2023; earlier SHAPEIT4, Delaneau and colleagues, 2019)</td>
+<td>Uses the positional Burrows-Wheeler transform (PBWT) to pick the most similar haplotypes as copying states</td>
+<td>Phasing only (<code>phase_common</code> for common variants, <code>phase_rare</code> for rare ones); can use parent-offspring information (<code>--pedigree</code>)</td>
+</tr>
+<tr class="odd">
+<td><strong>Eagle2</strong> (Loh and colleagues, 2016)</td>
+<td>Finds long shared segments quickly, then runs a copying model on the best candidates</td>
+<td>Phasing only, with or without a reference; human genetic maps built in, a constant 1 cM per Mb map supplied for other species</td>
+</tr>
+</tbody>
+</table>
+<p>For imputation after phasing with SHAPEIT or Eagle, the usual partners are Minimac4 and IMPUTE5.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Livestock have one big advantage: relatives
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In a breed with a small effective population size, an animal’s chromosome is often shared almost entirely with a sire, a half sib or a cousin in the reference. That is why the 150-animal panel in <a href="#fig-ls-mosaic" class="quarto-xref">Figure&nbsp;<span>14.1</span></a> needed a single piece per chromosome. Programs written for livestock exploit this directly. <strong>FImpute</strong> (Sargolzaei and colleagues, 2014) first uses the pedigree (family imputation) and then searches the population for long shared haplotypes with overlapping sliding windows; it is widely used in cattle breeding programs. SHAPEIT5 can also use parent-offspring information.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="imputation-filling-in-the-snps-you-did-not-genotype" class="level2" data-number="14.6">
+<h2 data-number="14.6" class="anchored" data-anchor-id="imputation-filling-in-the-snps-you-did-not-genotype"><span class="header-section-number">14.6</span> Imputation: filling in the SNPs you did not genotype</h2>
+<p>Suppose your animals were typed on a cheap chip and a group of reference animals on a dense panel or by whole-genome sequencing. The reference animals show which haplotypes go with which alleles at the missing SNPs, so the missing genotypes can be predicted from the chip SNPs around them.</p>
+<div id="fig-imp-idea" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-imp-idea-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/flow_imputation.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-imp-idea-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;14.2: The idea of imputation. Each chromosome copy of the study animal is matched to the reference haplotype it shares; the allele that haplotype carries at the missing SNP is the imputed allele.
+</figcaption>
+</figure>
+</div>
+<p>In commands, the route from a chip file to imputed data in PLINK 2.0 is the one this section follows step by step:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 1: make REF/ALT match the reference panel, and QC</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--vcf</span> lab_vcf.vcf <span class="at">--chr-set</span> 29 <span class="at">--ref-allele</span> force ref_allele_list.txt 2 1 <span class="at">--export</span> vcf bgz <span class="at">--out</span> target_fixed</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 2: phase and impute (BEAGLE in practice; the teaching program here)</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> scripts/ls_impute.py ref_A_hd.vcf.gz target_fixed.vcf.gz chr14.map target_imputed</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 3: measure accuracy (here against the truth; in practice by masking)</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> scripts/eval_imputation.py target_imputed.vcf.gz truth_target_hd.vcf.gz target_chip.vcf.gz</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 4: dosages into PLINK 2.0, quality filter, association</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--vcf</span> target_imputed.vcf.gz dosage=DS <span class="at">--chr-set</span> 29 <span class="at">--make-pgen</span> <span class="at">--out</span> imp</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--pfile</span> imp <span class="at">--chr-set</span> 29 <span class="at">--extract-if-info</span> <span class="st">"DR2 &gt;= 0.8"</span> <span class="at">--make-pgen</span> <span class="at">--out</span> imp_dr2</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--pfile</span> imp_dr2 <span class="at">--chr-set</span> 29 <span class="at">--pheno</span> target_pheno.txt <span class="at">--pheno-name</span> WWT <span class="at">--glm</span> allow-no-covars <span class="at">--out</span> imp</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Imputation gives a probability for each genotype, not a certainty. The most useful summary is the <strong>dosage</strong>: the expected number of ALT alleles, a number between 0 and 2 (Chapter 13). A dosage of 1.97 means “almost surely two copies”; a dosage of 1.1 means “probably heterozygous, but not sure”.</p>
+<section id="step-1-prepare-the-two-files-so-they-match" class="level3" data-number="14.6.1">
+<h3 data-number="14.6.1" class="anchored" data-anchor-id="step-1-prepare-the-two-files-so-they-match"><span class="header-section-number">14.6.1</span> Step 1: prepare the two files so they match</h3>
+<p>Most failed imputations fail here, not in the imputation program. The target and the reference must agree on:</p>
+<ol type="1">
+<li><strong>The genome assembly.</strong> All positions must come from the same assembly (for cattle today, ARS-UCD1.2 or ARS-UCD2.0). Never mix files from different assemblies; convert positions first.</li>
+<li><strong>The SNP names, positions and alleles.</strong> BEAGLE requires reference and target markers to match on CHROM, POS, REF and ALT.</li>
+<li><strong>The strand and the REF allele.</strong> This is where PLINK 1.9 bites. Our chip data had travelled through PLINK 1.9 once (<code>--make-bed</code>, then <code>--recode vcf-iid</code>), as often happens when a lab sends PLINK files:</li>
+</ol>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># what happened to the chip file before it reached us</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--vcf</span> target_chip.vcf.gz <span class="at">--chr-set</span> 29 <span class="at">--double-id</span> <span class="at">--make-bed</span> <span class="at">--out</span> lab</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> lab <span class="at">--chr-set</span> 29 <span class="at">--recode</span> vcf-iid <span class="at">--out</span> lab_vcf</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># compare REF/ALT of the target with the reference, SNP by SNP</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> ref_A_hd.vcf.gz <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-v</span> <span class="st">"^#"</span> <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-f3,4,5</span> <span class="kw">|</span> <span class="fu">sort</span> <span class="op">&gt;</span> ref_alleles.txt</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-v</span> <span class="st">"^#"</span> lab_vcf.vcf <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-f3,4,5</span> <span class="kw">|</span> <span class="fu">sort</span> <span class="op">&gt;</span> tgt_alleles.txt</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="fu">join</span> ref_alleles.txt tgt_alleles.txt <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">awk</span> <span class="st">'{n++; if($2==$4 &amp;&amp; $3==$5) same++; else if($2==$5 &amp;&amp; $3==$4) swap++; else other++}</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="st">       END {print n, "shared:", same, "same,", swap, "swapped,", other+0, "other"}'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text"><code>294 shared: 224 same, 70 swapped, 0 other</code></pre>
+<p>70 of 294 SNPs had REF and ALT swapped, because PLINK 1.9 had made the minor allele A1. Set the REF allele from the reference panel with PLINK 2.0:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> ref_A_hd.vcf.gz <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-v</span> <span class="st">"^#"</span> <span class="kw">|</span> <span class="fu">awk</span> <span class="st">'{print $3"\t"$4}'</span> <span class="op">&gt;</span> ref_allele_list.txt   <span class="co"># SNP name, REF allele</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--vcf</span> lab_vcf.vcf <span class="at">--chr-set</span> 29 <span class="at">--ref-allele</span> force ref_allele_list.txt 2 1 <span class="dt">\</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">--export</span> vcf bgz <span class="at">--out</span> target_fixed</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text"><code>--ref-allele: 70 sets of allele codes permuted.
+Warning: 1786 variant IDs in --ref-allele file missing from main dataset.</code></pre>
+<p>After this, all 294 SNPs matched. (The warning is expected: those are the SNPs that are only in the reference.) With real data, also look for SNPs whose two alleles are different letters in the two files, which means a strand difference, and remove A/T and C/G SNPs if the strand is uncertain (Chapter 5). BEAGLE’s companion tool <code>conform-gt</code> and <code>bcftools +fixref</code> do these checks for VCF files; with <code>--ref-from-fa</code>, PLINK 2.0 can set REF alleles from the genome’s FASTA file instead of from a panel.</p>
+<ol start="4" type="1">
+<li><strong>Quality control on both files</strong>, as in Chapters 6 to 8, using the same thresholds. Our target passed easily (no SNP above 5% missing, worst animal 1.7% missing, no SNP failing HWE at 10⁻⁶).</li>
+<li><strong>One chromosome per run, sorted by position</strong>, and the genetic map for that chromosome.</li>
+</ol>
+</section>
+<section id="step-2-run-the-imputation" class="level3" data-number="14.6.2">
+<h3 data-number="14.6.2" class="anchored" data-anchor-id="step-2-run-the-imputation"><span class="header-section-number">14.6.2</span> Step 2: run the imputation</h3>
+<p>The commands for the standard programs look like this. They are shown for reference only: these programs could not be installed in the environment where this book was built, so <strong>these four commands were not run here</strong>. Check each program’s manual for your version.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># BEAGLE 5: phases the target and imputes in one run</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="ex">java</span> <span class="at">-Xmx8g</span> <span class="at">-jar</span> beagle.jar gt=target_fixed.vcf.gz ref=ref_A_hd.vcf.gz map=chr14.map <span class="dt">\</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>     out=target_imputed gp=true nthreads=4</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="co"># SHAPEIT5 to phase (target as indexed BCF), then Minimac4 to impute</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="ex">phase_common</span> <span class="at">--input</span> target_fixed.bcf <span class="at">--reference</span> ref_A_hd.bcf <span class="at">--map</span> chr14.gmap.gz <span class="dt">\</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>             <span class="at">--region</span> 14 <span class="at">--output</span> target_phased.bcf <span class="at">--thread</span> 4</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="ex">minimac4</span> <span class="at">--compress-reference</span> ref_A_hd.bcf <span class="op">&gt;</span> ref_A_hd.msav</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="ex">minimac4</span> ref_A_hd.msav target_phased.bcf <span class="at">-o</span> target_imputed.vcf.gz</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>A few settings matter for livestock. BEAGLE’s default effective population size, <code>ne=100000</code>, suits large human panels; with unphased targets BEAGLE estimates <code>ne</code> and the error rate from the data before phasing, but for a single breed you can also set a small value yourself. SHAPEIT and Eagle need a genetic map in their own formats; without a map for your species, a constant 1 cM per Mb is the usual stand-in (BEAGLE assumes this when <code>map=</code> is left out). PLINK’s <code>.map</code> file, with its centimorgan column, is exactly the format BEAGLE’s <code>map=</code> expects.</p>
+<p>What we actually ran is the teaching program, on the same files:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> scripts/ls_impute.py ref_A_hd.vcf.gz target_fixed.vcf.gz chr14.map target_imputed</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text"><code>reference: 150 animals (300 haplotypes), 2080 SNPs; target: 100 animals, 294 typed SNPs shared with the reference
+wrote target_imputed.vcf.gz: 2080 SNPs (1786 imputed), 100 animals, 147 s</code></pre>
+<p>Its output VCF has the same layout as BEAGLE’s: phased genotypes (<code>GT</code>), dosages (<code>DS</code>) and genotype probabilities (<code>GP</code>) for every animal, and in the INFO column the estimated ALT frequency (<code>AF</code>), the quality score <code>DR2</code> and the flag <code>IMP</code> for SNPs that were imputed rather than typed:</p>
+<pre class="text"><code>#CHROM POS      ID      REF ALT ... INFO                     FORMAT   T_001
+14     20001016 hd00001 A   G   ... AF=0.6200;DR2=1.000      GT:DS:GP 1|0:1.000:0.000,1.000,0.000
+14     20005399 hd00002 T   C   ... AF=0.3550;DR2=1.000;IMP  GT:DS:GP 0|1:1.000:0.000,1.000,0.000</code></pre>
+<p>T_001 is heterozygous at both SNPs; the first was on the chip, the second was imputed (<code>IMP</code>). The phase says G (ALT) at the first SNP sits on the same chromosome copy as T (REF) at the second.</p>
+</section>
+<section id="step-3-how-good-is-it" class="level3" data-number="14.6.3">
+<h3 data-number="14.6.3" class="anchored" data-anchor-id="step-3-how-good-is-it"><span class="header-section-number">14.6.3</span> Step 3: how good is it?</h3>
+<p>In a real study you never see the true genotypes of the imputed SNPs. The standard way to measure accuracy is <strong>masking</strong>: hide some genotypes you do know (for example, a few reference animals treated as targets, or a few chip SNPs), impute them, and compare. Our simulation gives us the answer key directly, so we imputed the 100 targets five times, with different reference panels, and compared every imputed genotype with the truth (<code>scripts/eval_imputation.py</code>):</p>
+<div id="fig-imp-acc" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-imp-acc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/16_imputation_accuracy.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-imp-acc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;14.3: Accuracy of the 1,786 imputed SNPs with five reference panels, by minor allele frequency. Left: r² between dosage and true genotype. Right: share of best-guess genotypes that were correct.
+</figcaption>
+</figure>
+</div>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference panel</th>
+<th>Mean r²</th>
+<th>r², SNPs with MAF &lt; 0.05</th>
+<th>Concordance</th>
+<th>Imputed SNPs with DR2 ≥ 0.8</th>
+<th>Switch error rate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Same breed, 150 animals</td>
+<td>0.997</td>
+<td>0.989</td>
+<td>1.000</td>
+<td>99%</td>
+<td>0.0002</td>
+</tr>
+<tr class="even">
+<td>Same breed 150 + other breed 150</td>
+<td>0.997</td>
+<td>0.989</td>
+<td>1.000</td>
+<td>99%</td>
+<td>0.0002</td>
+</tr>
+<tr class="odd">
+<td>Same breed, 30 animals</td>
+<td>0.974</td>
+<td>0.932</td>
+<td>0.992</td>
+<td>92%</td>
+<td>0.002</td>
+</tr>
+<tr class="even">
+<td>Same breed, 10 animals</td>
+<td>0.878</td>
+<td>0.728</td>
+<td>0.953</td>
+<td>72%</td>
+<td>0.016</td>
+</tr>
+<tr class="odd">
+<td>Other breed only, 150 animals</td>
+<td>0.353</td>
+<td>0.167</td>
+<td>0.743</td>
+<td>29%</td>
+<td>0.279</td>
+</tr>
+</tbody>
+</table>
+<p>What the table teaches:</p>
+<ul>
+<li><strong>The reference must contain the breed.</strong> 150 animals of the other breed did far worse than 10 animals of the right breed. The target’s haplotypes, shaped by 60 generations of drift in its own breed, were mostly missing from the other breed’s panel. Studies in real cattle agree that the target breed must be well represented in the reference, and that adding other breeds to it can raise accuracy further (Bouwman and Veerkamp, 2014; Pausch and colleagues, 2017). Here adding breed B to a 150-animal breed-A panel changed nothing, because breed A alone was already almost perfect.</li>
+<li><strong>More reference animals, better accuracy</strong>, above all for rare SNPs. Rare alleles sit on few haplotypes, so a small panel often has no copy of the right one.</li>
+<li><strong>Concordance flatters.</strong> With the 10-animal panel, 95.3% of genotypes were right, but r² was only 0.73 for rare SNPs. For a SNP with MAF 0.02, calling every animal “homozygous common” is already 96% correct and completely useless. Report r² (or the correlation), not concordance.</li>
+<li><strong>Switch errors</strong> count how often the phase flips between two neighbouring heterozygous SNPs. Phasing accuracy follows imputation accuracy, because both depend on finding the right haplotypes to copy. Across the same 6-SNP windows used for PLINK 1.07 above, the chromosome-wide phase from the 150-animal reference was right in 99.9% of animal-windows, against PLINK 1.07’s 96.0%. (PLINK 1.07 had no reference panel to help it, which is part of the point.)</li>
+</ul>
+<p><strong>DR2 and INFO.</strong> Every imputation program reports a quality score per SNP, computed from the dosages alone, without the true genotypes: DR2 in BEAGLE, R2 in Minimac, INFO in IMPUTE. They estimate the r² between dosage and true genotype. A cut-off of 0.8 (sometimes 0.3 to 0.5 for association studies that keep more SNPs) is common.</p>
+<div id="fig-dr2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-dr2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/16_dr2_vs_true.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-dr2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;14.4: DR2 reported by the 10-animal imputation against the true r², for each imputed SNP. Many SNPs above the 0.8 line (dashed) are really much worse.
+</figcaption>
+</figure>
+</div>
+<p>A quality score is the model’s opinion of itself, and a model that is wrong can be confidently wrong. With the 10-animal reference our DR2 called 72% of imputed SNPs “good”, yet many of them had a true r² well below 0.8, and across SNPs DR2 and true r² correlated only about 0.5. The scores of BEAGLE and Minimac are better calibrated than this simple program’s, but the lesson holds: use DR2 or INFO to remove bad SNPs, and use masking to measure accuracy.</p>
+</section>
+<section id="step-4-bring-the-imputed-data-into-plink-2.0" class="level3" data-number="14.6.4">
+<h3 data-number="14.6.4" class="anchored" data-anchor-id="step-4-bring-the-imputed-data-into-plink-2.0"><span class="header-section-number">14.6.4</span> Step 4: bring the imputed data into PLINK 2.0</h3>
+<p>PLINK 2.0 imports dosages from a VCF when you name the FORMAT field that holds them:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--vcf</span> target_imputed.vcf.gz dosage=DS <span class="at">--chr-set</span> 29 <span class="at">--make-pgen</span> <span class="at">--out</span> imp</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--pfile</span> imp <span class="at">--pgen-info</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text"><code>  Explicitly phased hardcalls present
+  Explicitly phased dosages present</code></pre>
+<p>Both the phase and the dosages are kept. Filter on imputation quality with the INFO field, and run the association test on the dosages:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--pfile</span> imp <span class="at">--chr-set</span> 29 <span class="at">--extract-if-info</span> <span class="st">"DR2 &gt;= 0.8"</span> <span class="at">--make-pgen</span> <span class="at">--out</span> imp_dr2</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 2080 variants in imp.pvar; 30 excluded by --extract-if-info, 2050 remaining.</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--pfile</span> imp_dr2 <span class="at">--chr-set</span> 29 <span class="at">--pheno</span> target_pheno.txt <span class="at">--pheno-name</span> WWT <span class="dt">\</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">--glm</span> allow-no-covars <span class="at">--out</span> imp</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="fig-imp-gwas" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-imp-gwas-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/16_imputed_gwas.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-imp-gwas-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;14.5: Weaning weight in the 100 targets, tested on the chip SNPs only (top) and after imputation (bottom). The dotted line marks the simulated QTL, which is not on the chip; the dashed line is the Bonferroni threshold for 2,050 tests.
+</figcaption>
+</figure>
+</div>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Analysis</th>
+<th>Top SNP</th>
+<th>p</th>
+<th>Effect of the ALT allele</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Chip SNPs only</td>
+<td>hd01053, 27 kb from the QTL (r² = 0.57 with it)</td>
+<td>8.4 × 10⁻⁴</td>
+<td>+5.8 kg</td>
+</tr>
+<tr class="even">
+<td>Chip + imputed SNPs</td>
+<td>hd01048, <strong>the QTL itself</strong></td>
+<td>2.7 × 10⁻⁶</td>
+<td>+8.6 kg (simulated: +10 kg)</td>
+</tr>
+</tbody>
+</table>
+<p>On the chip, the best SNP was only a partial tag of the QTL and did not reach genome-wide significance. After imputation the causal SNP itself was tested and passed the Bonferroni threshold (0.05 / 2,050 = 2.4 × 10⁻⁵). This is the main reason livestock studies impute from 50K to high density or to sequence before an association study.</p>
+<p>Useful options for imputed data in PLINK 2.0:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Option</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>--vcf file dosage=DS</code></td>
+<td>Import dosages (use <code>dosage=HDS</code> for haplotype dosages, or <code>--bgen</code> for BGEN files)</td>
+</tr>
+<tr class="even">
+<td><code>--extract-if-info "DR2 &gt;= 0.8"</code></td>
+<td>Keep SNPs by an INFO field; use the field name your program writes (DR2 for BEAGLE, R2 for Minimac4)</td>
+</tr>
+<tr class="odd">
+<td><code>--mach-r2-filter 0.3</code></td>
+<td>Compute the MaCH r² quality score from the dosages and remove SNPs below 0.3</td>
+</tr>
+<tr class="even">
+<td><code>--hard-call-threshold 0.1</code></td>
+<td>How sure a dosage must be to also store a best-guess genotype; less sure calls are set to missing for commands that need hard calls (292 genotypes here)</td>
+</tr>
+<tr class="odd">
+<td><code>--glm</code></td>
+<td>Uses the dosages, not the hard calls</td>
+</tr>
+</tbody>
+</table>
+<p>PLINK 1.9 reads only the <code>GT</code> field of a VCF, so it would turn these dosages into hard calls. To analyse dosages in PLINK 1.9, use <code>--dosage</code> (Chapter 13).</p>
+<p>The target animals’ phenotype file starts with an <code>IID</code> column only: animals imported from a VCF have no FID in PLINK 2.0, and a file with an FID column would not match them.</p>
+</section>
+<section id="plink-1.07s-own-imputation-heuristic" class="level3" data-number="14.6.5">
+<h3 data-number="14.6.5" class="anchored" data-anchor-id="plink-1.07s-own-imputation-heuristic"><span class="header-section-number">14.6.5</span> PLINK 1.07’s own imputation heuristic</h3>
+<p>PLINK 1.07 has a simple imputation tool built on proxy haplotypes, which treats animals with a missing phenotype as the reference panel. On the BRD region of the cattle file, we made 90 animals the reference (phenotype -9), hid 8 SNPs (including snp00706) in the other 261, and asked PLINK to fill them in:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink107</span> <span class="at">--noweb</span> <span class="at">--file</span> masked <span class="at">--cow</span> <span class="at">--proxy-impute</span> all <span class="at">--proxy-replace</span> <span class="at">--make-bed</span> <span class="at">--out</span> imputed</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 25%">
@@ -651,7 +1161,18 @@ Of 60 subhaplotypes considered, 5 met proxy criteria
 </tr>
 </tbody>
 </table>
-<p>PLINK only fills a genotype when the best guess has a probability of at least 0.9 (<code>--proxy-impute-threshold</code>), so it is careful: when it calls, it is right about 90% of the time, but it leaves most genotypes empty. A panel of 90 animals is small. For real cattle work, impute with BEAGLE 5 against a large reference (such as the 1000 Bull Genomes data) and analyse the dosages with <code>--dosage</code> (Chapter 13) or <code>plink2 --glm</code>.</p>
+<p>PLINK fills a genotype only when the best guess has a probability of at least 0.9 (<code>--proxy-impute-threshold</code>), so it leaves most genotypes empty, and when it calls, it is right only about 90% of the time. It is a historical tool; use the programs above.</p>
+</section>
+<section id="imputation-in-livestock-practical-advice" class="level3" data-number="14.6.6">
+<h3 data-number="14.6.6" class="anchored" data-anchor-id="imputation-in-livestock-practical-advice"><span class="header-section-number">14.6.6</span> Imputation in livestock: practical advice</h3>
+<ul>
+<li><strong>Use the target breed in the reference</strong>, and include the sires of your target animals if you can: close relatives in the reference give the longest, most accurate matches.</li>
+<li><strong>Go up in steps.</strong> From a low-density chip, impute first to 50K, then to HD, then to sequence. In Holstein cattle, imputing straight from 50K to sequence gave an accuracy of 0.37 to 0.46 per SNP, and going through the HD panel first raised it to 0.65 (van Binsbergen and colleagues, 2014).</li>
+<li><strong>Check accuracy by masking</strong>, per SNP and per animal. Animals with few relatives in the reference impute worst.</li>
+<li><strong>Treat the X chromosome separately</strong>: males are haploid outside the pseudoautosomal region. SHAPEIT5 takes a list of haploid samples (<code>--haploids</code>), and FImpute needs a pedigree for the X.</li>
+<li><strong>Keep the dosages.</strong> In Fleckvieh and Holstein cattle, dosages of imputed sequence variants agreed better with the true genotypes than best-guess calls did, and were better at detecting causal mutations (Pausch and colleagues, 2017). Analyse dosages with <code>plink2 --glm</code> (or a mixed model, Chapter 13) and filter on DR2 or INFO; round to hard calls only when a later program demands it.</li>
+<li><strong>Record everything</strong>: assembly, reference panel (breeds, size), program and version, settings, and the quality filter.</li>
+</ul>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -662,11 +1183,12 @@ Of 60 subhaplotypes considered, 5 met proxy criteria
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Neither PLINK 1.9 nor 2.0 has haplotype tests, <code>--chap</code>, proxy association or the imputation heuristic. PLINK 1.9 keeps the LD tools that support this work: <code>--ld</code>, <code>--r2</code>, <code>--blocks</code> (haplotype blocks, as in Haploview), <code>--clump</code> and <code>--show-tags</code>. Phase and impute with external software, then bring the dosages back into PLINK 2.0 as <code>.pgen</code> files.</p>
+<p>Neither PLINK 1.9 nor 2.0 has the haplotype tests, <code>--chap</code>, proxy association or the 1.07 imputation heuristic. PLINK 1.9 keeps the LD tools that support this work: <code>--ld</code>, <code>--r2</code>, <code>--blocks</code> (haplotype blocks, as in Haploview), <code>--clump</code> and <code>--show-tags</code>. PLINK 2.0 adds what modern pipelines need around phasing and imputation: it stores phased genotypes and dosages in <code>.pgen</code> files, imports them from VCF and BGEN, exports phased data (<code>--export haps</code>, <code>vcf</code>, <code>bgen-1.2</code>), filters on imputation quality (<code>--extract-if-info</code>, <code>--mach-r2-filter</code>) and tests dosages with <code>--glm</code>. The phasing and imputation themselves are done by BEAGLE, SHAPEIT, Eagle, Minimac, IMPUTE or FImpute.</p>
 </div>
 </div>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -1091,7 +1613,7 @@ Of 60 subhaplotypes considered, 5 met proxy criteria
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-<p>PLINK for Livestock Genomics, by Ismaila Emmanuel</p>
+<p>PLINK for Livestock Genomics, by Ismaila Emmanuel Oluwasegun</p>
 </div>   
     <div class="nav-footer-center">
       &nbsp;

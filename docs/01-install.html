@@ -287,7 +287,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./14-haplotypes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, proxy association and imputation</span></span></a>
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, phasing and imputation</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -461,7 +461,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 data-number="1.4" class="anchored" data-anchor-id="step-2-unzip-and-put-it-somewhere-sensible"><span class="header-section-number">1.4</span> Step 2: unzip and put it somewhere sensible</h2>
 <p>Create one folder for your genomics work, for example <code>C:/genomics</code> on Windows or <code>~/genomics</code> on macOS and Linux, and unzip PLINK there. Put your data in the same folder at first. Later, when you are comfortable, you can add PLINK to your <code>PATH</code> so that it runs from any folder.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="">Windows</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">macOS</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false" href="">Linux</a></li></ul>
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="">Windows</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">macOS</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false" href="">Linux</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-4" role="tab" aria-controls="tabset-1-4" aria-selected="false" href="">Linux or macOS with conda</a></li></ul>
 <div class="tab-content">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
 <ol type="1">
@@ -491,6 +491,30 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="ex">./plink</span> <span class="at">--version</span></span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># optional: make it available everywhere</span></span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> cp plink /usr/local/bin/</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="tabset-1-4" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-4-tab">
+<p>If you already use conda (Miniconda, Anaconda, Miniforge or micromamba), the Bioconda channel has ready-made packages called <code>plink</code> (PLINK 1.9) and <code>plink2</code>. Conda puts the programs on your PATH inside the environment, so you do not have to unzip anything or run <code>chmod</code>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. once only: tell conda where to look (Bioconda needs conda-forge)</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> config <span class="at">--add</span> channels bioconda</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> config <span class="at">--add</span> channels conda-forge</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> config <span class="at">--set</span> channel_priority strict</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. a separate environment for this course, with both versions</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> create <span class="at">-n</span> plink_course plink plink2</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> activate plink_course</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. check</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--version</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--version</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="fu">which</span> plink          <span class="co"># e.g. /home/you/miniforge3/envs/plink_course/bin/plink</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Things to know:</p>
+<ul>
+<li>Run <code>conda activate plink_course</code> in every new terminal before using PLINK; otherwise <code>plink: command not found</code>.</li>
+<li><code>mamba</code> or <code>micromamba</code> accept the same commands and solve environments faster.</li>
+<li>Bioconda’s builds can lag behind the newest PLINK 2.0 build on the official page. If a flag from the PLINK 2.0 documentation is missing, compare <code>plink2 --version</code> with the date on the website and download the newer build by hand.</li>
+<li>The Bioconda <code>plink</code> package is PLINK 1.9. For PLINK 1.07 (Chapters 14 and 15), download it by hand as above.</li>
+<li>On Windows, use the zip download (or conda inside WSL, the Windows Subsystem for Linux).</li>
+</ul>
 </div>
 </div>
 </div>
@@ -550,8 +574,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="anatomy-of-a-plink-command" class="level2" data-number="1.6">
 <h2 data-number="1.6" class="anchored" data-anchor-id="anatomy-of-a-plink-command"><span class="header-section-number">1.6</span> Anatomy of a PLINK command</h2>
 <p>Every PLINK command has three parts: what to read, what to do, and where to write.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--geno</span> 0.05 <span class="at">--make-bed</span> <span class="at">--out</span> cattle_clean</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">#      \___ read ___/ \_______ do ________/ \___ write ___/</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--geno</span> 0.05 <span class="at">--make-bed</span> <span class="at">--out</span> cattle_clean</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#      \___ read ___/ \_______ do ________/ \___ write ___/</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li><code>--bfile cattle</code> reads the three files <code>cattle.bed</code>, <code>cattle.bim</code> and <code>cattle.fam</code>. You give the name without the extension.</li>
 <li>Words starting with two dashes are <strong>flags</strong>. Some take a value (<code>--geno 0.05</code>); some do not (<code>--cow</code>).</li>
@@ -1064,7 +1088,7 @@ you forgot to define a different chromosome set with e.g. --chr-set.)</code></pr
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-<p>PLINK for Livestock Genomics, by Ismaila Emmanuel</p>
+<p>PLINK for Livestock Genomics, by Ismaila Emmanuel Oluwasegun</p>
 </div>   
     <div class="nav-footer-center">
       &nbsp;

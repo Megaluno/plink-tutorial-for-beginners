@@ -70,15 +70,32 @@ What the plot and the table reveal:
 
 All other 119 recorded parent-offspring pairs fell between PI_HAT 0.4 and 0.9, as they should.
 
+### Controlling what `--genome` writes
+
+For 361 animals the full `.genome` file has 361 × 360 / 2 = 64,980 lines (7.4 MB); for 5,000 animals it would have 12.5 million. Usually you only want the related pairs. All of the following were run on the LD-pruned SNPs (`--extract prune.prune.in`):
+
+| Command | Pairs written | Use |
+|---|---|---|
+| `--genome` | 64,980 | Every pair; needed for the Z0-Z1 plot and for mean relatedness |
+| `--genome --min 0.2` | 851 | Only pairs with PI_HAT ≥ 0.2: candidates for relatives, duplicates and contamination |
+| `--genome --max 0.05` | 48,825 | Only near-unrelated pairs, for example to pick a reference set |
+| `--genome rel-check` | 9,740 | Only pairs with the **same FID** |
+| `--genome full --min 0.9` | 1 | Adds the IBS counts behind each estimate; here only the duplicate pair |
+
+With `full`, the duplicate pair gains these columns:
+
+```text
+ ...  PI_HAT  ...   IBS0  IBS1  IBS2  HOMHOM   HETHET
+ ...  0.9812  ...      4     5  3540  3.0000 854.0000
+```
+
+The two samples share both alleles (IBS2) at 3,540 of 3,549 SNPs, differ completely (IBS0) at only 4, which is about the genotyping error rate, and are heterozygous together at 854. These counts are what PLINK turns into Z0, Z1 and Z2, and looking at them helps when a PI_HAT seems odd.
+
+`rel-check` compares pairs within an FID, which is meant for checking a pedigree. Its result depends on how you use the FID column. In our file, the 120 family animals have their own FIDs, but the unrelated animals all have FID ANG, HOL or NDA, so `rel-check` compared every Angus with every other Angus as well: of the 9,740 pairs, 120 were recorded parent-offspring (RT = PO), 30 full sibs (FS) and 9,590 "other" (OT). In livestock files where FID is the breed or herd, filter on the RT column, or use `--min` instead.
+
 ### Population structure inflates IBD estimates
 
-`--genome` uses allele frequencies from the whole file. When the file mixes breeds, animals of the same breed share more than the pooled frequencies predict, so they look a little related. In our data, 545 unrelated pairs (mostly N'Dama, the most distinct breed) had PI_HAT between 0.2 and 0.4. Run `--genome` within breed, or use KING (below), when you need accurate relationships across breeds.
-
-| Useful option | Effect |
-|---|---|
-| `--min 0.2` | Only write pairs with PI_HAT above 0.2 (the full file has n(n-1)/2 pairs: 64,980 for 361 animals) |
-| `--genome full` | Add the IBS counts behind each estimate |
-| `--genome rel-check` | Only pairs with the same FID (pedigree checking) |
+`--genome` uses allele frequencies from the whole file. When the file mixes breeds, animals of the same breed share more than the pooled frequencies predict, so they look a little related. In our data, 545 unrelated pairs (mostly N'Dama, the most distinct breed) had PI_HAT between 0.2 and 0.4. Run `--genome` within breed (with `--keep`), or use KING (below), when you need accurate relationships across breeds.
 
 ## Step 2: the genomic relationship matrix (GRM)
 
@@ -112,11 +129,21 @@ On average the genomic values match the pedigree very well: half sibs share 0.23
 
 ## Step 3: KING, a method robust to structure
 
-KING (Manichaikul and colleagues, 2010) estimates kinship without using population allele frequencies. It only looks at SNPs where both animals are heterozygous (N<sub>Aa,Aa</sub>) and where they are opposite homozygotes (N<sub>AA,aa</sub>):
+KING (Manichaikul and colleagues, 2010) estimates kinship without using population allele frequencies. For a pair of animals i and j it counts three things at the SNPs where both are genotyped: the SNPs where both are heterozygous (N<sub>Aa,Aa</sub>), the SNPs where they are opposite homozygotes, AA against aa (N<sub>AA,aa</sub>), and each animal's own number of heterozygous SNPs (N<sub>Aa</sub><sup>(i)</sup> and N<sub>Aa</sub><sup>(j)</sup>). Opposite homozygotes are impossible for a parent and its calf, and rare for close relatives, so they count against relatedness; shared heterozygotes count for it.
+
+The simplest form, for animals from one homogeneous population, is
 
 $$
 \hat\phi_{ij} = \frac{N_{Aa,Aa} - 2\,N_{AA,aa}}{N_{Aa}^{(i)} + N_{Aa}^{(j)}}
 $$
+
+PLINK 2.0 uses the version Manichaikul and colleagues recommend when the two animals may come from different populations (their "between-family" estimator), which divides by the heterozygote count of the less heterozygous animal, written here as i:
+
+$$
+\hat\phi_{ij} = \frac{N_{Aa,Aa} - 2\,N_{AA,aa}}{2\,N_{Aa}^{(i)}} + \frac{1}{2} - \frac{N_{Aa}^{(i)} + N_{Aa}^{(j)}}{4\,N_{Aa}^{(i)}}
+$$
+
+A check with real numbers, for the sire HOL_F01_S and his calf HOL_F01_C1 (autosomes, 4,495 SNPs typed in both): N<sub>Aa,Aa</sub> = 608, N<sub>AA,aa</sub> = 2, and the two animals have 1,272 and 1,291 heterozygous SNPs. The second formula gives (608 − 4)/(2 × 1,272) + 0.5 − 2,563/(4 × 1,272) = 0.2337, exactly PLINK's KINSHIP of 0.233687 (the first gives 0.236). The expected value for parent and offspring is 0.25. You can print these counts yourself with `--make-king-table cols=id,nsnp,hethet,ibs0,ibs1,kinship`.
 
 Because it needs no allele frequencies, KING is much less fooled by breed mixing. It is available in PLINK 2.0:
 
@@ -174,7 +201,29 @@ With only 15 SNPs required, chance homozygosity at sparse SNPs creates thousands
 | `--homozyg-window-missing` | Missing calls allowed per window (default 5) |
 | `--homozyg-window-threshold` | Share of windows that must be homozygous to call a SNP part of a run (default 0.05) |
 
-Output files: `.hom` (one line per run), `.hom.indiv` (per animal: number of runs NSEG, total length KB, average length KBAVG) and `.hom.summary` (per SNP: how many animals have a run there; peaks hint at selection). Always report your exact settings, because F_ROH depends on them.
+**Reading the output.** The run above wrote three files and reported `--homozyg: Scan complete, found 352 ROH.`
+
+```text
+roh.hom (one line per run):
+ FID  IID      PHE  CHR  SNP1      SNP2      POS1      POS2       KB        NSNP  DENSITY  PHOM   PHET
+ NDA  NDA_040    1    1  snp00079  snp00142  86259092  145168385  58909.294   64  920.458  0.984  0.000
+ ANG  ANG_001    1    6  snp00969  snp01003  75821224  106120511  30299.288   35  865.694  0.943  0.057
+
+roh.hom.indiv (one line per animal):
+ FID  IID      PHE  NSEG  KB        KBAVG
+ ANG  ANG_001    1     2  41281.3   20640.7
+ NDA  NDA_040    1    15  729434    48628.9
+
+roh.hom.summary (one line per SNP):
+ CHR  SNP       BP        AFF  UNAFF
+  19  snp03011  48468396    3     17
+```
+
+- In `.hom`, **KB** is the run's length, **NSNP** its number of SNPs, **DENSITY** the average kb per SNP, and **PHOM**/**PHET** the share of homozygous and heterozygous calls inside it. The ANG_001 run on chromosome 6 contains two heterozygous calls (PHET 0.057, that is 2 of 35 SNPs): the default `--homozyg-window-het 1` allows one per scanning window, to tolerate genotyping errors, so a long run can collect several. With `--homozyg-window-het 0`, the same settings found 53 runs instead of 352; NDA_040 still had 14 runs covering 719 Mb, because true inbreeding runs are clean.
+- In `.hom.indiv`, **NSEG** is the number of runs, **KB** their total length and **KBAVG** the average. F_ROH is KB divided by the length covered by your SNPs (here 2,507 Mb). 204 of 361 animals had at least one run.
+- In `.hom.summary`, **AFF** and **UNAFF** count how many cases and controls carry a run over each SNP. A SNP where many animals share a run (an "ROH island") can point to a region under selection; with a case/control trait it is also a crude test of recessive effects.
+
+Always report your exact settings, because F_ROH depends on them.
 
 ::: {.callout-note}
 ## PLINK 2.0

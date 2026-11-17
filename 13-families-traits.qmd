@@ -1,7 +1,7 @@
 # Families, quantitative traits, interaction and permutation {#sec-qt}
 
 ::: {.lead}
-Most livestock traits are measured on a scale (kilograms, litres, days) rather than as sick or healthy. This chapter covers quantitative traits and covariates, family-based tests that cannot be fooled by breed, SNP-by-environment interaction, conditional analysis, permutation and imputed dosages.
+Most livestock traits are measured on a scale (kilograms, litres, days) rather than as sick or healthy. This chapter covers quantitative traits and covariates, SNP-by-environment interaction, conditional analysis, mixed models for related animals, family-based tests that cannot be fooled by breed, permutation and imputed dosages.
 :::
 
 ## Quantitative traits
@@ -16,13 +16,45 @@ You do not pick "case/control" or "quantitative" yourself: PLINK looks at the ph
 
 ### Phenotype files
 
-| Option | Meaning |
-|---|---|
-| `--pheno pheno.txt --pheno-name WWT` | Use the column named WWT |
-| `--pheno pheno.txt --mpheno 2` | Use the 2nd trait column (BW); counting starts after FID and IID |
-| `--pheno pheno.txt --all-pheno` | Analyse every column, one output file per trait |
-| `--missing-phenotype -99` | Change the missing code (default -9) |
-| `--1` | Case/control coded 0/1 instead of 1/2 |
+`pheno.txt` holds four traits for every animal, with a header line:
+
+```text
+FID IID WWT BW YWT BRD
+ANG ANG_001 265.6 37.3 475.0 1
+```
+
+There are four ways to tell PLINK which column to use. Each was run with `--assoc` on the cleaned file:
+
+| Command | Log line | Result |
+|---|---|---|
+| `--pheno pheno.txt --pheno-name WWT` | `348 phenotype values present after --pheno.` | Weaning weight; 3 animals are -9 (missing) |
+| `--pheno pheno.txt --mpheno 2` | `351 phenotype values present after --pheno.` | The 2nd trait column, BW; counting starts after FID and IID |
+| `--pheno pheno.txt --all-pheno` | | One output per trait: `.BRD.assoc`, `.BW.qassoc`, `.WWT.qassoc`, `.YWT.qassoc` |
+| no `--pheno` | | Column 6 of the `.fam` (BRD here) |
+
+Prefer `--pheno-name`: `--mpheno 2` silently picks the wrong trait if someone adds a column to the file. With `--all-pheno`, PLINK chose the test for each trait by itself: BRD contains only 1 and 2, so it was treated as case/control (`.assoc`), and the three weights as quantitative (`.qassoc`).
+
+Two coding traps, both silent:
+
+**Case/control coded 0/1.** PLINK 1.9 expects 1 = control and 2 = case, with 0 and -9 meaning missing. We recoded BRD as 0 (healthy) and 1 (sick) and ran the same test:
+
+```text
+without --1:  138 phenotype values present after --pheno.
+              Among remaining phenotypes, 0 are cases and 138 are controls.
+with --1:     351 phenotype values present after --pheno.
+              Among remaining phenotypes, 138 are cases and 213 are controls.
+```
+
+Without `--1`, the 213 healthy animals (coded 0) became missing and the 138 sick ones became "controls", leaving no cases at all. PLINK did not stop; it simply had nothing to test. Read the cases/controls line in every log.
+
+**A different missing code.** We wrote the three missing weights as -99 instead of -9:
+
+```text
+without --missing-phenotype -99:  351 values present; snp02145 BETA -1.172, P 0.72
+with    --missing-phenotype -99:  348 values present; snp02145 BETA -0.202, P 0.93
+```
+
+Without the flag, three calves were analysed as weighing -99 kg, which changed the estimate five-fold. Check the "phenotype values present" number against what you expect, and summarise each trait (minimum, maximum) in R before analysis.
 
 ### Step 1: the naive test
 
@@ -120,6 +152,57 @@ plink ... --linear --covar cov_all.txt --hide-covar --chr 14 --from-mb 23 --to-m
 
 The region's signal collapses: one QTL. `--condition-list file.txt` conditions on several SNPs. Conditioning genome-wide on snp02145 and snp00891 made the feedlot SNP the top SNP (p = 5.0 × 10⁻⁶).
 
+## Relatives and breeds together: mixed models
+
+Principal components remove the broad structure (breeds), but livestock data also contain many close relatives: half sibs by the same bull, full-sib families, cousins. Relatives share chromosome segments, so their phenotypes are correlated in ways a few PCs cannot capture, and test statistics stay slightly inflated (λ = 1.10 above). The standard answer in livestock genetics, and in most GWAS of related animals, is a **linear mixed model**:
+
+$$
+\mathbf{y} = \mathbf{X}\mathbf{b} + \mathbf{g}\,\beta + \mathbf{u} + \mathbf{e},
+\qquad \mathbf{u} \sim N(\mathbf{0},\, \sigma^2_g\,\mathbf{G}),
+\qquad \mathbf{e} \sim N(\mathbf{0},\, \sigma^2_e\,\mathbf{I})
+$$
+
+**X b** holds the fixed covariates (sex, feedlot, age, and PCs if you wish), **g β** is the SNP being tested, **u** is each animal's polygenic (breeding) value, and **G** is the genomic relationship matrix from Chapter 10. Animals that are closely related according to G are expected to have similar u, so the model accounts for every degree of relatedness at once, from breed to full sib. It is the same model as GBLUP, with one SNP added as a fixed effect.
+
+PLINK does not fit mixed models. It prepares the data, and a dedicated program fits the model. The common choices are GCTA (`--mlma`, `--mlma-loco`; Yang and colleagues, 2014), GEMMA (`-lmm`; Zhou and Stephens, 2012) and, for very large data, BOLT-LMM or REGENIE. These programs read PLINK `.bed/.bim/.fam` files directly; PLINK 2.0 can also write the GRM in GCTA's binary format:
+
+```bash
+plink2 --bfile cattle_qc --cow --autosome --maf 0.05 --make-grm-bin --out grm   # grm.grm.bin, .grm.N.bin, .grm.id
+```
+
+(With `--maf 0.01` PLINK 2.0 refused, because it considers a GRM unreliable when the rarest SNP has a frequency below a quarter of 1/√n, here 0.013 for 351 animals.)
+
+The commands for GCTA and GEMMA look like this. They are shown for reference and **were not run for this book**, because those programs could not be installed in the environment it was built in:
+
+```bash
+gcta64 --mlma-loco --bfile cattle_qc --autosome-num 29 --pheno wwt.phen \
+       --qcovar qcovar.txt --covar covar.txt --out wwt_mlma          # GCTA
+gemma -bfile cattle_qc -gk 1 -o grm                                  # GEMMA: 1. relationship matrix
+gemma -bfile cattle_qc -k output/grm.cXX.txt -lmm 4 -c covar_gemma.txt -o wwt   # 2. association
+```
+
+To show what a mixed model does to the results, we fitted one with a short Python program written for this book, `scripts/lmm_gwas.py`. It follows the approach of EMMAX and GCTA's `--mlma-loco`: the variance components are estimated once per chromosome by REML, and each SNP is then tested with them held fixed. "LOCO" (leave one chromosome out) means the GRM used when testing a SNP on chromosome 14 is built from the other 28 chromosomes, so the SNP is not fitted twice, once as a fixed effect and once inside G.
+
+```bash
+plink --bfile cattle_qc --cow --autosome --recode A --out geno
+python3 scripts/lmm_gwas.py geno.raw cattle_qc.bim pheno.txt WWT cov_all.txt SEX_M,FEEDLOT,AGE lmm_noPC.txt
+python3 scripts/lmm_gwas.py geno.raw cattle_qc.bim pheno.txt WWT cov_all.txt PC1,PC2,SEX_M,FEEDLOT,AGE lmm_PC.txt
+```
+
+| Model for weaning weight (4,208 autosomal SNPs) | λ | snp02145 p (rank) | snp01540 rank | snp00891 rank |
+|---|---|---|---|---|
+| Linear regression, sex + feedlot + age | 21.86 | 0.63 (3,898) | 3,970 | 693 |
+| Linear regression, + PC1 and PC2 (above) | 1.10 | 9.7 × 10⁻¹¹ (1) | 7 | 17 |
+| Mixed model with the GRM, sex + feedlot + age | 1.06 | 7.2 × 10⁻⁹ (1) | 29 | 23 |
+| Mixed model with the GRM, + PC1 and PC2 | 1.03 | 1.2 × 10⁻¹⁰ (1) | 7 | 25 |
+
+The GRM alone took λ from 21.9 to 1.06: the model learned the breed structure and the families from the genotypes, without being told about either. Its REML estimate of the SNP heritability was 0.58, because it counted the large breed differences as "genetic". Adding the two PCs as fixed effects took the breed means out of the polygenic part (heritability 0.29) and gave the cleanest test statistics of all (λ = 1.03), with the PLAG1 SNP as strong as before. That combination, **PCs or breed as fixed effects plus the GRM as a random effect**, is the usual recommendation for multi-breed livestock data. In our small dataset the mixed model did not move the weaker QTL up the list; its benefit is that the p-values you report can be trusted.
+
+::: {.callout-note}
+## Notes on the teaching program
+`lmm_gwas.py` fills missing genotypes with the SNP's average (so it uses 348 animals at every SNP, where PLINK's `--linear` dropped animals with a missing genotype), and it fixes the variance ratio per chromosome instead of re-estimating it for each SNP. GCTA and GEMMA handle both more carefully. Use them for real analyses; use the script to see how the model works.
+:::
+
 ## Family-based tests
 
 ### The transmission disequilibrium test (TDT)
@@ -192,7 +275,7 @@ plink --bfile cattle_qc --cow --allow-no-sex --assoc --mperm 1000 --seed 1 --wit
 
 ## Imputed data: `--dosage`
 
-After imputation you do not know a genotype for sure; you have an expected count of A1 between 0 and 2, the **dosage**. Analysing dosages keeps that uncertainty in the model.
+After imputation (Chapter 14) you do not know a genotype for sure; you have an expected count of A1 between 0 and 2, the **dosage**. Analysing dosages keeps that uncertainty in the model.
 
 ```bash
 plink --fam cattle.fam --cow --allow-no-sex --dosage chr14.dosage format=1 --map chr14.dosage.map \
@@ -208,5 +291,5 @@ The same QTL with almost the same effect (+9.7 kg per G allele). **INFO** measur
 
 ::: {.callout-note}
 ## PLINK 2.0
-`--glm` replaces `--linear`, `--logistic` and `--qassoc`, with `interaction`, `--parameters`, `--condition` and `--covar-name` working as in 1.9. Permutation is a modifier (`--glm mperm=1000`), and clustered permutation uses `--permute-within`. `--glm` reads dosages directly from `.pgen`, BGEN or VCF files, so `--dosage` is not needed. `--tdt`, `--dfam`, `--qfam` and `--gxe` are only in PLINK 1.9.
+`--glm` replaces `--linear`, `--logistic` and `--qassoc`, with `interaction`, `--parameters`, `--condition` and `--covar-name` working as in 1.9. Permutation is a modifier (`--glm mperm=1000`), and clustered permutation uses `--permute-within`. `--glm` uses dosages stored in a `.pgen` file, which you create from an imputed VCF (`--vcf file dosage=DS`) or a BGEN file (`--bgen`), so `--dosage` is not needed. Chapter 14 shows the whole route from imputation to `--glm`. `--tdt`, `--dfam`, `--qfam` and `--gxe` are only in PLINK 1.9.
 :::

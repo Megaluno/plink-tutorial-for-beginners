@@ -287,7 +287,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./14-haplotypes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, proxy association and imputation</span></span></a>
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, phasing and imputation</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -375,7 +375,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#step-1-install-r-rstudio-and-a-few-packages" id="toc-step-1-install-r-rstudio-and-a-few-packages" class="nav-link active" data-scroll-target="#step-1-install-r-rstudio-and-a-few-packages"><span class="header-section-number">2.1</span> Step 1: install R, RStudio and a few packages</a></li>
   <li><a href="#step-2-make-an-rstudio-project" id="toc-step-2-make-an-rstudio-project" class="nav-link" data-scroll-target="#step-2-make-an-rstudio-project"><span class="header-section-number">2.2</span> Step 2: make an RStudio project</a></li>
   <li><a href="#step-3-get-plink-into-the-project" id="toc-step-3-get-plink-into-the-project" class="nav-link" data-scroll-target="#step-3-get-plink-into-the-project"><span class="header-section-number">2.3</span> Step 3: get PLINK into the project</a></li>
-  <li><a href="#step-4-run-plink-from-r" id="toc-step-4-run-plink-from-r" class="nav-link" data-scroll-target="#step-4-run-plink-from-r"><span class="header-section-number">2.4</span> Step 4: run PLINK from R</a></li>
+  <li><a href="#step-4-run-plink-from-r" id="toc-step-4-run-plink-from-r" class="nav-link" data-scroll-target="#step-4-run-plink-from-r"><span class="header-section-number">2.4</span> Step 4: run PLINK from R</a>
+  <ul class="collapse">
+  <li><a href="#a-complete-script-with-system" id="toc-a-complete-script-with-system" class="nav-link" data-scroll-target="#a-complete-script-with-system"><span class="header-section-number">2.4.1</span> A complete script with <code>system()</code></a></li>
+  </ul></li>
   <li><a href="#step-5-read-the-results-into-r" id="toc-step-5-read-the-results-into-r" class="nav-link" data-scroll-target="#step-5-read-the-results-into-r"><span class="header-section-number">2.5</span> Step 5: read the results into R</a></li>
   <li><a href="#step-6-let-a-package-do-routine-qc-for-you" id="toc-step-6-let-a-package-do-routine-qc-for-you" class="nav-link" data-scroll-target="#step-6-let-a-package-do-routine-qc-for-you"><span class="header-section-number">2.6</span> Step 6: let a package do routine QC for you</a></li>
   <li><a href="#keep-a-record" id="toc-keep-a-record" class="nav-link" data-scroll-target="#keep-a-record"><span class="header-section-number">2.7</span> Keep a record</a></li>
@@ -447,31 +450,96 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"--make-bed"</span>, <span class="st">"--out"</span>, <span class="st">"results/cattle"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The older <code>system()</code> function takes the whole command as one string, which is handy for copying commands from this book:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system</span>(<span class="st">"./plink --bfile results/cattle --cow --missing --out results/miss"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="a-complete-script-with-system" class="level3" data-number="2.4.1">
+<h3 data-number="2.4.1" class="anchored" data-anchor-id="a-complete-script-with-system"><span class="header-section-number">2.4.1</span> A complete script with <code>system()</code></h3>
+<p>Many people keep their whole analysis in one R script built around <code>system()</code>. Here is a typical one, written for the files of this book:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># clear the workspace (removes your R objects; loaded packages stay loaded)</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># set the working directory: the folder that holds PLINK and the data</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="fu">setwd</span>(<span class="st">"D:/genomics/plink_tutorial"</span>)        <span class="co"># Windows</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co"># setwd("~/genomics/plink_tutorial")       # macOS or Linux</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co"># run PLINK: read the binary files, convert them back to text</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="fu">system</span>(<span class="st">"plink --bfile cattle --cow --nonfounders --allow-no-sex --recode --out cattle_QC_out"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>What each part of the PLINK command does, and what it printed when we ran it:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Part</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>plink</code></td>
+<td>The program. This works only if PLINK is on your PATH (Chapter 1). Otherwise give the path: <code>"./plink ..."</code> on macOS and Linux, <code>"plink.exe ..."</code> or <code>"D:/genomics/plink.exe ..."</code> on Windows</td>
+</tr>
+<tr class="even">
+<td><code>--bfile cattle</code></td>
+<td>Read <code>cattle.bed</code>, <code>cattle.bim</code> and <code>cattle.fam</code> from the working directory</td>
+</tr>
+<tr class="odd">
+<td><code>--cow</code></td>
+<td>29 cattle autosomes plus X, Y and MT</td>
+</tr>
+<tr class="even">
+<td><code>--nonfounders</code></td>
+<td>Count all 361 animals, not only the 301 founders, when PLINK computes allele frequencies</td>
+</tr>
+<tr class="odd">
+<td><code>--allow-no-sex</code></td>
+<td>Keep the phenotypes of the two animals with unknown sex</td>
+</tr>
+<tr class="even">
+<td><code>--recode</code></td>
+<td>Write text files: <code>cattle_QC_out.ped</code> and <code>.map</code></td>
+</tr>
+<tr class="odd">
+<td><code>--out cattle_QC_out</code></td>
+<td>Start of every output file name</td>
+</tr>
+</tbody>
+</table>
+<pre class="text"><code>4800 variants loaded from .bim file.
+361 cattle (137 males, 222 females, 2 ambiguous) loaded from .fam.
+Before main variant filters, 301 founders and 60 nonfounders present.
+Calculating allele frequencies... done.
+Total genotyping rate is 0.992812.
+4800 variants and 361 cattle pass filters and QC.
+--recode ped to cattle_QC_out.ped + cattle_QC_out.map ... done.</code></pre>
+<p>It worked, but two things are worth knowing. First, this command does no QC at all: <code>--recode</code> only converts, and nothing was removed (4,800 SNPs and 361 animals in, the same out). Give the output a name that says what it is, such as <code>cattle_text</code>. Second, <code>--nonfounders</code> changes nothing you can see here. It only matters where PLINK computes allele frequencies: in <code>--freq</code>, <code>--hardy</code>, <code>--maf</code> and <code>--hwe</code>, and when it decides which allele is the minor one (A1). For example, <code>--freq</code> gave snp00001 a MAF of 0.0249 from the 301 founders (602 chromosomes) and 0.0292 with <code>--nonfounders</code> (720 chromosomes). Add a flag only when you know which step it changes.</p>
+<p>Two R details. <code>system()</code> returns PLINK’s exit status: 0 means success, anything else means PLINK stopped with an error, so <code>status &lt;- system("plink ...")</code> followed by <code>if (status != 0) stop("PLINK failed")</code> stops a long script at the first problem. And <code>setwd()</code> with a full path ties the script to one computer; an RStudio project (Step 2) avoids that. (The PLINK output above is real; R itself was not available where this book was built, so the R lines are shown, not run.)</p>
 <p>On Windows, write paths with forward slashes (<code>"C:/genomics/plink.exe"</code>) or doubled backslashes (<code>"C:\\genomics\\plink.exe"</code>). A single backslash breaks the string.</p>
 <p>A small helper function saves typing and prints PLINK’s messages in the Console:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>run_plink <span class="ot">&lt;-</span> <span class="cf">function</span>(..., <span class="at">exe =</span> <span class="st">"./plink"</span>) {</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  args <span class="ot">&lt;-</span> <span class="fu">c</span>(...)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">system2</span>(exe, <span class="at">args =</span> args, <span class="at">stdout =</span> <span class="cn">TRUE</span>, <span class="at">stderr =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(out, <span class="at">sep =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">invisible</span>(out)</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="fu">run_plink</span>(<span class="st">"--bfile"</span>, <span class="st">"results/cattle"</span>, <span class="st">"--cow"</span>, <span class="st">"--freq"</span>, <span class="st">"--out"</span>, <span class="st">"results/freq"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>run_plink <span class="ot">&lt;-</span> <span class="cf">function</span>(..., <span class="at">exe =</span> <span class="st">"./plink"</span>) {</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  args <span class="ot">&lt;-</span> <span class="fu">c</span>(...)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">system2</span>(exe, <span class="at">args =</span> args, <span class="at">stdout =</span> <span class="cn">TRUE</span>, <span class="at">stderr =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(out, <span class="at">sep =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">invisible</span>(out)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="fu">run_plink</span>(<span class="st">"--bfile"</span>, <span class="st">"results/cattle"</span>, <span class="st">"--cow"</span>, <span class="st">"--freq"</span>, <span class="st">"--out"</span>, <span class="st">"results/freq"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
 </section>
 <section id="step-5-read-the-results-into-r" class="level2" data-number="2.5">
 <h2 data-number="2.5" class="anchored" data-anchor-id="step-5-read-the-results-into-r"><span class="header-section-number">2.5</span> Step 5: read the results into R</h2>
 <p>Almost every PLINK output is a plain text table with a header line and columns separated by spaces. <code>read.table(header = TRUE)</code> reads it, and <code>data.table::fread()</code> does the same faster for big files.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>imiss <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">"results/miss.imiss"</span>, <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>lmiss <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">"results/miss.lmiss"</span>, <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(imiss, <span class="fu">aes</span>(<span class="at">x =</span> F_MISS <span class="sc">*</span> <span class="dv">100</span>)) <span class="sc">+</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="fl">0.5</span>, <span class="at">fill =</span> <span class="st">"#E69F00"</span>) <span class="sc">+</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">5</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">colour =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Missing genotypes per animal (%)"</span>, <span class="at">y =</span> <span class="st">"Number of animals"</span>,</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Missingness per animal"</span>) <span class="sc">+</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>imiss <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">"results/miss.imiss"</span>, <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>lmiss <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">"results/miss.lmiss"</span>, <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(imiss, <span class="fu">aes</span>(<span class="at">x =</span> F_MISS <span class="sc">*</span> <span class="dv">100</span>)) <span class="sc">+</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="fl">0.5</span>, <span class="at">fill =</span> <span class="st">"#E69F00"</span>) <span class="sc">+</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">5</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">colour =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Missing genotypes per animal (%)"</span>, <span class="at">y =</span> <span class="st">"Number of animals"</span>,</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Missingness per animal"</span>) <span class="sc">+</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
@@ -515,19 +583,37 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tbody>
 </table>
 <p>Reading the binary genotypes directly is useful when you want to fit your own models, for example genomic prediction:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(genio)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>geno <span class="ot">&lt;-</span> <span class="fu">read_plink</span>(<span class="st">"results/cattle"</span>)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(geno<span class="sc">$</span>X)        <span class="co"># SNPs in rows, animals in columns, values 0/1/2 (count of allele 1) or NA</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(geno<span class="sc">$</span>bim)     <span class="co"># the SNP map</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(geno<span class="sc">$</span>fam)     <span class="co"># the animals</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(genio)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>geno <span class="ot">&lt;-</span> <span class="fu">read_plink</span>(<span class="st">"results/cattle"</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(geno<span class="sc">$</span>X)        <span class="co"># SNPs in rows, animals in columns, values 0/1/2 or NA</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(geno<span class="sc">$</span>bim)     <span class="co"># the SNP map; genio calls A1 "alt" and A2 "ref"</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(geno<span class="sc">$</span>fam)     <span class="co"># the animals</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Which allele is being counted?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Different tools count different alleles. <code>genio::read_plink()</code> counts copies of <strong>A2</strong> (the allele genio calls <code>ref</code>), while PLINK’s own <code>--recode A</code> file and <code>bigsnpr</code> count copies of <strong>A1</strong>. For an animal that is A1/A1, genio gives 0 and <code>--recode A</code> gives 2. Before you combine genotypes from two tools, check one SNP by hand.</p>
+</div>
+</div>
 </section>
 <section id="step-6-let-a-package-do-routine-qc-for-you" class="level2" data-number="2.6">
 <h2 data-number="2.6" class="anchored" data-anchor-id="step-6-let-a-package-do-routine-qc-for-you"><span class="header-section-number">2.6</span> Step 6: let a package do routine QC for you</h2>
 <p>The <code>plinkQC</code> package by Hannah Meyer wraps PLINK’s QC commands (missingness, heterozygosity, sex check, relatedness) and makes clear plots. It follows the QC protocol of Anderson and colleagues (2010).</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plinkQC)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>fail_miss_het <span class="ot">&lt;-</span> <span class="fu">check_het_and_miss</span>(<span class="at">indir =</span> <span class="st">"results"</span>, <span class="at">name =</span> <span class="st">"human_data"</span>,</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">path2plink =</span> <span class="st">"./plink"</span>, <span class="at">interactive =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>It was written for human data and calls PLINK without a species flag, so with cattle files PLINK stops at chromosome codes above 26. For livestock I use it as a model: run the PLINK commands from this book with <code>--cow</code>, then copy its plotting ideas into your own ggplot code.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plinkQC)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. run PLINK yourself, with the species flag</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">system</span>(<span class="st">"./plink --bfile results/cattle --cow --missing --out results/cattle"</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">system</span>(<span class="st">"./plink --bfile results/cattle --cow --het --out results/cattle"</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. let plinkQC read results/cattle.imiss and results/cattle.het and draw the plot</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>fail_miss_het <span class="ot">&lt;-</span> <span class="fu">check_het_and_miss</span>(<span class="at">indir =</span> <span class="st">"results"</span>, <span class="at">name =</span> <span class="st">"cattle"</span>,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">run.check_het_and_miss =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">imissTh =</span> <span class="fl">0.03</span>, <span class="at">hetTh =</span> <span class="dv">3</span>, <span class="at">interactive =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>plinkQC was written for human data, and the PLINK commands it runs for you carry no species flag, so on cattle files PLINK would stop at chromosome codes above 26. That is why the example runs PLINK itself with <code>--cow</code> and lets plinkQC only read and plot the results. Every check has a switch for this (<code>run.check_het_and_miss = FALSE</code> above, <code>run.check_sex = FALSE</code> in <code>check_sex()</code>), and it then looks for <code>&lt;name&gt;.imiss</code>, <code>&lt;name&gt;.het</code> or <code>&lt;name&gt;.sexcheck</code> in the folder you give.</p>
 </section>
 <section id="keep-a-record" class="level2" data-number="2.7">
 <h2 data-number="2.7" class="anchored" data-anchor-id="keep-a-record"><span class="header-section-number">2.7</span> Keep a record</h2>
@@ -971,7 +1057,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-<p>PLINK for Livestock Genomics, by Ismaila Emmanuel</p>
+<p>PLINK for Livestock Genomics, by Ismaila Emmanuel Oluwasegun</p>
 </div>   
     <div class="nav-footer-center">
       &nbsp;

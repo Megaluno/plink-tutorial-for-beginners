@@ -42,7 +42,23 @@ plink --bfile cattle --cow --extract prune.prune.in --het --out het
 - **NDA_040, F = 0.43**: highly inbred. This is the planted inbred animal.
 - The N'Dama as a group sit to the right (mean F = 0.16 against 0.04 for the other breeds). F is measured against *pooled* frequencies here, so the most distinct breed looks inbred. Compute F within breed when you want to compare animals fairly.
 
-The usual rule is to remove animals more than 3 standard deviations from the mean. `--ibc` gives three alternative estimators (Fhat1, Fhat2, Fhat3); Fhat3, the correlation between uniting gametes, is popular in livestock genomics. Chapter 10 adds a third measure, F_ROH, from runs of homozygosity.
+A common rule is to remove any animal whose F lies over three standard deviations away from the average.
+
+`--ibc` gives three other estimators of F, computed SNP by SNP from the genotype and the allele frequency, the way the diagonal of the GRM is (Yang and colleagues, 2011):
+
+```bash
+plink --bfile cattle --cow --autosome --ibc --out ibc
+grep -E "IID|ANG_001|ANG_030|NDA_040" ibc.ibc
+```
+
+```text
+FID  IID      NOMISS  Fhat1      Fhat2      Fhat3
+ANG  ANG_001  4525    0.307509   0.0491274  0.186937
+ANG  ANG_030  4526   -0.0301018 -0.792053  -0.402461
+NDA  NDA_040  4526    0.158754   0.486591   0.3314
+```
+
+**Fhat1** is the variance-based estimate (the GRM diagonal minus 1), **Fhat2** is based on excess homozygosity, much like `--het`, and **Fhat3** is the correlation between uniting gametes, the one most often used in livestock genomics. They agree on the extremes (the contaminated ANG_030 is negative on Fhat2 and Fhat3, the inbred NDA_040 is high), but for ordinary animals they can differ a lot: ANG_001 has 0.31, 0.05 and 0.19. Like `--het`, all three depend on the allele frequencies, here pooled over three breeds, so compare animals within a breed and say which estimator you report. Chapter 10 adds a measure that needs no allele frequencies, F_ROH, from runs of homozygosity.
 
 ## Sex check from the X chromosome
 
@@ -68,7 +84,26 @@ plink --bfile cattle --cow --check-sex --out sexcheck
 - **HOL_064 and NDA_009** had no recorded sex (0). Genetically they are bulls.
 - The other 40 "problems" are cows with F between 0.2 and 0.5. They are not errors. As with the Wahlund effect, mixing breeds inflates F. Run `--check-sex` within each breed and the 44 problems fall to 11, still including the four real ones.
 
-Useful options: `--check-sex 0.3 0.7` changes the female and male thresholds, and `--impute-sex` writes the genotype-based sex into a new `.fam` (here it set 321 of 361 sexes and left 40 as unknown, so never apply it blindly). Livestock chips usually carry some Y-chromosome SNPs; when they are present, `--check-sex ycount` uses them too and separates the sexes much better.
+### Adjusting the sex check
+
+The default calls an animal female when its X-chromosome F is below 0.2 and male when it is above 0.8. You can move both thresholds, and you can let PLINK write the genetic sex into the `.fam`. Here is what each option did on our data:
+
+```bash
+plink --bfile cattle --cow --check-sex 0.3 0.7 --out sex_37        # female if F < 0.3, male if F > 0.7
+plink --bfile cattle --cow --check-sex ycount --out sex_y          # also count Y-chromosome calls
+plink --bfile cattle --cow --impute-sex --make-bed --out cattle_sexed
+```
+
+```text
+sex_37:       --check-sex: 246 Xchr and 0 Ychr variant(s) scanned, 10 problems detected.
+sex_y:        Warning: No Y chromosome data for --check-sex ycount.
+cattle_sexed: --impute-sex: 246 Xchr and 0 Ychr variant(s) scanned, 321/361 sexes imputed.
+```
+
+- **Widening the thresholds** (0.3 and 0.7) cut the problems from 44 to 10, still including the four real ones. Most of the other "problems" were cows with F between 0.2 and 0.3, which the breed mixture had pushed up. Widening the window is fine when you can see a clear gap in the F histogram; run the check within breed if you cannot.
+- **`ycount`** also uses the number of non-missing Y-chromosome calls, which separates the sexes much better when the chip has Y SNPs. Our simulated chip has none, so PLINK warns and falls back on the X alone. Real cattle chips usually include some Y SNPs; check that they are coded as chromosome Y (31 with `--cow`) in your `.bim`.
+- **`--impute-sex`** writes the genetic sex into the new `.fam`: 141 bulls, 180 cows and **40 animals set to 0 (unknown)**. Those 40 were cows whose F fell between 0.2 and 0.8. They were correctly recorded as cows before; afterwards PLINK 1.9 ignores their phenotypes in association tests unless you add `--allow-no-sex`. So never apply `--impute-sex` blindly: fix the few clear errors with `--update-sex` (Chapter 5) instead.
+
 
 ## Mendel errors: checking the pedigree
 

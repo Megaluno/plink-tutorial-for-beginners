@@ -252,7 +252,7 @@ ul.task-list li input[type="checkbox"] {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./14-haplotypes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, proxy association and imputation</span></span></a>
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, phasing and imputation</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -404,8 +404,8 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 <tr class="odd">
 <td>Hardy-Weinberg</td>
-<td><code>--hardy</code></td>
-<td><code>--hardy</code></td>
+<td><code>--hardy</code>; <code>--hwe</code> uses controls only when cases and controls are loaded</td>
+<td><code>--hardy</code>; <code>--hwe</code> uses all founders, cases included (Chapter 7)</td>
 </tr>
 <tr class="even">
 <td>Heterozygosity / F</td>
@@ -449,8 +449,8 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 <tr class="even">
 <td>LD</td>
-<td><code>--r2</code>, <code>--ld</code>, <code>--indep-pairwise</code></td>
-<td><code>--r2-unphased</code>, <code>--ld</code>, <code>--indep-pairwise</code></td>
+<td><code>--r2</code> (unphased r²), <code>--r2 dprime</code> or <code>--ld</code> (phased r²), <code>--indep-pairwise</code></td>
+<td><code>--r2-unphased</code>, <code>--r2-phased</code>, <code>--ld</code>, <code>--indep-pairwise</code></td>
 </tr>
 <tr class="odd">
 <td>Case/control and quantitative association</td>
@@ -458,9 +458,29 @@ ul.task-list li input[type="checkbox"] {
 <td><code>--glm</code></td>
 </tr>
 <tr class="even">
+<td>Phased genotypes</td>
+<td>Lost when data pass through <code>.bed</code></td>
+<td>Kept in <code>.pgen</code>; <code>--pgen-info</code> reports them; <code>--export haps</code>, <code>vcf</code>, <code>beagle-phased</code></td>
+</tr>
+<tr class="odd">
+<td>Imputed dosages</td>
+<td><code>--dosage</code> with separate dosage files</td>
+<td><code>--vcf file dosage=DS</code>, <code>--bgen</code>; filter with <code>--extract-if-info</code>, <code>--mach-r2-filter</code>; <code>--hard-call-threshold</code></td>
+</tr>
+<tr class="even">
 <td>Dosage association</td>
 <td><code>--dosage</code></td>
-<td><code>--glm</code> on <code>.pgen</code>, BGEN or VCF dosages</td>
+<td><code>--glm</code> on the imported dosages</td>
+</tr>
+<tr class="odd">
+<td>Phasing and imputation themselves</td>
+<td>Not available (PLINK 1.07: short-window EM, <code>--proxy-impute</code>)</td>
+<td>Not available: use BEAGLE, SHAPEIT, Eagle, Minimac, IMPUTE or FImpute (Chapter 14)</td>
+</tr>
+<tr class="even">
+<td>Mixed-model association</td>
+<td>Not available</td>
+<td>Not available: use GCTA or GEMMA; <code>--make-grm-bin</code> writes the GRM (Chapter 13)</td>
 </tr>
 <tr class="odd">
 <td>Permutation</td>
@@ -514,10 +534,11 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 </tbody>
 </table>
-<p>Three differences catch people out:</p>
+<p>Four differences catch people out:</p>
 <ol type="1">
 <li><strong>Allele order.</strong> PLINK 1.9 makes A1 the minor allele unless you add <code>--keep-allele-order</code>. PLINK 2.0 keeps the order from the input and calls the alleles REF and ALT. Effect sizes in <code>--glm</code> are for the ALT allele (or the column <code>A1</code> in the output).</li>
 <li><strong>Output names.</strong> Files end in <code>.afreq</code>, <code>.smiss</code>, <code>.vmiss</code>, <code>.glm.logistic.hybrid</code> and so on. Read the log to see what was written.</li>
+<li><strong><code>--hwe</code> ignores case/control status</strong> in PLINK 2.0, so the same threshold removes more SNPs than in 1.9 when cases are present.</li>
 <li><strong>Missing commands.</strong> “Not available” in the table means you should use PLINK 1.9 (or 1.07) for that step, or a dedicated tool. It is common to use both versions in one project.</li>
 </ol>
 <p>Check the <a href="https://www.cog-genomics.org/plink/2.0/">PLINK 2.0 documentation</a> for the build you have; commands marked “recent builds” were added during the alpha phase.</p>
@@ -946,7 +967,7 @@ ul.task-list li input[type="checkbox"] {
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-<p>PLINK for Livestock Genomics, by Ismaila Emmanuel</p>
+<p>PLINK for Livestock Genomics, by Ismaila Emmanuel Oluwasegun</p>
 </div>   
     <div class="nav-footer-center">
       &nbsp;

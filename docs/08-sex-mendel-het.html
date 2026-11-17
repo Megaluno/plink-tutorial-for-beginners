@@ -316,7 +316,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./14-haplotypes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, proxy association and imputation</span></span></a>
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, phasing and imputation</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -405,7 +405,10 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#step-1-prune-snps-in-ld-then-run---het" id="toc-step-1-prune-snps-in-ld-then-run---het" class="nav-link" data-scroll-target="#step-1-prune-snps-in-ld-then-run---het"><span class="header-section-number">8.1.1</span> Step 1: prune SNPs in LD, then run <code>--het</code></a></li>
   </ul></li>
-  <li><a href="#sex-check-from-the-x-chromosome" id="toc-sex-check-from-the-x-chromosome" class="nav-link" data-scroll-target="#sex-check-from-the-x-chromosome"><span class="header-section-number">8.2</span> Sex check from the X chromosome</a></li>
+  <li><a href="#sex-check-from-the-x-chromosome" id="toc-sex-check-from-the-x-chromosome" class="nav-link" data-scroll-target="#sex-check-from-the-x-chromosome"><span class="header-section-number">8.2</span> Sex check from the X chromosome</a>
+  <ul class="collapse">
+  <li><a href="#adjusting-the-sex-check" id="toc-adjusting-the-sex-check" class="nav-link" data-scroll-target="#adjusting-the-sex-check"><span class="header-section-number">8.2.1</span> Adjusting the sex check</a></li>
+  </ul></li>
   <li><a href="#mendel-errors-checking-the-pedigree" id="toc-mendel-errors-checking-the-pedigree" class="nav-link" data-scroll-target="#mendel-errors-checking-the-pedigree"><span class="header-section-number">8.3</span> Mendel errors: checking the pedigree</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Megaluno/plink-tutorial-for-beginners/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -492,13 +495,21 @@ Figure&nbsp;8.1: F for every animal, coloured by breed. Red lines show mean ± 3
 <li><strong>NDA_040, F = 0.43</strong>: highly inbred. This is the planted inbred animal.</li>
 <li>The N’Dama as a group sit to the right (mean F = 0.16 against 0.04 for the other breeds). F is measured against <em>pooled</em> frequencies here, so the most distinct breed looks inbred. Compute F within breed when you want to compare animals fairly.</li>
 </ul>
-<p>The usual rule is to remove animals more than 3 standard deviations from the mean. <code>--ibc</code> gives three alternative estimators (Fhat1, Fhat2, Fhat3); Fhat3, the correlation between uniting gametes, is popular in livestock genomics. Chapter 10 adds a third measure, F_ROH, from runs of homozygosity.</p>
+<p>A common rule is to remove any animal whose F lies over three standard deviations away from the average.</p>
+<p><code>--ibc</code> gives three other estimators of F, computed SNP by SNP from the genotype and the allele frequency, the way the diagonal of the GRM is (Yang and colleagues, 2011):</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--autosome</span> <span class="at">--ibc</span> <span class="at">--out</span> ibc</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-E</span> <span class="st">"IID|ANG_001|ANG_030|NDA_040"</span> ibc.ibc</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text"><code>FID  IID      NOMISS  Fhat1      Fhat2      Fhat3
+ANG  ANG_001  4525    0.307509   0.0491274  0.186937
+ANG  ANG_030  4526   -0.0301018 -0.792053  -0.402461
+NDA  NDA_040  4526    0.158754   0.486591   0.3314</code></pre>
+<p><strong>Fhat1</strong> is the variance-based estimate (the GRM diagonal minus 1), <strong>Fhat2</strong> is based on excess homozygosity, much like <code>--het</code>, and <strong>Fhat3</strong> is the correlation between uniting gametes, the one most often used in livestock genomics. They agree on the extremes (the contaminated ANG_030 is negative on Fhat2 and Fhat3, the inbred NDA_040 is high), but for ordinary animals they can differ a lot: ANG_001 has 0.31, 0.05 and 0.19. Like <code>--het</code>, all three depend on the allele frequencies, here pooled over three breeds, so compare animals within a breed and say which estimator you report. Chapter 10 adds a measure that needs no allele frequencies, F_ROH, from runs of homozygosity.</p>
 </section>
 </section>
 <section id="sex-check-from-the-x-chromosome" class="level2" data-number="8.2">
 <h2 data-number="8.2" class="anchored" data-anchor-id="sex-check-from-the-x-chromosome"><span class="header-section-number">8.2</span> Sex check from the X chromosome</h2>
 <p>A bull has one X chromosome, so all his X SNPs look homozygous: F on the X is near 1. A cow has two X chromosomes and is often heterozygous: F near 0. PLINK compares this with the recorded sex.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--check-sex</span> <span class="at">--out</span> sexcheck</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--check-sex</span> <span class="at">--out</span> sexcheck</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre class="text"><code>--check-sex: 246 Xchr and 0 Ychr variant(s) scanned, 44 problems detected.
       FID          IID       PEDSEX       SNPSEX       STATUS            F
       ANG      ANG_071            2            1      PROBLEM            1
@@ -521,12 +532,26 @@ Figure&nbsp;8.2: F on the X for every animal, by recorded sex. F above 0.8 is ca
 <li><strong>HOL_064 and NDA_009</strong> had no recorded sex (0). Genetically they are bulls.</li>
 <li>The other 40 “problems” are cows with F between 0.2 and 0.5. They are not errors. As with the Wahlund effect, mixing breeds inflates F. Run <code>--check-sex</code> within each breed and the 44 problems fall to 11, still including the four real ones.</li>
 </ul>
-<p>Useful options: <code>--check-sex 0.3 0.7</code> changes the female and male thresholds, and <code>--impute-sex</code> writes the genotype-based sex into a new <code>.fam</code> (here it set 321 of 361 sexes and left 40 as unknown, so never apply it blindly). Livestock chips usually carry some Y-chromosome SNPs; when they are present, <code>--check-sex ycount</code> uses them too and separates the sexes much better.</p>
+<section id="adjusting-the-sex-check" class="level3" data-number="8.2.1">
+<h3 data-number="8.2.1" class="anchored" data-anchor-id="adjusting-the-sex-check"><span class="header-section-number">8.2.1</span> Adjusting the sex check</h3>
+<p>The default calls an animal female when its X-chromosome F is below 0.2 and male when it is above 0.8. You can move both thresholds, and you can let PLINK write the genetic sex into the <code>.fam</code>. Here is what each option did on our data:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--check-sex</span> 0.3 0.7 <span class="at">--out</span> sex_37        <span class="co"># female if F &lt; 0.3, male if F &gt; 0.7</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--check-sex</span> ycount <span class="at">--out</span> sex_y          <span class="co"># also count Y-chromosome calls</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--impute-sex</span> <span class="at">--make-bed</span> <span class="at">--out</span> cattle_sexed</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text"><code>sex_37:       --check-sex: 246 Xchr and 0 Ychr variant(s) scanned, 10 problems detected.
+sex_y:        Warning: No Y chromosome data for --check-sex ycount.
+cattle_sexed: --impute-sex: 246 Xchr and 0 Ychr variant(s) scanned, 321/361 sexes imputed.</code></pre>
+<ul>
+<li><strong>Widening the thresholds</strong> (0.3 and 0.7) cut the problems from 44 to 10, still including the four real ones. Most of the other “problems” were cows with F between 0.2 and 0.3, which the breed mixture had pushed up. Widening the window is fine when you can see a clear gap in the F histogram; run the check within breed if you cannot.</li>
+<li><strong><code>ycount</code></strong> also uses the number of non-missing Y-chromosome calls, which separates the sexes much better when the chip has Y SNPs. Our simulated chip has none, so PLINK warns and falls back on the X alone. Real cattle chips usually include some Y SNPs; check that they are coded as chromosome Y (31 with <code>--cow</code>) in your <code>.bim</code>.</li>
+<li><strong><code>--impute-sex</code></strong> writes the genetic sex into the new <code>.fam</code>: 141 bulls, 180 cows and <strong>40 animals set to 0 (unknown)</strong>. Those 40 were cows whose F fell between 0.2 and 0.8. They were correctly recorded as cows before; afterwards PLINK 1.9 ignores their phenotypes in association tests unless you add <code>--allow-no-sex</code>. So never apply <code>--impute-sex</code> blindly: fix the few clear errors with <code>--update-sex</code> (Chapter 5) instead.</li>
+</ul>
+</section>
 </section>
 <section id="mendel-errors-checking-the-pedigree" class="level2" data-number="8.3">
 <h2 data-number="8.3" class="anchored" data-anchor-id="mendel-errors-checking-the-pedigree"><span class="header-section-number">8.3</span> Mendel errors: checking the pedigree</h2>
 <p>A calf gets one allele from its sire and one from its dam. If both parents are AA, the calf must be AA. A calf that is AG breaks Mendel’s law; this is a <strong>Mendel error</strong>. Many errors in one family point to a wrong parent. Many errors at one SNP point to a bad SNP.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--mendel</span> <span class="at">--out</span> mendel</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--mendel</span> <span class="at">--out</span> mendel</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre class="text"><code>--me/--mendel: 877 Mendel errors detected.</code></pre>
 <table class="caption-top table">
 <colgroup>
@@ -568,10 +593,10 @@ Figure&nbsp;8.2: F on the X for every animal, by recorded sex. F above 0.8 is ca
 <p>After removing that calf, 343 errors remained, and the SNPs with the most errors (26, 23, 22 …) were all SNPs with heterozygote-calling errors from Chapter 7. Two independent checks pointing at the same SNPs is reassuring.</p>
 <p>The <code>CODE</code> column tells you the error type. Code 1 means both parents are homozygous for the same allele but the calf is heterozygous; codes 3 to 6 mean the calf is homozygous for an allele that one parent does not carry, which points at that parent.</p>
 <p>To act on the errors:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># remove families with &gt; 5% errors and SNPs with &gt; 10% errors</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--me</span> 0.05 0.1 <span class="at">--make-bed</span> <span class="at">--out</span> me_filtered</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># or keep everything but set the offending genotypes to missing</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--set-me-missing</span> <span class="at">--make-bed</span> <span class="at">--out</span> me_missing</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># remove families with &gt; 5% errors and SNPs with &gt; 10% errors</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--me</span> 0.05 0.1 <span class="at">--make-bed</span> <span class="at">--out</span> me_filtered</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co"># or keep everything but set the offending genotypes to missing</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--set-me-missing</span> <span class="at">--make-bed</span> <span class="at">--out</span> me_missing</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>--me 0.05 0.1</code> removed the three animals of family HOL_F03 and exactly the 12 SNPs with calling errors. Note that it drops the whole nuclear family; if you only want to drop the wrong calf, use <code>--remove</code>. PLINK only checks the trios written in the <code>.fam</code>, so a pedigree you have not entered is never checked.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -1012,7 +1037,7 @@ Figure&nbsp;8.2: F on the X for every animal, by recorded sex. F above 0.8 is ca
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-<p>PLINK for Livestock Genomics, by Ismaila Emmanuel</p>
+<p>PLINK for Livestock Genomics, by Ismaila Emmanuel Oluwasegun</p>
 </div>   
     <div class="nav-footer-center">
       &nbsp;

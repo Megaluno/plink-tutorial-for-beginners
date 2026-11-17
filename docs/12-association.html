@@ -106,9 +106,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
-<script src="site_libs/quarto-diagram/mermaid.min.js"></script>
-<script src="site_libs/quarto-diagram/mermaid-init.js"></script>
-<link href="site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -319,7 +316,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./14-haplotypes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, proxy association and imputation</span></span></a>
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, phasing and imputation</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -586,14 +583,18 @@ Figure&nbsp;12.2: QQ plot: observed against expected -log10(p). Under no associa
 </tr>
 </tbody>
 </table>
-<p>After Bonferroni correction, snp00706 still has p = 1.0 × 10⁻⁴.</p>
+<p>The file is sorted from the smallest p-value down; here are its first two lines:</p>
+<pre class="text"><code> CHR        SNP      UNADJ         GC       BONF       HOLM   SIDAK_SS   SIDAK_SD     FDR_BH     FDR_BY
+   5   snp00706  2.294e-08  4.018e-08  0.0001018  0.0001018  0.0001018  0.0001018  0.0001018  0.0009139
+   5   snp00708  6.768e-05  9.067e-05     0.3004     0.3003     0.2595     0.2594     0.1502          1</code></pre>
+<p>Read each column as “the p-value after this correction”: compare it with 0.05. snp00706 stays significant under every correction (Bonferroni: 2.29 × 10⁻⁸ × 4,439 tests = 1.0 × 10⁻⁴). Its neighbour snp00708 is significant before correction (6.8 × 10⁻⁵) but not after any (Bonferroni 0.30, FDR_BH 0.15). Bonferroni, Holm and Šidák control the chance of even one false positive and are strict; FDR_BH controls the expected <em>share</em> of false positives among the hits and is gentler, which suits screening many SNPs. GC divides each chi-square by λ, so it only makes sense when λ is close to 1 and the inflation is spread evenly. Note that these corrections treat the SNPs as independent; with SNPs in LD they are conservative, which is why permutation (Chapter 13) gives a sharper genome-wide threshold.</p>
 </section>
 <section id="step-4-other-tests-for-the-same-question" class="level2" data-number="12.4">
 <h2 data-number="12.4" class="anchored" data-anchor-id="step-4-other-tests-for-the-same-question"><span class="header-section-number">12.4</span> Step 4: other tests for the same question</h2>
 <section id="fishers-exact-test" class="level3" data-number="12.4.1">
 <h3 data-number="12.4.1" class="anchored" data-anchor-id="fishers-exact-test"><span class="header-section-number">12.4.1</span> Fisher’s exact test</h3>
 <p>The chi-square test is an approximation that becomes unreliable when a table cell has fewer than about 5 counts (rare SNPs, small studies). Fisher’s exact test computes the exact probability:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--assoc</span> fisher <span class="at">--out</span> a_fisher</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--assoc</span> fisher <span class="at">--out</span> a_fisher</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>For snp00706 it gave p = 1.36 × 10⁻⁸, close to the chi-square’s 1.04 × 10⁻⁸, because the counts are large.</p>
 </section>
 <section id="genotype-models-trend-dominant-recessive-and-general" class="level3" data-number="12.4.2">
@@ -640,7 +641,7 @@ Figure&nbsp;12.2: QQ plot: observed against expected -log10(p). Under no associa
 </tr>
 </tbody>
 </table>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--model</span> <span class="at">--out</span> m_all</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--model</span> <span class="at">--out</span> m_all</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre class="text"><code> CHR        SNP   A1   A2     TEST            AFF          UNAFF        CHISQ   DF            P
    5   snp00706    A    C     GENO       50/71/17      32/104/75        32.91    2     7.14e-08
    5   snp00706    A    C    TREND        171/105        168/254        32.88    1    9.783e-09
@@ -652,7 +653,7 @@ Figure&nbsp;12.2: QQ plot: observed against expected -log10(p). Under no associa
 <section id="model-comparison-is-the-effect-additive" class="level3" data-number="12.4.3">
 <h3 data-number="12.4.3" class="anchored" data-anchor-id="model-comparison-is-the-effect-additive"><span class="header-section-number">12.4.3</span> Model comparison: is the effect additive?</h3>
 <p><code>--logistic --genotypic</code> fits two terms per SNP: <strong>ADD</strong> (0, 1 or 2 copies of A1) and <strong>DOMDEV</strong> (1 for heterozygotes, 0 otherwise). DOMDEV measures how far the heterozygote is from halfway between the two homozygotes.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--logistic</span> <span class="at">--covar</span> pcs.txt <span class="at">--genotypic</span> <span class="at">--out</span> lg_geno</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--logistic</span> <span class="at">--covar</span> pcs.txt <span class="at">--genotypic</span> <span class="at">--out</span> lg_geno</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre class="text"><code>   5   snp00706   62019439    A        ADD      349      3.325        5.573    2.505e-08
    5   snp00706   62019439    A     DOMDEV      349      1.026      0.09652       0.9231
    5   snp00706   62019439    A   GENO_2DF      349         NA        31.19    1.688e-07</code></pre>
@@ -674,9 +675,9 @@ Figure&nbsp;12.2: QQ plot: observed against expected -log10(p). Under no associa
 <section id="stratified-tests-cochran-mantel-haenszel-and-breslow-day" class="level3" data-number="12.4.4">
 <h3 data-number="12.4.4" class="anchored" data-anchor-id="stratified-tests-cochran-mantel-haenszel-and-breslow-day"><span class="header-section-number">12.4.4</span> Stratified tests: Cochran-Mantel-Haenszel and Breslow-Day</h3>
 <p>Instead of a regression, you can split animals into strata (breeds) and combine the 2 × 2 tables:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--mh</span> <span class="at">--within</span> breed.clst <span class="at">--out</span> mh</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--bd</span> <span class="at">--within</span> breed.clst <span class="at">--out</span> bd</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--homog</span> <span class="at">--within</span> breed.clst <span class="at">--out</span> homog</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--mh</span> <span class="at">--within</span> breed.clst <span class="at">--out</span> mh</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--bd</span> <span class="at">--within</span> breed.clst <span class="at">--out</span> bd</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--homog</span> <span class="at">--within</span> breed.clst <span class="at">--out</span> homog</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The <strong>CMH test</strong> asks whether there is an association within strata and gives one common OR: for snp00706, OR = 2.92 (95% CI 2.01 to 4.25), p = 9.9 × 10⁻⁹, with λ = 1.03. The <strong>Breslow-Day test</strong> asks whether the OR is the same in every stratum (p = 0.59, so yes). <code>--homog</code> shows each breed:</p>
 <table class="caption-top table">
 <thead>
@@ -724,27 +725,29 @@ Figure&nbsp;12.2: QQ plot: observed against expected -log10(p). Under no associa
 </section>
 <section id="which-test-should-i-use" class="level2" data-number="12.5">
 <h2 data-number="12.5" class="anchored" data-anchor-id="which-test-should-i-use"><span class="header-section-number">12.5</span> Which test should I use?</h2>
-<div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>flowchart TD</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  A[Case/control trait] --&gt; B{More than one breed,&lt;br/&gt;herd or batch?}</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  B -- no --&gt; C{Rare SNPs or&lt;br/&gt;small study?}</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  C -- yes --&gt; D["--assoc fisher"]</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  C -- no --&gt; E["--assoc or --model&lt;br/&gt;(check lambda with --adjust)"]</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  B -- yes --&gt; F["--logistic with PCs or breed covariates&lt;br/&gt;or --mh --within"]</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  F --&gt; G{Same effect in&lt;br/&gt;each group?}</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  G --&gt; H["--bd or --homog"]</span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  F --&gt; I{Additive?}</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  I --&gt; J["--logistic --genotypic&lt;br/&gt;(look at DOMDEV)"]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<p></p><figure class="figure"><p></p>
-<div>
-
+<div id="fig-assoc-choice" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-assoc-choice-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/flow_assoc_choice.png" class="img-fluid figure-img">
 </div>
-<p></p><figcaption> A simple guide to choosing a case/control test.</figcaption> </figure><p></p>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-assoc-choice-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12.3: A simple guide to choosing a case/control test, with the PLINK command for each box.
+</figcaption>
+</figure>
 </div>
-</div>
-</div>
+<p>Each box of the figure as a command on the cleaned data, with the result for the BRD SNP snp00706 from the sections above:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># one breed, rare SNPs or a small study: exact test</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--assoc</span> fisher <span class="at">--out</span> a_fisher          <span class="co"># p = 1.4e-08</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co"># one breed, common SNPs: allelic and genotype tests, and check lambda</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--model</span> <span class="at">--out</span> m_all                    <span class="co"># TREND p = 9.8e-09</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--assoc</span> <span class="at">--adjust</span> <span class="at">--out</span> a_basic         <span class="co"># lambda = 10.19 here!</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co"># several breeds: model the structure</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--logistic</span> <span class="at">--covar</span> pcs.txt <span class="at">--hide-covar</span> <span class="at">--adjust</span> <span class="at">--out</span> lg_pc   <span class="co"># p = 2.3e-08, lambda 1.04</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--mh</span> <span class="at">--within</span> breed.clst <span class="at">--out</span> mh                              <span class="co"># p = 9.9e-09</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co"># then: same effect in every breed? additive?</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--bd</span> <span class="at">--within</span> breed.clst <span class="at">--out</span> bd                              <span class="co"># Breslow-Day p = 0.59</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--logistic</span> <span class="at">--covar</span> pcs.txt <span class="at">--genotypic</span> <span class="at">--out</span> lg_geno          <span class="co"># DOMDEV p = 0.92</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Our data have three breeds, so the right-hand branch applies; the λ of 10.19 from the plain <code>--assoc</code> is the warning sign that sends you there.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -756,7 +759,7 @@ Figure&nbsp;12.2: QQ plot: observed against expected -log10(p). Under no associa
 </div>
 <div class="callout-body-container callout-body">
 <p>One command, <code>--glm</code>, replaces <code>--assoc</code>, <code>--model</code>, <code>--logistic</code> and <code>--linear</code>; it picks logistic or linear regression from the phenotype. <code>firth-fallback</code> uses Firth regression for rare SNPs, which handles complete separation. <code>--mh</code>, <code>--bd</code>, <code>--homog</code> and <code>--model</code> are not in PLINK 2.0.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--glm</span> hide-covar firth-fallback <span class="at">--covar</span> pcs.txt <span class="at">--adjust</span> <span class="at">--out</span> glm_brd</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--glm</span> hide-covar firth-fallback <span class="at">--covar</span> pcs.txt <span class="at">--adjust</span> <span class="at">--out</span> glm_brd</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>It gave the same answer: snp00706, OR 3.319, p = 2.29 × 10⁻⁸, λ = 1.04.</p>
 </div>
 </div>
@@ -1186,7 +1189,7 @@ Figure&nbsp;12.2: QQ plot: observed against expected -log10(p). Under no associa
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-<p>PLINK for Livestock Genomics, by Ismaila Emmanuel</p>
+<p>PLINK for Livestock Genomics, by Ismaila Emmanuel Oluwasegun</p>
 </div>   
     <div class="nav-footer-center">
       &nbsp;

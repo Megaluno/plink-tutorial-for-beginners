@@ -9,15 +9,16 @@
 | CNV | Copy number variant: a deleted or duplicated stretch of DNA |
 | Covariate | An extra variable in a model (PCs, sex, herd, age) used to remove its influence |
 | D, D′, r² | Measures of linkage disequilibrium between two SNPs (Chapter 9) |
-| Dosage | Expected number of A1 copies after imputation, between 0 and 2 |
+| Dosage | Expected number of copies of an allele (A1 in PLINK 1.9, usually ALT in a VCF) after imputation, between 0 and 2 |
+| DR2, R2, INFO | Imputation quality scores: the estimated r² between dosage and true genotype, from BEAGLE, Minimac and IMPUTE respectively |
 | Eigenvalue | How much variation lies along a principal component |
 | Eigenvector | The direction of a principal component; its values are the PC scores |
 | EMP1 / EMP2 | Empirical p-value from permutation / the same, corrected for all tests |
 | Epistasis | Interaction between two or more loci |
 | F (inbreeding) | Excess homozygosity compared with expectation |
 | F_ROH | Share of the genome covered by runs of homozygosity |
-| F~ST~ | Share of genetic variation that lies between populations |
 | Founder / nonfounder | Animal with both parents unknown / animal with at least one parent in the data |
+| F~ST~ | Share of genetic variation that lies between populations |
 | GRM | Genomic relationship matrix: relationships between animals estimated from SNPs |
 | HWE | Hardy-Weinberg equilibrium: genotype shares p², 2pq and q² under random mating |
 | IBS / IBD | Identical by state (same alleles) / identical by descent (same ancestral copy) |
@@ -25,14 +26,19 @@
 | KING | A relatedness method that does not need population allele frequencies |
 | λ (lambda) | Genomic inflation factor: median test statistic divided by its expected value; close to 1 is good |
 | LD pruning | Removing SNPs so that the remaining ones are not strongly correlated |
+| LE (linkage equilibrium) | Alleles at two SNPs combined at random on chromosomes; the expected haplotype frequency is the product of the allele frequencies |
+| Li and Stephens model | The "copying model" behind most phasing and imputation programs: a chromosome is described as a mosaic of pieces copied from other haplotypes |
 | MDS | Multidimensional scaling of pairwise distances; an alternative to PCA |
 | Mendel error | A calf genotype that is impossible given its parents' genotypes |
+| Mixed model | Regression with a random polygenic effect whose covariance follows the GRM; corrects for relatives and structure together |
 | OR / BETA | Odds ratio (yes/no trait) / regression slope (measured trait) per copy of A1 |
 | PCA | Principal component analysis: a few axes that summarise genetic differences between animals |
-| Phase | Which alleles sit together on the same chromosome copy |
+| Phase | Which alleles sit together on the same chromosome copy; `0\|1` in a VCF is phased, `0/1` unphased |
 | PI_HAT | Estimated share of the genome two animals share IBD |
 | Population stratification | False associations caused by differences in both allele frequency and trait between groups |
+| Reference panel | Animals typed at high density (or sequenced) and phased, used to impute others |
 | ROH | Run of homozygosity: a long homozygous stretch inherited from a common ancestor |
 | Strand flip | The same SNP reported from the opposite DNA strand (A/G becomes T/C) |
+| Switch error | A place where an estimated haplotype jumps from one true chromosome copy to the other; the switch error rate measures phasing accuracy |
 | TDT | Transmission disequilibrium test: a family-based association test |
 | Wahlund effect | Fewer heterozygotes than expected when separate populations are pooled |

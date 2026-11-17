@@ -6,18 +6,7 @@ This chapter puts everything together: one script that turns the raw practice fi
 
 ## The pipeline at a glance
 
-```{mermaid}
-%%| fig-cap: "The QC pipeline used in this book. Look first, decide on lists, then apply them with animals before SNPs."
-flowchart TD
-  A["Raw data<br/>361 animals, 4,800 SNPs"] --> B["0. Look<br/>--missing, --freq, --hardy within breed,<br/>--test-missing, --het, --check-sex,<br/>--mendel, --genome, PCA"]
-  B --> C["1. Decide<br/>animals to remove, sexes to fix,<br/>SNPs to exclude, breed labels to fix"]
-  C --> D["2a. Animals<br/>--remove, --update-sex"]
-  D --> E["2b. SNPs<br/>--exclude, --geno 0.05"]
-  E --> F["2c. Safety check<br/>--mind 0.05"]
-  F --> G["2d. --maf 0.01"]
-  G --> H["Clean data<br/>351 animals, 4,443 SNPs"]
-  H --> I["3. Structure for association<br/>prune, PCA"]
-```
+![The QC pipeline used in this book. Look first, decide on lists, then apply them with animals before SNPs. The full script, with the command for every box, follows below.](images/flow_pipeline.png){#fig-pipeline}
 
 ## The script
 
@@ -112,6 +101,11 @@ All data, scripts and figures are in the [GitHub repository](https://github.com/
 | `qc_lists/` | The QC lists used to build `cattle_qc` (removed animals, sex updates, excluded SNPs, PCs) |
 | `scripts/convert_real_data.py` | Converts the real cattle data from the `synbreedData` package to PLINK format |
 | `scripts/make_figures.py` | Draws every figure from the PLINK output |
+| `data/phasing/`, `scripts/simulate_phasing.py` | The phasing and imputation data of Chapter 14 (msprime simulation, seed 2026) |
+| `scripts/phasing_imputation_pipeline.sh` | Runs every phasing and imputation step of Chapter 14, using `ls_impute.py`, `eval_imputation.py`, `eval_window_phase.py` and `fig_imputation.py` |
+| `scripts/lmm_gwas.py` | The teaching mixed-model GWAS of Chapter 13 |
+| `data/ascertainment/`, `scripts/simulate_ascertainment.py`, `scripts/ascertainment_pipeline.sh` | The ascertainment-bias simulation and PLINK runs of Chapter 18 |
+| `scripts/fig_flowcharts.py`, `scripts/fig_imputation.py`, `scripts/fig_ascertainment.py` | The workflow diagrams and the figures of Chapters 14 and 18 |
 | `downloads/plink_tutorial_data_and_scripts.zip` | Everything above in one file |
 
 The results were produced with PLINK v1.07, v1.9.2-dev and v2.0.0-b.1.5-dev built from the official source. Another build or random seed can give slightly different numbers.

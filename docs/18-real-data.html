@@ -316,7 +316,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./14-haplotypes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, proxy association and imputation</span></span></a>
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, phasing and imputation</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -407,7 +407,13 @@ window.Quarto = {
   <li><a href="#step-3-relationships-in-the-cattle" id="toc-step-3-relationships-in-the-cattle" class="nav-link" data-scroll-target="#step-3-relationships-in-the-cattle"><span class="header-section-number">18.4</span> Step 3: relationships in the cattle</a></li>
   <li><a href="#step-4-breed-differences-in-the-sheep" id="toc-step-4-breed-differences-in-the-sheep" class="nav-link" data-scroll-target="#step-4-breed-differences-in-the-sheep"><span class="header-section-number">18.5</span> Step 4: breed differences in the sheep</a></li>
   <li><a href="#step-5-ld-in-real-populations" id="toc-step-5-ld-in-real-populations" class="nav-link" data-scroll-target="#step-5-ld-in-real-populations"><span class="header-section-number">18.6</span> Step 5: LD in real populations</a></li>
-  <li><a href="#what-real-data-taught-us" id="toc-what-real-data-taught-us" class="nav-link" data-scroll-target="#what-real-data-taught-us"><span class="header-section-number">18.7</span> What real data taught us</a></li>
+  <li><a href="#ascertainment-bias-the-chip-decides-part-of-the-answer" id="toc-ascertainment-bias-the-chip-decides-part-of-the-answer" class="nav-link" data-scroll-target="#ascertainment-bias-the-chip-decides-part-of-the-answer"><span class="header-section-number">18.7</span> Ascertainment bias: the chip decides part of the answer</a>
+  <ul class="collapse">
+  <li><a href="#a-simulation-where-we-know-the-truth" id="toc-a-simulation-where-we-know-the-truth" class="nav-link" data-scroll-target="#a-simulation-where-we-know-the-truth"><span class="header-section-number">18.7.1</span> A simulation where we know the truth</a></li>
+  <li><a href="#how-it-shows-up-in-plink-output" id="toc-how-it-shows-up-in-plink-output" class="nav-link" data-scroll-target="#how-it-shows-up-in-plink-output"><span class="header-section-number">18.7.2</span> How it shows up in PLINK output</a></li>
+  <li><a href="#limiting-the-damage" id="toc-limiting-the-damage" class="nav-link" data-scroll-target="#limiting-the-damage"><span class="header-section-number">18.7.3</span> Limiting the damage</a></li>
+  </ul></li>
+  <li><a href="#what-real-data-taught-us" id="toc-what-real-data-taught-us" class="nav-link" data-scroll-target="#what-real-data-taught-us"><span class="header-section-number">18.8</span> What real data taught us</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Megaluno/plink-tutorial-for-beginners/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -628,8 +634,221 @@ F_{ST} = \frac{\text{variance of allele frequency between breeds}}{\text{total v
 </table>
 <p>LD in both species stays above background over several megabases (<a href="09-ld.html#fig-ld-decay" class="quarto-xref">Figure&nbsp;<span>9.2</span></a>). That is typical of livestock: breeds were founded from few animals and selected hard, so their effective population size is small and long haplotypes survive. In practice it means a 50K chip tags most of the genome in a single breed, but LD-based results (pruning, clumping, imputation) must be redone for each breed.</p>
 </section>
-<section id="what-real-data-taught-us" class="level2" data-number="18.7">
-<h2 data-number="18.7" class="anchored" data-anchor-id="what-real-data-taught-us"><span class="header-section-number">18.7</span> What real data taught us</h2>
+<section id="ascertainment-bias-the-chip-decides-part-of-the-answer" class="level2" data-number="18.7">
+<h2 data-number="18.7" class="anchored" data-anchor-id="ascertainment-bias-the-chip-decides-part-of-the-answer"><span class="header-section-number">18.7</span> Ascertainment bias: the chip decides part of the answer</h2>
+<p>Every SNP chip is a selection. Its makers first found SNPs by sequencing a few animals (the <em>discovery panel</em>), then kept the SNPs that were common in those animals. That choice, called <strong>SNP ascertainment</strong>, shapes every statistic you compute from the chip. Breeds like the discovery animals look diverse; breeds that were not in the panel carry many chip SNPs that do not vary in them at all, and look less diverse than they are. For cattle this is well documented: the Bovine HapMap study found that African and Indian cattle had higher heterozygosity than European cattle in sequence data, but lower heterozygosity on SNP arrays, whose SNPs had mostly been found in taurine cattle (The Bovine HapMap Consortium, 2009). This matters directly for work on African breeds such as N’Dama, Sanga or zebu.</p>
+<section id="a-simulation-where-we-know-the-truth" class="level3" data-number="18.7.1">
+<h3 data-number="18.7.1" class="anchored" data-anchor-id="a-simulation-where-we-know-the-truth"><span class="header-section-number">18.7.1</span> A simulation where we know the truth</h3>
+<p><code>scripts/simulate_ascertainment.py</code> simulates three breeds with msprime: two European-type breeds, EUR1 and EUR2, that split 40 generations ago, and an African-type breed, AFR, with a larger effective population size and therefore <strong>more</strong> diversity. From the same 150 study animals (50 per breed) it builds three SNP sets on five 20 Mb chromosomes:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>SNP set</th>
+<th>How the SNPs were chosen</th>
+<th>SNPs</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>seq</code></td>
+<td>A random sample of all SNPs that vary in the 150 animals, as from sequencing</td>
+<td>3,692</td>
+</tr>
+<tr class="even">
+<td><code>chipEUR</code></td>
+<td>MAF ≥ 0.05 in a discovery panel of 10 extra EUR1 animals, about one per 25 kb (like a chip designed in one breed)</td>
+<td>3,692</td>
+</tr>
+<tr class="odd">
+<td><code>chipALL</code></td>
+<td>MAF ≥ 0.05 in a discovery panel with 10 animals of each breed, same density, thinned to the same number</td>
+<td>3,692</td>
+</tr>
+</tbody>
+</table>
+<p>Then every set went through the same PLINK commands (<code>scripts/ascertainment_pipeline.sh</code>):</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> chipEUR <span class="at">--cow</span> <span class="at">--freq</span> <span class="at">--within</span> breeds.clst <span class="at">--out</span> f_chipEUR     <span class="co"># allele frequency per breed</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> chipEUR <span class="at">--cow</span> <span class="at">--het</span> <span class="at">--out</span> h_chipEUR                           <span class="co"># observed heterozygosity per animal</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> chipEUR <span class="at">--cow</span> <span class="at">--keep</span> EUR1_AFR.txt <span class="at">--fst</span> <span class="at">--within</span> breeds.clst <span class="at">--out</span> fst_chipEUR</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> chipEUR <span class="at">--cow</span> <span class="at">--homozyg</span> <span class="at">--homozyg-snp</span> 40 <span class="at">--homozyg-kb</span> 1000 <span class="at">--homozyg-density</span> 100 <span class="dt">\</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">--homozyg-gap</span> 1000 <span class="at">--homozyg-window-snp</span> 40 <span class="at">--out</span> roh_chipEUR</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="fig-ascertainment" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ascertainment-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/18_ascertainment.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ascertainment-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;18.3: Left: expected heterozygosity of each breed on the three SNP sets. Right: the allele frequency spectrum within EUR1 and AFR on sequence and on the chip discovered in EUR1.
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="how-it-shows-up-in-plink-output" class="level3" data-number="18.7.2">
+<h3 data-number="18.7.2" class="anchored" data-anchor-id="how-it-shows-up-in-plink-output"><span class="header-section-number">18.7.2</span> How it shows up in PLINK output</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Statistic (PLINK command)</th>
+<th>Breed</th>
+<th>Sequence (truth)</th>
+<th>Chip found in EUR1</th>
+<th>Chip found in all breeds</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>SNPs monomorphic in the breed (<code>--freq --within</code>)</td>
+<td>EUR1</td>
+<td>53.5%</td>
+<td><strong>0.6%</strong></td>
+<td>31.9%</td>
+</tr>
+<tr class="even">
+<td></td>
+<td>AFR</td>
+<td>21.9%</td>
+<td><strong>40.9%</strong></td>
+<td>24.5%</td>
+</tr>
+<tr class="odd">
+<td>Expected heterozygosity, mean 2pq (<code>--freq --within</code>)</td>
+<td>EUR1</td>
+<td>0.143</td>
+<td>0.328</td>
+<td>0.221</td>
+</tr>
+<tr class="even">
+<td></td>
+<td>EUR2</td>
+<td>0.144</td>
+<td>0.289</td>
+<td>0.227</td>
+</tr>
+<tr class="odd">
+<td></td>
+<td>AFR</td>
+<td><strong>0.186</strong></td>
+<td><strong>0.200</strong></td>
+<td><strong>0.258</strong></td>
+</tr>
+<tr class="even">
+<td>Observed heterozygosity (<code>--het</code>)</td>
+<td>EUR1 / AFR</td>
+<td>0.140 / 0.190</td>
+<td>0.321 / 0.205</td>
+<td>0.216 / 0.264</td>
+</tr>
+<tr class="odd">
+<td>F<sub>ST</sub> EUR1 vs AFR (<code>--fst</code>)</td>
+<td></td>
+<td>0.313</td>
+<td>0.285</td>
+<td>0.321</td>
+</tr>
+<tr class="even">
+<td>F<sub>ST</sub> EUR1 vs EUR2 (<code>--fst</code>)</td>
+<td></td>
+<td>0.120</td>
+<td>0.118</td>
+<td>0.128</td>
+</tr>
+<tr class="odd">
+<td>F<sub>ROH</sub>, runs ≥ 1 Mb (<code>--homozyg</code>)</td>
+<td>EUR1 / AFR</td>
+<td>0.257 / 0.055</td>
+<td>0.174 / 0.049</td>
+<td>0.196 / 0.027</td>
+</tr>
+<tr class="even">
+<td>Variance on PC1 / PC2 (<code>--pca</code>)</td>
+<td></td>
+<td>21.5% / 4.8%</td>
+<td>19.0% / 7.8%</td>
+<td>24.7% / 6.0%</td>
+</tr>
+</tbody>
+</table>
+<p>The signs to look for in your own output:</p>
+<ol type="1">
+<li><strong><code>--freq --within</code> shows many SNPs with frequency 0 or 1 in one breed only.</strong> On the EUR1-designed chip, 41% of SNPs did not vary at all in AFR, against 0.6% in EUR1. When one breed has far more monomorphic chip SNPs than the others, suspect that it was missing from the discovery panel.</li>
+<li><strong>The ranking of breeds by heterozygosity can turn upside down.</strong> The truth is that AFR is the most diverse breed (0.186 against 0.143). On the EUR1 chip, AFR came out the <em>least</em> diverse (0.200 against 0.328 for EUR1). The multi-breed chip put the breeds back in the right order.</li>
+<li><strong>The allele frequency spectrum is flat instead of falling.</strong> In sequence data most variants are rare (the grey AFR line falls steeply from the left). On the chip, rare variants are almost absent in the discovery breed, because the panel only kept common SNPs. Any statistic that depends on rare variants (Tajima’s D, some selection scans, demographic inference) is distorted.</li>
+<li><strong>Absolute values cannot be compared across SNP sets.</strong> Every chip gives far higher heterozygosity than sequence (0.33 against 0.14 in EUR1), simply because it selected variable SNPs. Never compare a heterozygosity from a 50K chip with one from sequence, from another chip, or from another study’s SNP set.</li>
+<li><strong>F<sub>ST</sub> between the discovery breed and an outside breed is underestimated</strong> (0.285 against 0.313), as reported for cattle when SNPs are chosen from some groups only (McTavish and Hillis, 2015). Between two breeds that are both close to the discovery panel, F<sub>ST</sub> was hardly affected.</li>
+<li><strong>Runs of homozygosity change with the SNP set.</strong> A SNP that does not vary in a breed always looks homozygous, so it helps a run continue. AFR’s F<sub>ROH</sub> was 0.049 on the EUR1 chip but 0.027 on the multi-breed chip, while EUR1’s moved the other way (0.174 against 0.196). Compare F<sub>ROH</sub> only between animals typed on the same chip, and be careful comparing breeds that differ in how well the chip suits them.</li>
+<li><strong>PCA is the most robust.</strong> The breeds separated in the same way on all three SNP sets, though the split of variance between PC1 and PC2 shifted. Malomane and colleagues (2018) found the same in chickens, comparing arrays with sequence.</li>
+</ol>
+</section>
+<section id="limiting-the-damage" class="level3" data-number="18.7.3">
+<h3 data-number="18.7.3" class="anchored" data-anchor-id="limiting-the-damage"><span class="header-section-number">18.7.3</span> Limiting the damage</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Strategy</th>
+<th>What it does</th>
+<th>In our simulation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Know your chip’s discovery panel</strong></td>
+<td>Read the chip paper. For the BovineSNP50 chip, SNPs were found mainly in taurine breeds (Matukumalli and colleagues, 2009); African Sanga breeds were not in the discovery process</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><strong>Use a chip discovered in all the breeds you compare, or sequence</strong></td>
+<td>Removes the cause</td>
+<td>Correct ranking of breeds, F<sub>ST</sub> 0.321 against 0.313</td>
+</tr>
+<tr class="odd">
+<td><strong>LD pruning before diversity statistics</strong></td>
+<td>Removes the dense clusters of SNPs the panel favoured; the best of several filtering strategies tested by Malomane and colleagues (2018)</td>
+<td>Narrowed the gap (AFR 0.291, EUR1 0.323) but did not restore the right order, and lowered F<sub>ST</sub> (0.160 against 0.313), as they also reported</td>
+</tr>
+<tr class="even">
+<td><strong>Compare within the same SNP set only</strong></td>
+<td>Use chip results for relative comparisons (animals, herds, generations of one breed), not as absolute diversity</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><strong>Filter monomorphic SNPs per breed before per-breed analyses</strong></td>
+<td><code>--maf</code> within each breed (Chapter 7), so each breed is described by SNPs that vary in it; report how many were removed per breed</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><strong>Model the ascertainment</strong></td>
+<td>Methods that correct the frequency spectrum when the discovery process is known (Nielsen and colleagues, 2004; reviewed by Lachance and Tishkoff, 2013)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><strong>Report it</strong></td>
+<td>Name the chip, its discovery breeds and your SNP filters, so readers can judge how far the comparison is fair</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>The short version: a SNP chip is a good tool for questions <em>within</em> the breeds it was designed for, and a biased one for comparing diversity <em>between</em> breeds, especially when some of them, like many African breeds, were not in the discovery panel. LD pruning helps a little; sequence data, or a chip discovered across all the breeds you study, help most.</p>
+</section>
+</section>
+<section id="what-real-data-taught-us" class="level2" data-number="18.8">
+<h2 data-number="18.8" class="anchored" data-anchor-id="what-real-data-taught-us"><span class="header-section-number">18.8</span> What real data taught us</h2>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
@@ -665,6 +884,10 @@ F_{ST} = \frac{\text{variance of allele frequency between breeds}}{\text{total v
 <tr class="even">
 <td>LD extends far in livestock, and differs between breeds</td>
 <td>Step 5</td>
+</tr>
+<tr class="odd">
+<td>A chip designed in other breeds can reverse the diversity ranking of breeds</td>
+<td>Ascertainment bias</td>
 </tr>
 </tbody>
 </table>
@@ -1094,7 +1317,7 @@ F_{ST} = \frac{\text{variance of allele frequency between breeds}}{\text{total v
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-<p>PLINK for Livestock Genomics, by Ismaila Emmanuel</p>
+<p>PLINK for Livestock Genomics, by Ismaila Emmanuel Oluwasegun</p>
 </div>   
     <div class="nav-footer-center">
       &nbsp;

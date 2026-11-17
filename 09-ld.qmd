@@ -16,7 +16,7 @@ In livestock, LD extends much further than in humans, because breeds were founde
 
 A **haplotype** is the set of alleles on one chromosome copy. With two SNPs, one with alleles A/C and one with alleles G/T, there are four possible haplotypes: A-G, A-T, C-G and C-T. Each animal carries two haplotypes, one from each parent.
 
-From genotypes alone we often cannot tell which haplotypes an animal has. An animal that is A/C at the first SNP and G/T at the second could carry A-G + C-T, or A-T + C-G. Finding the right pair is called **phasing**. PLINK estimates haplotype frequencies statistically, and dedicated programs such as BEAGLE and SHAPEIT phase whole chromosomes.
+From genotypes alone we often cannot tell which haplotypes an animal has. An animal that is A/C at the first SNP and G/T at the second could carry A-G + C-T, or A-T + C-G. Finding the right pair is called **phasing**. For two SNPs at a time, PLINK can estimate the four haplotype *frequencies* in the whole group without knowing every animal's phase (below). Getting each animal's two haplotypes along a whole chromosome is a different and much harder job, done by programs such as BEAGLE, SHAPEIT and Eagle (Chapter 14).
 
 ## Measuring LD: D, D′ and r²
 
@@ -38,6 +38,8 @@ where D<sub>max</sub> is the largest value D could reach with these allele frequ
 
 ### A worked example with real output
 
+`--ld` reports the haplotype frequencies of one pair of SNPs. Only animals that are heterozygous at **both** SNPs have an unknown phase; everyone else's haplotypes can be read straight from the genotypes. PLINK estimates the frequencies with the EM algorithm: it splits each double heterozygote between the two possible phases in proportion to the current frequency estimates, re-counts, and repeats until the numbers stop changing.
+
 ```bash
 plink --bfile cattle --cow --ld snp02144 snp02145 --out ld_pair
 ```
@@ -58,12 +60,17 @@ plink --bfile cattle --cow --ld snp02144 snp02145 --out ld_pair
 Let us check PLINK's numbers by hand.
 
 1. Allele frequencies: f<sub>A</sub> = AT + AG = 0.323 + 0.084 = 0.407, and f<sub>T</sub> = AT + CT = 0.323 + 0.102 = 0.426.
-2. If independent, AT would be 0.407 × 0.426 = 0.173 (PLINK's "expectation under LE", linkage equilibrium).
+2. If independent, AT would be 0.407 × 0.426 = 0.173. That is PLINK's column **"Expectation under LE"**: the haplotype frequency expected under *linkage equilibrium*, the situation in which the alleles at the two SNPs are combined at random.
 3. D = 0.323 − 0.173 = 0.150.
-4. r² = 0.150² / (0.407 × 0.593 × 0.426 × 0.574) = 0.0225 / 0.0590 = 0.382. ✔
-5. D<sub>max</sub> = min(0.407 × 0.574, 0.593 × 0.426) = 0.234, so D′ = 0.150 / 0.234 = 0.642. ✔
+4. r² = 0.150² / (0.407 × 0.593 × 0.426 × 0.574) = 0.0225 / 0.0590 = 0.382, as PLINK reported.
+5. D<sub>max</sub> = min(0.407 × 0.574, 0.593 × 0.426) = 0.234, so D′ = 0.150 / 0.234 = 0.642, as PLINK reported.
 
 "In phase alleles are AT/CG" means A tends to travel with T, and C with G.
+
+::: {.callout-warning}
+## LE is not HWE
+The two "equilibria" are easy to mix up. **Hardy-Weinberg equilibrium** (Chapter 7) is about *one* SNP: are the two alleles inside an animal combined at random, giving p², 2pq and q²? **Linkage equilibrium** is about *two* SNPs: are the alleles at SNP 1 combined at random with the alleles at SNP 2 on the same chromosome copy, giving f<sub>A</sub>f<sub>T</sub> for haplotype A-T? A SNP pair can be in perfect HWE at both SNPs and still be in strong linkage *dis*equilibrium. The expected values in the table come from multiplying allele frequencies, not from p², 2pq and q².
+:::
 
 ::: {.callout-tip}
 ## Why r² can never reach 1 for some pairs
@@ -74,19 +81,80 @@ r² can only be 1 when the two SNPs have the same MAF. A SNP with MAF 0.05 and o
 
 ### Step 1: compute r² for many pairs
 
+`--r2` writes one line for every pair of SNPs that passes three windows. Start with the defaults, on chromosome 14 only:
+
+```bash
+plink --bfile cattle --cow --chr 14 --r2 --out ld_default
+head -3 ld_default.ld
+```
+
+```text
+ CHR_A         BP_A      SNP_A  CHR_B         BP_B      SNP_B           R2
+    14      3312654   snp02076     14      3399456   snp02077      0.32996
+    14     21869511   snp02106     14     22049638   snp02107     0.257487
+```
+
+Each line is one pair: positions and names of SNP A and SNP B, and their r². Only 152 pairs were written, because three filters were on:
+
+| Window flag | Default | Meaning |
+|---|---|---|
+| `--ld-window` | 10 | Pairs at most 9 SNPs apart in the file (counting SNPs, not distance) |
+| `--ld-window-kb` | 1000 | Pairs at most 1,000 kb apart |
+| `--ld-window-r2` | 0.2 | Only pairs with r² of at least 0.2 are **written** |
+
+The last one is the trap: it hides every weak pair, so an average of the written r² values is biased upwards. Relaxing the filters one at a time on chromosome 14:
+
+| Command | Pairs written |
+|---|---|
+| `--r2` (defaults) | 152 |
+| `--r2 --ld-window-r2 0` | 962 |
+| `--r2 --ld-window-r2 0 --ld-window 99999 --ld-window-kb 1000` | 1,721 |
+
+For an LD decay curve you need every pair up to some distance, so set `--ld-window-r2 0`, make `--ld-window` large and let `--ld-window-kb` set the distance:
+
 ```bash
 plink --bfile cattle --cow --autosome --r2 --ld-window-kb 1000 --ld-window 99999 --ld-window-r2 0 --out ld
 ```
 
-| Option | Meaning | Default |
-|---|---|---|
-| `--ld-window-kb` | Only pairs closer than this (kb) | 1000 |
-| `--ld-window` | Only pairs fewer than this many SNPs apart | 10 |
-| `--ld-window-r2` | Only report pairs with r² at least this | 0.2 |
-| `--r2 square` | Write a full matrix instead of a list | |
-| `--r` | Report r (with sign) instead of r² | |
+On 50K or HD chips with thousands of animals this file becomes very large (every pair within 1 Mb), so use `--ld-window-kb` to limit the distance, or `--thin` to sample SNPs first.
 
-The default `--ld-window-r2 0.2` hides weak pairs. To study LD decay you need all pairs, so set it to 0.
+**Other forms of the output**
+
+```bash
+plink --bfile cattle --cow --chr 14 --r --ld-snp snp02145 --ld-window 3 --ld-window-r2 0 --out ld_signed
+plink --bfile cattle --cow --chr 14 --from-mb 24.9 --to-mb 25.0 --r2 square --out ld_matrix
+```
+
+```text
+ld_signed.ld:
+     SNP_A     SNP_B         R
+  snp02145  snp02143  -0.580685
+  snp02145  snp02144   0.58117
+  snp02145  snp02146   0.472939
+ld_matrix.ld (snp02143, snp02144, snp02145):
+1         0.195501  0.337195
+0.195501  1         0.337758
+0.337195  0.337758  1
+```
+
+- **`--r`** reports r with its sign. A negative r means the A1 allele of one SNP tends to sit with the A2 allele of the other. Since A1 is simply the minor allele, the sign carries no biological meaning on its own; it matters when you compare LD phase between breeds or check strand (`--flip-scan` uses it).
+- **`--ld-snp snp02145`** reports only pairs that include that SNP: the quickest way to see what a top hit is linked to.
+- **`--r2 square`** writes a full matrix with no names, in the order of the `.bim` file, for heatmaps. The diagonal is 1. Use it only on small regions: for n SNPs it writes n² numbers.
+- **`--r2 dprime`** adds a D′ column (see the box below).
+
+::: {.callout-important}
+## Two different r² values
+PLINK can report two versions of r², and they are not the same number:
+
+| Command | What it computes | snp02144 and snp02145 |
+|---|---|---|
+| `plink --r2` | Squared correlation of the two genotype counts (0, 1, 2), no phasing needed: the **unphased** r² | 0.338 |
+| `plink --r2 dprime`, `plink --ld` | r² from the EM haplotype frequencies, the textbook definition above: the **phased** r² | 0.382 |
+| `plink2 --r2-unphased` | Same as `plink --r2` | 0.338 |
+| `plink2 --r2-phased` | Same as `plink --r2 dprime`; uses the real phase when the data are phased (Chapter 14) | 0.382 |
+
+The unphased version is fast and fine for pruning and LD decay curves; the phased version is the one population-genetics formulas (for example, estimating effective population size from LD) assume. Always say which one you used. PLINK 2.0 makes you choose, which is a good habit.
+:::
 
 ### Step 2: plot LD decay
 
@@ -129,5 +197,5 @@ Pruning complete.  969 of 4550 variants removed.
 
 ::: {.callout-note}
 ## PLINK 2.0
-`plink2 --r2-unphased` and `--r2-phased` replace `--r2`; `--ld`, `--indep-pairwise` and `--clump` work as in 1.9.
+`plink2 --r2-unphased` replaces `plink --r2`, and `plink2 --r2-phased` replaces `plink --r2 dprime` (see the box above). `--ld`, `--indep-pairwise`, `--blocks` and `--clump` work as in 1.9.
 :::

@@ -5,7 +5,7 @@ project:
 book:
   title: "PLINK for Livestock Genomics"
   subtitle: "A step-by-step tutorial with cattle and sheep data"
-  author: "Ismaila Emmanuel"
+  author: "Ismaila Emmanuel Oluwasegun"
   date: "2026-11-17"
   date-format: "D MMMM YYYY"
   site-url: https://megaluno.github.io/plink-tutorial-for-beginners/
@@ -18,7 +18,7 @@ book:
     style: docked
     collapse-level: 1
   page-footer:
-    left: "PLINK for Livestock Genomics, by Ismaila Emmanuel"
+    left: "PLINK for Livestock Genomics, by Ismaila Emmanuel Oluwasegun"
     right: "Licensed CC BY 4.0"
   chapters:
     - index.qmd

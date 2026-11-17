@@ -316,7 +316,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./14-haplotypes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, proxy association and imputation</span></span></a>
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, phasing and imputation</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -405,7 +405,8 @@ window.Quarto = {
   <li><a href="#kinship-relationship-and-inbreeding" id="toc-kinship-relationship-and-inbreeding" class="nav-link" data-scroll-target="#kinship-relationship-and-inbreeding"><span class="header-section-number">10.2</span> Kinship, relationship and inbreeding</a></li>
   <li><a href="#step-1-estimate-ibd-with---genome" id="toc-step-1-estimate-ibd-with---genome" class="nav-link" data-scroll-target="#step-1-estimate-ibd-with---genome"><span class="header-section-number">10.3</span> Step 1: estimate IBD with <code>--genome</code></a>
   <ul class="collapse">
-  <li><a href="#population-structure-inflates-ibd-estimates" id="toc-population-structure-inflates-ibd-estimates" class="nav-link" data-scroll-target="#population-structure-inflates-ibd-estimates"><span class="header-section-number">10.3.1</span> Population structure inflates IBD estimates</a></li>
+  <li><a href="#controlling-what---genome-writes" id="toc-controlling-what---genome-writes" class="nav-link" data-scroll-target="#controlling-what---genome-writes"><span class="header-section-number">10.3.1</span> Controlling what <code>--genome</code> writes</a></li>
+  <li><a href="#population-structure-inflates-ibd-estimates" id="toc-population-structure-inflates-ibd-estimates" class="nav-link" data-scroll-target="#population-structure-inflates-ibd-estimates"><span class="header-section-number">10.3.2</span> Population structure inflates IBD estimates</a></li>
   </ul></li>
   <li><a href="#step-2-the-genomic-relationship-matrix-grm" id="toc-step-2-the-genomic-relationship-matrix-grm" class="nav-link" data-scroll-target="#step-2-the-genomic-relationship-matrix-grm"><span class="header-section-number">10.4</span> Step 2: the genomic relationship matrix (GRM)</a></li>
   <li><a href="#step-3-king-a-method-robust-to-structure" id="toc-step-3-king-a-method-robust-to-structure" class="nav-link" data-scroll-target="#step-3-king-a-method-robust-to-structure"><span class="header-section-number">10.5</span> Step 3: KING, a method robust to structure</a></li>
@@ -621,35 +622,59 @@ Figure&nbsp;10.1: Every pair of animals on the Z0-Z1 plane. Recorded parent-offs
 <li><strong>ANG_030</strong> had PI_HAT above 0.2 with 359 of the 360 other animals, including other breeds. Nobody is related to everyone. Contaminated DNA creates extra heterozygous calls, and these look like extra sharing with everyone. Together with its F of -0.72, this confirms contamination.</li>
 </ul>
 <p>All other 119 recorded parent-offspring pairs fell between PI_HAT 0.4 and 0.9, as they should.</p>
-<section id="population-structure-inflates-ibd-estimates" class="level3" data-number="10.3.1">
-<h3 data-number="10.3.1" class="anchored" data-anchor-id="population-structure-inflates-ibd-estimates"><span class="header-section-number">10.3.1</span> Population structure inflates IBD estimates</h3>
-<p><code>--genome</code> uses allele frequencies from the whole file. When the file mixes breeds, animals of the same breed share more than the pooled frequencies predict, so they look a little related. In our data, 545 unrelated pairs (mostly N’Dama, the most distinct breed) had PI_HAT between 0.2 and 0.4. Run <code>--genome</code> within breed, or use KING (below), when you need accurate relationships across breeds.</p>
+<section id="controlling-what---genome-writes" class="level3" data-number="10.3.1">
+<h3 data-number="10.3.1" class="anchored" data-anchor-id="controlling-what---genome-writes"><span class="header-section-number">10.3.1</span> Controlling what <code>--genome</code> writes</h3>
+<p>For 361 animals the full <code>.genome</code> file has 361 × 360 / 2 = 64,980 lines (7.4 MB); for 5,000 animals it would have 12.5 million. Usually you only want the related pairs. All of the following were run on the LD-pruned SNPs (<code>--extract prune.prune.in</code>):</p>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
 </colgroup>
 <thead>
 <tr class="header">
-<th>Useful option</th>
-<th>Effect</th>
+<th>Command</th>
+<th>Pairs written</th>
+<th>Use</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>--min 0.2</code></td>
-<td>Only write pairs with PI_HAT above 0.2 (the full file has n(n-1)/2 pairs: 64,980 for 361 animals)</td>
+<td><code>--genome</code></td>
+<td>64,980</td>
+<td>Every pair; needed for the Z0-Z1 plot and for mean relatedness</td>
 </tr>
 <tr class="even">
-<td><code>--genome full</code></td>
-<td>Add the IBS counts behind each estimate</td>
+<td><code>--genome --min 0.2</code></td>
+<td>851</td>
+<td>Only pairs with PI_HAT ≥ 0.2: candidates for relatives, duplicates and contamination</td>
 </tr>
 <tr class="odd">
+<td><code>--genome --max 0.05</code></td>
+<td>48,825</td>
+<td>Only near-unrelated pairs, for example to pick a reference set</td>
+</tr>
+<tr class="even">
 <td><code>--genome rel-check</code></td>
-<td>Only pairs with the same FID (pedigree checking)</td>
+<td>9,740</td>
+<td>Only pairs with the <strong>same FID</strong></td>
+</tr>
+<tr class="odd">
+<td><code>--genome full --min 0.9</code></td>
+<td>1</td>
+<td>Adds the IBS counts behind each estimate; here only the duplicate pair</td>
 </tr>
 </tbody>
 </table>
+<p>With <code>full</code>, the duplicate pair gains these columns:</p>
+<pre class="text"><code> ...  PI_HAT  ...   IBS0  IBS1  IBS2  HOMHOM   HETHET
+ ...  0.9812  ...      4     5  3540  3.0000 854.0000</code></pre>
+<p>The two samples share both alleles (IBS2) at 3,540 of 3,549 SNPs, differ completely (IBS0) at only 4, which is about the genotyping error rate, and are heterozygous together at 854. These counts are what PLINK turns into Z0, Z1 and Z2, and looking at them helps when a PI_HAT seems odd.</p>
+<p><code>rel-check</code> compares pairs within an FID, which is meant for checking a pedigree. Its result depends on how you use the FID column. In our file, the 120 family animals have their own FIDs, but the unrelated animals all have FID ANG, HOL or NDA, so <code>rel-check</code> compared every Angus with every other Angus as well: of the 9,740 pairs, 120 were recorded parent-offspring (RT = PO), 30 full sibs (FS) and 9,590 “other” (OT). In livestock files where FID is the breed or herd, filter on the RT column, or use <code>--min</code> instead.</p>
+</section>
+<section id="population-structure-inflates-ibd-estimates" class="level3" data-number="10.3.2">
+<h3 data-number="10.3.2" class="anchored" data-anchor-id="population-structure-inflates-ibd-estimates"><span class="header-section-number">10.3.2</span> Population structure inflates IBD estimates</h3>
+<p><code>--genome</code> uses allele frequencies from the whole file. When the file mixes breeds, animals of the same breed share more than the pooled frequencies predict, so they look a little related. In our data, 545 unrelated pairs (mostly N’Dama, the most distinct breed) had PI_HAT between 0.2 and 0.4. Run <code>--genome</code> within breed (with <code>--keep</code>), or use KING (below), when you need accurate relationships across breeds.</p>
 </section>
 </section>
 <section id="step-2-the-genomic-relationship-matrix-grm" class="level2" data-number="10.4">
@@ -659,9 +684,9 @@ Figure&nbsp;10.1: Every pair of animals on the Z0-Z1 plane. Recorded parent-offs
 \hat r_{ij} = \frac{1}{p}\sum_{l=1}^{p}\frac{(g_{il}-2f_l)(g_{jl}-2f_l)}{2f_l(1-f_l)}
 \]</span></p>
 <p>In words: standardise each genotype by subtracting its expected value and dividing by its standard deviation, then average the products over all p SNPs. Two animals that carry the same unusual alleles get a positive value; unrelated animals average about zero (and can be slightly negative). This is the GRM of Yang and colleagues (2011), used by GCTA and in GBLUP genomic prediction; VanRaden’s (2008) G matrix is a close relative.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_real_qc <span class="at">--cow</span> <span class="at">--make-rel</span> square <span class="at">--out</span> grm</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># grm.rel     500 x 500 matrix of relationships</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># grm.rel.id  the animal IDs, in the same order</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_real_qc <span class="at">--cow</span> <span class="at">--make-rel</span> square <span class="at">--out</span> grm</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># grm.rel     500 x 500 matrix of relationships</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># grm.rel.id  the animal IDs, in the same order</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The real cattle data come with a pedigree of 1,929 animals, so we can compare the GRM with the relationships calculated from the family tree:</p>
 <div id="fig-grm-ped" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -719,13 +744,19 @@ Figure&nbsp;10.2: Real cattle: genomic relationship (GRM) against pedigree relat
 </section>
 <section id="step-3-king-a-method-robust-to-structure" class="level2" data-number="10.5">
 <h2 data-number="10.5" class="anchored" data-anchor-id="step-3-king-a-method-robust-to-structure"><span class="header-section-number">10.5</span> Step 3: KING, a method robust to structure</h2>
-<p>KING (Manichaikul and colleagues, 2010) estimates kinship without using population allele frequencies. It only looks at SNPs where both animals are heterozygous (N<sub>Aa,Aa</sub>) and where they are opposite homozygotes (N<sub>AA,aa</sub>):</p>
+<p>KING (Manichaikul and colleagues, 2010) estimates kinship without using population allele frequencies. For a pair of animals i and j it counts three things at the SNPs where both are genotyped: the SNPs where both are heterozygous (N<sub>Aa,Aa</sub>), the SNPs where they are opposite homozygotes, AA against aa (N<sub>AA,aa</sub>), and each animal’s own number of heterozygous SNPs (N<sub>Aa</sub><sup>(i)</sup> and N<sub>Aa</sub><sup>(j)</sup>). Opposite homozygotes are impossible for a parent and its calf, and rare for close relatives, so they count against relatedness; shared heterozygotes count for it.</p>
+<p>The simplest form, for animals from one homogeneous population, is</p>
 <p><span class="math display">\[
 \hat\phi_{ij} = \frac{N_{Aa,Aa} - 2\,N_{AA,aa}}{N_{Aa}^{(i)} + N_{Aa}^{(j)}}
 \]</span></p>
+<p>PLINK 2.0 uses the version Manichaikul and colleagues recommend when the two animals may come from different populations (their “between-family” estimator), which divides by the heterozygote count of the less heterozygous animal, written here as i:</p>
+<p><span class="math display">\[
+\hat\phi_{ij} = \frac{N_{Aa,Aa} - 2\,N_{AA,aa}}{2\,N_{Aa}^{(i)}} + \frac{1}{2} - \frac{N_{Aa}^{(i)} + N_{Aa}^{(j)}}{4\,N_{Aa}^{(i)}}
+\]</span></p>
+<p>A check with real numbers, for the sire HOL_F01_S and his calf HOL_F01_C1 (autosomes, 4,495 SNPs typed in both): N<sub>Aa,Aa</sub> = 608, N<sub>AA,aa</sub> = 2, and the two animals have 1,272 and 1,291 heterozygous SNPs. The second formula gives (608 − 4)/(2 × 1,272) + 0.5 − 2,563/(4 × 1,272) = 0.2337, exactly PLINK’s KINSHIP of 0.233687 (the first gives 0.236). The expected value for parent and offspring is 0.25. You can print these counts yourself with <code>--make-king-table cols=id,nsnp,hethet,ibs0,ibs1,kinship</code>.</p>
 <p>Because it needs no allele frequencies, KING is much less fooled by breed mixing. It is available in PLINK 2.0:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--make-king-table</span> <span class="at">--out</span> king</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--king-cutoff</span> 0.177 <span class="at">--out</span> unrelated   <span class="co"># keep a set with no 1st-degree pairs</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--make-king-table</span> <span class="at">--out</span> king</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--king-cutoff</span> 0.177 <span class="at">--out</span> unrelated   <span class="co"># keep a set with no 1st-degree pairs</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>KING reports kinship φ (not r), so its cut-offs are half of PI_HAT’s. The categories below are the ones proposed by Manichaikul and colleagues (2010):</p>
 <table class="caption-top table">
 <colgroup>
@@ -776,8 +807,8 @@ Figure&nbsp;10.2: Real cattle: genomic relationship (GRM) against pedigree relat
 F_{ROH} = \frac{\text{total length of ROH in the animal}}{\text{length of the genome covered by SNPs}}
 \]</span></p>
 <p>Long ROH come from recent inbreeding (the common ancestor was a few generations back); short ROH from old inbreeding. A common rule of thumb is that an ROH of length L cM traces back to a common ancestor about 50/L generations ago.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--autosome</span> <span class="at">--homozyg</span> <span class="at">--homozyg-density</span> 1000 <span class="at">--homozyg-gap</span> 3000 <span class="dt">\</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>      <span class="at">--homozyg-snp</span> 30 <span class="at">--homozyg-kb</span> 10000 <span class="at">--homozyg-window-snp</span> 30 <span class="at">--out</span> roh</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--autosome</span> <span class="at">--homozyg</span> <span class="at">--homozyg-density</span> 1000 <span class="at">--homozyg-gap</span> 3000 <span class="dt">\</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>      <span class="at">--homozyg-snp</span> 30 <span class="at">--homozyg-kb</span> 10000 <span class="at">--homozyg-window-snp</span> 30 <span class="at">--out</span> roh</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The default settings were written for dense human data and require at least one SNP every 50 kb. Our practice panel has about one SNP per 700 kb, so the defaults found <strong>no runs at all</strong>. The settings must match your SNP density:</p>
 <table class="caption-top table">
 <thead>
@@ -867,7 +898,26 @@ Figure&nbsp;10.3: F_ROH in the simulated cattle (left) and the real sheep (right
 </tr>
 </tbody>
 </table>
-<p>Output files: <code>.hom</code> (one line per run), <code>.hom.indiv</code> (per animal: number of runs NSEG, total length KB, average length KBAVG) and <code>.hom.summary</code> (per SNP: how many animals have a run there; peaks hint at selection). Always report your exact settings, because F_ROH depends on them.</p>
+<p><strong>Reading the output.</strong> The run above wrote three files and reported <code>--homozyg: Scan complete, found 352 ROH.</code></p>
+<pre class="text"><code>roh.hom (one line per run):
+ FID  IID      PHE  CHR  SNP1      SNP2      POS1      POS2       KB        NSNP  DENSITY  PHOM   PHET
+ NDA  NDA_040    1    1  snp00079  snp00142  86259092  145168385  58909.294   64  920.458  0.984  0.000
+ ANG  ANG_001    1    6  snp00969  snp01003  75821224  106120511  30299.288   35  865.694  0.943  0.057
+
+roh.hom.indiv (one line per animal):
+ FID  IID      PHE  NSEG  KB        KBAVG
+ ANG  ANG_001    1     2  41281.3   20640.7
+ NDA  NDA_040    1    15  729434    48628.9
+
+roh.hom.summary (one line per SNP):
+ CHR  SNP       BP        AFF  UNAFF
+  19  snp03011  48468396    3     17</code></pre>
+<ul>
+<li>In <code>.hom</code>, <strong>KB</strong> is the run’s length, <strong>NSNP</strong> its number of SNPs, <strong>DENSITY</strong> the average kb per SNP, and <strong>PHOM</strong>/<strong>PHET</strong> the share of homozygous and heterozygous calls inside it. The ANG_001 run on chromosome 6 contains two heterozygous calls (PHET 0.057, that is 2 of 35 SNPs): the default <code>--homozyg-window-het 1</code> allows one per scanning window, to tolerate genotyping errors, so a long run can collect several. With <code>--homozyg-window-het 0</code>, the same settings found 53 runs instead of 352; NDA_040 still had 14 runs covering 719 Mb, because true inbreeding runs are clean.</li>
+<li>In <code>.hom.indiv</code>, <strong>NSEG</strong> is the number of runs, <strong>KB</strong> their total length and <strong>KBAVG</strong> the average. F_ROH is KB divided by the length covered by your SNPs (here 2,507 Mb). 204 of 361 animals had at least one run.</li>
+<li>In <code>.hom.summary</code>, <strong>AFF</strong> and <strong>UNAFF</strong> count how many cases and controls carry a run over each SNP. A SNP where many animals share a run (an “ROH island”) can point to a region under selection; with a case/control trait it is also a crude test of recessive effects.</li>
+</ul>
+<p>Always report your exact settings, because F_ROH depends on them.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1307,7 +1357,7 @@ Figure&nbsp;10.3: F_ROH in the simulated cattle (left) and the real sheep (right
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-<p>PLINK for Livestock Genomics, by Ismaila Emmanuel</p>
+<p>PLINK for Livestock Genomics, by Ismaila Emmanuel Oluwasegun</p>
 </div>   
     <div class="nav-footer-center">
       &nbsp;

@@ -10,7 +10,7 @@ PLINK 2.0 is the future of PLINK: it is faster on very large data, handles imput
 | Allele frequency | `--freq` (`.frq`) | `--freq` (`.afreq`) |
 | Genotype counts | `--freqx` | `--geno-counts` |
 | Missingness | `--missing` (`.imiss`, `.lmiss`) | `--missing` (`.smiss`, `.vmiss`) |
-| Hardy-Weinberg | `--hardy` | `--hardy` |
+| Hardy-Weinberg | `--hardy`; `--hwe` uses controls only when cases and controls are loaded | `--hardy`; `--hwe` uses all founders, cases included (Chapter 7) |
 | Heterozygosity / F | `--het` | `--het` |
 | Sex check | `--check-sex` | `--check-sex` (recent builds) |
 | Mendel errors | `--mendel` | `--mendel` (recent builds) |
@@ -19,9 +19,13 @@ PLINK 2.0 is the future of PLINK: it is faster on very large data, handles imput
 | PCA | `--pca` | `--pca` (`approx` for large samples; `allele-wts` for loadings) |
 | Projection onto PCs | not available | `--score` with the `.eigenvec.allele` file |
 | Clustering / MDS | `--cluster`, `--mds-plot` | not available |
-| LD | `--r2`, `--ld`, `--indep-pairwise` | `--r2-unphased`, `--ld`, `--indep-pairwise` |
+| LD | `--r2` (unphased r²), `--r2 dprime` or `--ld` (phased r²), `--indep-pairwise` | `--r2-unphased`, `--r2-phased`, `--ld`, `--indep-pairwise` |
 | Case/control and quantitative association | `--assoc`, `--model`, `--logistic`, `--linear` | `--glm` |
-| Dosage association | `--dosage` | `--glm` on `.pgen`, BGEN or VCF dosages |
+| Phased genotypes | Lost when data pass through `.bed` | Kept in `.pgen`; `--pgen-info` reports them; `--export haps`, `vcf`, `beagle-phased` |
+| Imputed dosages | `--dosage` with separate dosage files | `--vcf file dosage=DS`, `--bgen`; filter with `--extract-if-info`, `--mach-r2-filter`; `--hard-call-threshold` |
+| Dosage association | `--dosage` | `--glm` on the imported dosages |
+| Phasing and imputation themselves | Not available (PLINK 1.07: short-window EM, `--proxy-impute`) | Not available: use BEAGLE, SHAPEIT, Eagle, Minimac, IMPUTE or FImpute (Chapter 14) |
+| Mixed-model association | Not available | Not available: use GCTA or GEMMA; `--make-grm-bin` writes the GRM (Chapter 13) |
 | Permutation | `--perm`, `--mperm n` | `--glm` with `perm` or `mperm=n` |
 | Stratified tests | `--mh`, `--bd`, `--homog` | not available; use `--glm` with covariates |
 | Family tests | `--tdt`, `--dfam`, `--qfam` | not available |
@@ -33,10 +37,11 @@ PLINK 2.0 is the future of PLINK: it is faster on very large data, handles imput
 | Runs of homozygosity | `--homozyg` | `--homozyg` (recent builds) |
 | Haplotypes, proxy, CNV | PLINK 1.07 only | not available |
 
-Three differences catch people out:
+Four differences catch people out:
 
 1. **Allele order.** PLINK 1.9 makes A1 the minor allele unless you add `--keep-allele-order`. PLINK 2.0 keeps the order from the input and calls the alleles REF and ALT. Effect sizes in `--glm` are for the ALT allele (or the column `A1` in the output).
 2. **Output names.** Files end in `.afreq`, `.smiss`, `.vmiss`, `.glm.logistic.hybrid` and so on. Read the log to see what was written.
-3. **Missing commands.** "Not available" in the table means you should use PLINK 1.9 (or 1.07) for that step, or a dedicated tool. It is common to use both versions in one project.
+3. **`--hwe` ignores case/control status** in PLINK 2.0, so the same threshold removes more SNPs than in 1.9 when cases are present.
+4. **Missing commands.** "Not available" in the table means you should use PLINK 1.9 (or 1.07) for that step, or a dedicated tool. It is common to use both versions in one project.
 
 Check the [PLINK 2.0 documentation](https://www.cog-genomics.org/plink/2.0/) for the build you have; commands marked "recent builds" were added during the alpha phase.

@@ -40,7 +40,7 @@ Orange boxes point out traps that catch almost everyone at least once.
 | Managing data | 5 | Convert, subset, merge and fix files |
 | Quality control | 6 to 8 | Remove bad SNPs and bad samples, and explain why |
 | Relationships and structure | 9 to 11 | Measure LD, relatedness and inbreeding, and run and read a PCA |
-| Association analysis | 12 to 16 | Run case/control, quantitative, family, haplotype, CNV, epistasis and meta-analyses |
+| Association analysis | 12 to 16 | Run case/control, quantitative, family, mixed-model, haplotype, CNV, epistasis and meta-analyses, and phase and impute genotypes |
 | Putting it together | 17 to 19 | Choose thresholds, analyse real cattle and sheep data, and run a full QC pipeline |
 
 ## The data
@@ -63,6 +63,6 @@ This tutorial stands on the shoulders of excellent open teaching material, espec
 
 ## How to cite
 
-> Ismaila Emmanuel (2026). *PLINK for Livestock Genomics: a step-by-step tutorial with cattle and sheep data.* https://megaluno.github.io/plink-tutorial-for-beginners/
+> Ismaila Emmanuel Oluwasegun (2026). *PLINK for Livestock Genomics: a step-by-step tutorial with cattle and sheep data.* https://megaluno.github.io/plink-tutorial-for-beginners/
 
 The text and figures are shared under a [Creative Commons Attribution 4.0](https://creativecommons.org/licenses/by/4.0/) licence. The real datasets keep the licences of the packages they come from (GPL-2 for synbreedData, GPL-3 for detectRUNS).

@@ -251,7 +251,7 @@ ul.task-list li input[type="checkbox"] {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./14-haplotypes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, proxy association and imputation</span></span></a>
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, phasing and imputation</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -463,9 +463,38 @@ ul.task-list li input[type="checkbox"] {
 <li>Higgins JPT, Thompson SG (2002). Quantifying heterogeneity in a meta-analysis. <em>Statistics in Medicine</em> 21: 1539–1558.</li>
 <li>Willer CJ, Li Y, Abecasis GR (2010). METAL: fast and efficient meta-analysis of genomewide association scans. <em>Bioinformatics</em> 26: 2190–2191.</li>
 </ul>
-<p><strong>Imputation and CNV</strong></p>
+<p><strong>Mixed models</strong></p>
 <ul>
+<li>Kang HM, Sul JH, Service SK, et al.&nbsp;(2010). Variance component model to account for sample structure in genome-wide association studies. <em>Nature Genetics</em> 42: 348–354.</li>
+<li>Zhou X, Stephens M (2012). Genome-wide efficient mixed-model analysis for association studies. <em>Nature Genetics</em> 44: 821–824.</li>
+<li>Yang J, Zaitlen NA, Goddard ME, Visscher PM, Price AL (2014). Advantages and pitfalls in the application of mixed-model association methods. <em>Nature Genetics</em> 46: 100–106.</li>
+</ul>
+<p><strong>Phasing and imputation</strong></p>
+<ul>
+<li>Li N, Stephens M (2003). Modeling linkage disequilibrium and identifying recombination hotspots using single-nucleotide polymorphism data. <em>Genetics</em> 165: 2213–2233.</li>
 <li>Browning BL, Zhou Y, Browning SR (2018). A one-penny imputed genome from next-generation reference panels. <em>American Journal of Human Genetics</em> 103: 338–348.</li>
+<li>Browning BL, Tian X, Zhou Y, Browning SR (2021). Fast two-stage phasing of large-scale sequence data. <em>American Journal of Human Genetics</em> 108: 1880–1890.</li>
+<li>Delaneau O, Zagury J-F, Robinson MR, Marchini JL, Dermitzakis ET (2019). Accurate, scalable and integrative haplotype estimation. <em>Nature Communications</em> 10: 5436.</li>
+<li>Hofmeister RJ, Ribeiro DM, Rubinacci S, Delaneau O (2023). Accurate rare variant phasing of whole-genome and whole-exome sequencing data in the UK Biobank. <em>Nature Genetics</em> 55: 1243–1249.</li>
+<li>Loh P-R, Danecek P, Palamara PF, et al.&nbsp;(2016). Reference-based phasing using the Haplotype Reference Consortium panel. <em>Nature Genetics</em> 48: 1443–1448.</li>
+<li>Das S, Forer L, Schönherr S, et al.&nbsp;(2016). Next-generation genotype imputation service and methods. <em>Nature Genetics</em> 48: 1284–1287.</li>
+<li>Rubinacci S, Delaneau O, Marchini J (2020). Genotype imputation using the positional Burrows Wheeler transform. <em>PLoS Genetics</em> 16: e1009049.</li>
+<li>Sargolzaei M, Chesnais JP, Schenkel FS (2014). A new approach for efficient genotype imputation using information from relatives. <em>BMC Genomics</em> 15: 478.</li>
+<li>van Binsbergen R, Bink MCAM, Calus MPL, et al.&nbsp;(2014). Accuracy of imputation to whole-genome sequence data in Holstein Friesian cattle. <em>Genetics Selection Evolution</em> 46: 41.</li>
+<li>Bouwman AC, Veerkamp RF (2014). Consequences of splitting whole-genome sequencing effort over multiple breeds on imputation accuracy. <em>BMC Genetics</em> 15: 105.</li>
+<li>Pausch H, MacLeod IM, Fries R, et al.&nbsp;(2017). Evaluation of the accuracy of imputed sequence variant genotypes and their utility for causal variant detection in cattle. <em>Genetics Selection Evolution</em> 49: 24.</li>
+</ul>
+<p><strong>Ascertainment bias</strong></p>
+<ul>
+<li>The Bovine HapMap Consortium (2009). Genome-wide survey of SNP variation uncovers the genetic structure of cattle breeds. <em>Science</em> 324: 528–532.</li>
+<li>Matukumalli LK, Lawley CT, Schnabel RD, et al.&nbsp;(2009). Development and characterization of a high density SNP genotyping assay for cattle. <em>PLoS ONE</em> 4: e5350.</li>
+<li>Nielsen R, Hubisz MJ, Clark AG (2004). Reconstituting the frequency spectrum of ascertained single-nucleotide polymorphism data. <em>Genetics</em> 168: 2373–2382.</li>
+<li>Lachance J, Tishkoff SA (2013). SNP ascertainment bias in population genetic analyses: why it is important, and how to correct it. <em>BioEssays</em> 35: 780–786.</li>
+<li>McTavish EJ, Hillis DM (2015). How do SNP ascertainment schemes and population demographics affect inferences about population history? <em>BMC Genomics</em> 16: 266.</li>
+<li>Malomane DK, Reimer C, Weigend S, Weigend A, Sharifi AR, Simianer H (2018). Efficiency of different strategies to mitigate ascertainment bias when using SNP panels in diversity studies. <em>BMC Genomics</em> 19: 22.</li>
+</ul>
+<p><strong>CNV</strong></p>
+<ul>
 <li>Wang K, Li M, Hadley D, et al.&nbsp;(2007). PennCNV: an integrated hidden Markov model designed for high-resolution copy number variation detection in whole-genome SNP genotyping data. <em>Genome Research</em> 17: 1665–1674.</li>
 </ul>
 <p><strong>Data and software</strong></p>
@@ -473,11 +502,12 @@ ul.task-list li input[type="checkbox"] {
 <li>Kijas JW, Hadfield T, Naval Sanchez M, Cockett N (2016). Genome-wide association reveals the locus responsible for four-horned ruminant. <em>Animal Genetics</em> 47: 258–262.</li>
 <li>Wimmer V, Albrecht T, Auinger H-J, Schön C-C (2012). synbreed: a framework for the analysis of genomic prediction data using R. <em>Bioinformatics</em> 28: 2086–2087.</li>
 <li>Privé F, Aschard H, Ziyatdinov A, Blum MGB (2018). Efficient analysis of large-scale genome-wide data with two R packages: bigstatsr and bigsnpr. <em>Bioinformatics</em> 34: 2781–2787.</li>
+<li>Baumdicker F, Bisschop G, Goldstein D, et al.&nbsp;(2022). Efficient ancestry and mutation simulation with msprime 1.0. <em>Genetics</em> 220: iyab229. (Used to simulate the phasing and imputation data.)</li>
 </ul>
 </section>
 <section id="a-note-on-originality" class="level2" data-number="C.5">
 <h2 data-number="C.5" class="anchored" data-anchor-id="a-note-on-originality"><span class="header-section-number">C.5</span> A note on originality</h2>
-<p>The explanations, worked examples, numbers and figures in this book were written and produced for it, using its own simulated and public data. Standard formulas (Hardy-Weinberg, F, D and r², the GRM, KING, λ, F<sub>ST</sub>) and standard cut-offs (such as the KING relationship categories) are given with their original references. Where a teaching idea is shared with the courses listed above, those courses are acknowledged here and in the Welcome page.</p>
+<p>All explanations, worked examples, numbers, and figures in this guide were written and produced with originality using simulated and public datasets. Standard formulas (Hardy-Weinberg, F, D and r², the GRM, KING, λ, F<sub>ST</sub>) and standard cut-offs (such as the KING relationship categories) are given with their original references. Where a teaching idea is shared with the courses listed above, those courses are acknowledged here and in the Welcome page.</p>
 
 
 </section>
@@ -901,7 +931,7 @@ ul.task-list li input[type="checkbox"] {
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-<p>PLINK for Livestock Genomics, by Ismaila Emmanuel</p>
+<p>PLINK for Livestock Genomics, by Ismaila Emmanuel Oluwasegun</p>
 </div>   
     <div class="nav-footer-center">
       &nbsp;

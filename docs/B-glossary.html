@@ -252,7 +252,7 @@ ul.task-list li input[type="checkbox"] {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./14-haplotypes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, proxy association and imputation</span></span></a>
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, phasing and imputation</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -399,75 +399,91 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 <tr class="even">
 <td>Dosage</td>
-<td>Expected number of A1 copies after imputation, between 0 and 2</td>
+<td>Expected number of copies of an allele (A1 in PLINK 1.9, usually ALT in a VCF) after imputation, between 0 and 2</td>
 </tr>
 <tr class="odd">
+<td>DR2, R2, INFO</td>
+<td>Imputation quality scores: the estimated r² between dosage and true genotype, from BEAGLE, Minimac and IMPUTE respectively</td>
+</tr>
+<tr class="even">
 <td>Eigenvalue</td>
 <td>How much variation lies along a principal component</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Eigenvector</td>
 <td>The direction of a principal component; its values are the PC scores</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>EMP1 / EMP2</td>
 <td>Empirical p-value from permutation / the same, corrected for all tests</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Epistasis</td>
 <td>Interaction between two or more loci</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>F (inbreeding)</td>
 <td>Excess homozygosity compared with expectation</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>F_ROH</td>
 <td>Share of the genome covered by runs of homozygosity</td>
-</tr>
-<tr class="odd">
-<td>F<sub>ST</sub></td>
-<td>Share of genetic variation that lies between populations</td>
 </tr>
 <tr class="even">
 <td>Founder / nonfounder</td>
 <td>Animal with both parents unknown / animal with at least one parent in the data</td>
 </tr>
 <tr class="odd">
+<td>F<sub>ST</sub></td>
+<td>Share of genetic variation that lies between populations</td>
+</tr>
+<tr class="even">
 <td>GRM</td>
 <td>Genomic relationship matrix: relationships between animals estimated from SNPs</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>HWE</td>
 <td>Hardy-Weinberg equilibrium: genotype shares p², 2pq and q² under random mating</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>IBS / IBD</td>
 <td>Identical by state (same alleles) / identical by descent (same ancestral copy)</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Imputation</td>
 <td>Predicting genotypes that were not measured, using a reference panel</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>KING</td>
 <td>A relatedness method that does not need population allele frequencies</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>λ (lambda)</td>
 <td>Genomic inflation factor: median test statistic divided by its expected value; close to 1 is good</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>LD pruning</td>
 <td>Removing SNPs so that the remaining ones are not strongly correlated</td>
 </tr>
+<tr class="odd">
+<td>LE (linkage equilibrium)</td>
+<td>Alleles at two SNPs combined at random on chromosomes; the expected haplotype frequency is the product of the allele frequencies</td>
+</tr>
 <tr class="even">
+<td>Li and Stephens model</td>
+<td>The “copying model” behind most phasing and imputation programs: a chromosome is described as a mosaic of pieces copied from other haplotypes</td>
+</tr>
+<tr class="odd">
 <td>MDS</td>
 <td>Multidimensional scaling of pairwise distances; an alternative to PCA</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Mendel error</td>
 <td>A calf genotype that is impossible given its parents’ genotypes</td>
+</tr>
+<tr class="odd">
+<td>Mixed model</td>
+<td>Regression with a random polygenic effect whose covariance follows the GRM; corrects for relatives and structure together</td>
 </tr>
 <tr class="even">
 <td>OR / BETA</td>
@@ -479,7 +495,7 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 <tr class="even">
 <td>Phase</td>
-<td>Which alleles sit together on the same chromosome copy</td>
+<td>Which alleles sit together on the same chromosome copy; <code>0\|1</code> in a VCF is phased, <code>0/1</code> unphased</td>
 </tr>
 <tr class="odd">
 <td>PI_HAT</td>
@@ -490,12 +506,20 @@ ul.task-list li input[type="checkbox"] {
 <td>False associations caused by differences in both allele frequency and trait between groups</td>
 </tr>
 <tr class="odd">
+<td>Reference panel</td>
+<td>Animals typed at high density (or sequenced) and phased, used to impute others</td>
+</tr>
+<tr class="even">
 <td>ROH</td>
 <td>Run of homozygosity: a long homozygous stretch inherited from a common ancestor</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Strand flip</td>
 <td>The same SNP reported from the opposite DNA strand (A/G becomes T/C)</td>
+</tr>
+<tr class="even">
+<td>Switch error</td>
+<td>A place where an estimated haplotype jumps from one true chromosome copy to the other; the switch error rate measures phasing accuracy</td>
 </tr>
 <tr class="odd">
 <td>TDT</td>
@@ -932,7 +956,7 @@ ul.task-list li input[type="checkbox"] {
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-<p>PLINK for Livestock Genomics, by Ismaila Emmanuel</p>
+<p>PLINK for Livestock Genomics, by Ismaila Emmanuel Oluwasegun</p>
 </div>   
     <div class="nav-footer-center">
       &nbsp;

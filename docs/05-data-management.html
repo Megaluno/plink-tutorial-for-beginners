@@ -106,9 +106,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
-<script src="site_libs/quarto-diagram/mermaid.min.js"></script>
-<script src="site_libs/quarto-diagram/mermaid-init.js"></script>
-<link href="site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 
 
 </head>
@@ -290,7 +287,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./14-haplotypes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, proxy association and imputation</span></span></a>
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, phasing and imputation</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -376,14 +373,37 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#step-1-convert-text-to-binary" id="toc-step-1-convert-text-to-binary" class="nav-link active" data-scroll-target="#step-1-convert-text-to-binary"><span class="header-section-number">5.1</span> Step 1: convert text to binary</a></li>
-  <li><a href="#step-2-write-other-formats-when-another-program-asks-for-them" id="toc-step-2-write-other-formats-when-another-program-asks-for-them" class="nav-link" data-scroll-target="#step-2-write-other-formats-when-another-program-asks-for-them"><span class="header-section-number">5.2</span> Step 2: write other formats when another program asks for them</a></li>
-  <li><a href="#step-3-keep-or-drop-animals-and-snps" id="toc-step-3-keep-or-drop-animals-and-snps" class="nav-link" data-scroll-target="#step-3-keep-or-drop-animals-and-snps"><span class="header-section-number">5.3</span> Step 3: keep or drop animals and SNPs</a></li>
+  <li><a href="#step-2-write-other-formats-when-another-program-asks-for-them" id="toc-step-2-write-other-formats-when-another-program-asks-for-them" class="nav-link" data-scroll-target="#step-2-write-other-formats-when-another-program-asks-for-them"><span class="header-section-number">5.2</span> Step 2: write other formats when another program asks for them</a>
+  <ul class="collapse">
+  <li><a href="#recode-back-to-text" id="toc-recode-back-to-text" class="nav-link" data-scroll-target="#recode-back-to-text"><span class="header-section-number">5.2.1</span> <code>--recode</code>: back to text</a></li>
+  <li><a href="#recode-12-numbers-instead-of-letters" id="toc-recode-12-numbers-instead-of-letters" class="nav-link" data-scroll-target="#recode-12-numbers-instead-of-letters"><span class="header-section-number">5.2.2</span> <code>--recode 12</code>: numbers instead of letters</a></li>
+  <li><a href="#recode-a-one-number-per-genotype" id="toc-recode-a-one-number-per-genotype" class="nav-link" data-scroll-target="#recode-a-one-number-per-genotype"><span class="header-section-number">5.2.3</span> <code>--recode A</code>: one number per genotype</a></li>
+  <li><a href="#recode-ad-additive-plus-dominance" id="toc-recode-ad-additive-plus-dominance" class="nav-link" data-scroll-target="#recode-ad-additive-plus-dominance"><span class="header-section-number">5.2.4</span> <code>--recode AD</code>: additive plus dominance</a></li>
+  <li><a href="#recode-transpose-one-snp-per-line" id="toc-recode-transpose-one-snp-per-line" class="nav-link" data-scroll-target="#recode-transpose-one-snp-per-line"><span class="header-section-number">5.2.5</span> <code>--recode transpose</code>: one SNP per line</a></li>
+  <li><a href="#recode-vcf-iid-vcf-for-other-programs" id="toc-recode-vcf-iid-vcf-for-other-programs" class="nav-link" data-scroll-target="#recode-vcf-iid-vcf-for-other-programs"><span class="header-section-number">5.2.6</span> <code>--recode vcf-iid</code>: VCF for other programs</a></li>
+  </ul></li>
+  <li><a href="#step-3-keep-or-drop-animals-and-snps" id="toc-step-3-keep-or-drop-animals-and-snps" class="nav-link" data-scroll-target="#step-3-keep-or-drop-animals-and-snps"><span class="header-section-number">5.3</span> Step 3: keep or drop animals and SNPs</a>
+  <ul class="collapse">
+  <li><a href="#animals-from-a-list---keep---remove---keep-fam" id="toc-animals-from-a-list---keep---remove---keep-fam" class="nav-link" data-scroll-target="#animals-from-a-list---keep---remove---keep-fam"><span class="header-section-number">5.3.1</span> Animals from a list: <code>--keep</code>, <code>--remove</code>, <code>--keep-fam</code></a></li>
+  <li><a href="#animals-by-a-group-label---filter" id="toc-animals-by-a-group-label---filter" class="nav-link" data-scroll-target="#animals-by-a-group-label---filter"><span class="header-section-number">5.3.2</span> Animals by a group label: <code>--filter</code></a></li>
+  <li><a href="#animals-by-status---filter-females---filter-cases---filter-founders" id="toc-animals-by-status---filter-females---filter-cases---filter-founders" class="nav-link" data-scroll-target="#animals-by-status---filter-females---filter-cases---filter-founders"><span class="header-section-number">5.3.3</span> Animals by status: <code>--filter-females</code>, <code>--filter-cases</code>, <code>--filter-founders</code></a></li>
+  <li><a href="#snps-from-a-list---extract---exclude" id="toc-snps-from-a-list---extract---exclude" class="nav-link" data-scroll-target="#snps-from-a-list---extract---exclude"><span class="header-section-number">5.3.4</span> SNPs from a list: <code>--extract</code>, <code>--exclude</code></a></li>
+  <li><a href="#snps-by-position---chr---from-mb---to-mb---snp---window---autosome" id="toc-snps-by-position---chr---from-mb---to-mb---snp---window---autosome" class="nav-link" data-scroll-target="#snps-by-position---chr---from-mb---to-mb---snp---window---autosome"><span class="header-section-number">5.3.5</span> SNPs by position: <code>--chr</code>, <code>--from-mb</code>, <code>--to-mb</code>, <code>--snp</code>, <code>--window</code>, <code>--autosome</code></a></li>
+  <li><a href="#random-snps---thin---thin-count" id="toc-random-snps---thin---thin-count" class="nav-link" data-scroll-target="#random-snps---thin---thin-count"><span class="header-section-number">5.3.6</span> Random SNPs: <code>--thin</code>, <code>--thin-count</code></a></li>
+  </ul></li>
   <li><a href="#step-4-merge-files-from-two-labs" id="toc-step-4-merge-files-from-two-labs" class="nav-link" data-scroll-target="#step-4-merge-files-from-two-labs"><span class="header-section-number">5.4</span> Step 4: merge files from two labs</a>
   <ul class="collapse">
   <li><a href="#comparing-the-same-animals-genotyped-twice---merge-mode" id="toc-comparing-the-same-animals-genotyped-twice---merge-mode" class="nav-link" data-scroll-target="#comparing-the-same-animals-genotyped-twice---merge-mode"><span class="header-section-number">5.4.1</span> Comparing the same animals genotyped twice: <code>--merge-mode</code></a></li>
   <li><a href="#many-files-at-once" id="toc-many-files-at-once" class="nav-link" data-scroll-target="#many-files-at-once"><span class="header-section-number">5.4.2</span> Many files at once</a></li>
   </ul></li>
-  <li><a href="#step-5-fix-ids-sexes-snp-names-and-alleles" id="toc-step-5-fix-ids-sexes-snp-names-and-alleles" class="nav-link" data-scroll-target="#step-5-fix-ids-sexes-snp-names-and-alleles"><span class="header-section-number">5.5</span> Step 5: fix IDs, sexes, SNP names and alleles</a></li>
+  <li><a href="#step-5-fix-ids-sexes-snp-names-and-alleles" id="toc-step-5-fix-ids-sexes-snp-names-and-alleles" class="nav-link" data-scroll-target="#step-5-fix-ids-sexes-snp-names-and-alleles"><span class="header-section-number">5.5</span> Step 5: fix IDs, sexes, SNP names and alleles</a>
+  <ul class="collapse">
+  <li><a href="#sexes---update-sex" id="toc-sexes---update-sex" class="nav-link" data-scroll-target="#sexes---update-sex"><span class="header-section-number">5.5.1</span> Sexes: <code>--update-sex</code></a></li>
+  <li><a href="#animal-ids---update-ids" id="toc-animal-ids---update-ids" class="nav-link" data-scroll-target="#animal-ids---update-ids"><span class="header-section-number">5.5.2</span> Animal IDs: <code>--update-ids</code></a></li>
+  <li><a href="#parents---update-parents" id="toc-parents---update-parents" class="nav-link" data-scroll-target="#parents---update-parents"><span class="header-section-number">5.5.3</span> Parents: <code>--update-parents</code></a></li>
+  <li><a href="#snp-names-and-positions---update-name---update-map" id="toc-snp-names-and-positions---update-name---update-map" class="nav-link" data-scroll-target="#snp-names-and-positions---update-name---update-map"><span class="header-section-number">5.5.4</span> SNP names and positions: <code>--update-name</code>, <code>--update-map</code></a></li>
+  <li><a href="#which-allele-is-a1---a1-allele---keep-allele-order" id="toc-which-allele-is-a1---a1-allele---keep-allele-order" class="nav-link" data-scroll-target="#which-allele-is-a1---a1-allele---keep-allele-order"><span class="header-section-number">5.5.5</span> Which allele is A1: <code>--a1-allele</code>, <code>--keep-allele-order</code></a></li>
+  </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Megaluno/plink-tutorial-for-beginners/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -437,6 +457,7 @@ Among remaining phenotypes, 144 are cases and 217 are controls.</code></pre>
 </section>
 <section id="step-2-write-other-formats-when-another-program-asks-for-them" class="level2" data-number="5.2">
 <h2 data-number="5.2" class="anchored" data-anchor-id="step-2-write-other-formats-when-another-program-asks-for-them"><span class="header-section-number">5.2</span> Step 2: write other formats when another program asks for them</h2>
+<p>PLINK can write the same genotypes in many layouts. Each one below was made from our binary file with one command of the form <code>plink --bfile cattle --cow &lt;format flag&gt; --out &lt;name&gt;</code>, and each example shows the first lines of what it wrote. Look at your own file the same way (<code>head</code>) before you send it to another program.</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 25%">
@@ -446,10 +467,10 @@ Among remaining phenotypes, 144 are cases and 217 are controls.</code></pre>
 </colgroup>
 <thead>
 <tr class="header">
-<th>Command</th>
-<th>Writes</th>
+<th>Format flag</th>
+<th>Files written</th>
 <th>Size here</th>
-<th>Used by</th>
+<th>Typical user</th>
 </tr>
 </thead>
 <tbody>
@@ -463,47 +484,155 @@ Among remaining phenotypes, 144 are cases and 217 are controls.</code></pre>
 <td><code>--recode</code></td>
 <td><code>.ped .map</code></td>
 <td>6.9 MB</td>
-<td>older programs; easy to read</td>
+<td>Older programs; easy to read</td>
 </tr>
 <tr class="odd">
 <td><code>--recode 12</code></td>
-<td><code>.ped</code> with alleles 1/2</td>
+<td><code>.ped .map</code> with 1/2 instead of letters</td>
 <td>6.9 MB</td>
-<td>programs that cannot read letters</td>
+<td>Programs that cannot read letters</td>
 </tr>
 <tr class="even">
 <td><code>--recode A</code></td>
-<td><code>.raw</code> (0/1/2)</td>
+<td><code>.raw</code></td>
 <td>3.5 MB</td>
 <td>R, Python, genomic prediction</td>
 </tr>
 <tr class="odd">
 <td><code>--recode AD</code></td>
-<td><code>.raw</code> with additive and dominance columns</td>
+<td><code>.raw</code> with extra heterozygote columns</td>
 <td>7.1 MB</td>
-<td>models with dominance</td>
+<td>Models with dominance</td>
 </tr>
 <tr class="even">
 <td><code>--recode transpose</code></td>
 <td><code>.tped .tfam</code></td>
 <td>7.1 MB</td>
-<td>SNP-by-SNP tools</td>
+<td>Programs that read one SNP per line</td>
 </tr>
 <tr class="odd">
-<td><code>--recode vcf</code> or <code>vcf-iid</code></td>
+<td><code>--recode vcf-iid</code></td>
 <td><code>.vcf</code></td>
 <td>7.1 MB</td>
 <td>BEAGLE, bcftools, imputation</td>
 </tr>
 </tbody>
 </table>
-<p>A VCF file has only one name per animal, so when PLINK reads a VCF back it splits that name at <code>_</code> into FID and IID. Our names already contain underscores, which gives:</p>
+<section id="recode-back-to-text" class="level3" data-number="5.2.1">
+<h3 data-number="5.2.1" class="anchored" data-anchor-id="recode-back-to-text"><span class="header-section-number">5.2.1</span> <code>--recode</code>: back to text</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--recode</span> <span class="at">--out</span> cattle_text</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span> <span class="at">-2</span> cattle_text.ped <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-d</span><span class="st">" "</span> <span class="at">-f1-12</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text"><code>ANG ANG_001 0 0 2 1 A A A A T T
+ANG ANG_002 0 0 1 2 A A A A T T</code></pre>
+<p>Six columns about the animal, then two letters per SNP: ANG_001 is A/A at snp00001, A/A at snp00002 and T/T at snp00003. The <code>.map</code> file lists the SNPs in the same order. Use this only when a program needs it: the file is 16 times larger than the <code>.bed</code>.</p>
+</section>
+<section id="recode-12-numbers-instead-of-letters" class="level3" data-number="5.2.2">
+<h3 data-number="5.2.2" class="anchored" data-anchor-id="recode-12-numbers-instead-of-letters"><span class="header-section-number">5.2.2</span> <code>--recode 12</code>: numbers instead of letters</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--recode</span> 12 <span class="at">--out</span> cattle_12</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text"><code>ANG ANG_001 0 0 2 1 2 2 2 2 2 2</code></pre>
+<p>Here <strong>1 = A1 and 2 = A2</strong> of the <code>.bim</code> file, not “allele 1 and 2 of the chip”. For snp00001 the <code>.bim</code> says A1 = G, A2 = A, so ANG_001’s A/A became 2 2. Missing is still 0 0. Because A1 is the minor allele in PLINK 1.9, the same letter can be 1 in one file and 2 in another file made from different animals. Add <code>--keep-allele-order</code> if a program needs a stable coding.</p>
+</section>
+<section id="recode-a-one-number-per-genotype" class="level3" data-number="5.2.3">
+<h3 data-number="5.2.3" class="anchored" data-anchor-id="recode-a-one-number-per-genotype"><span class="header-section-number">5.2.3</span> <code>--recode A</code>: one number per genotype</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--recode</span> A <span class="at">--out</span> cattle_add</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span> <span class="at">-3</span> cattle_add.raw <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-d</span><span class="st">" "</span> <span class="at">-f1-10</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text"><code>FID IID PAT MAT SEX PHENOTYPE snp00001_G snp00002_C snp00003_A snp00004_T
+ANG ANG_001 0 0 2 1 0 0 0 1
+ANG ANG_002 0 0 1 2 0 0 0 0</code></pre>
+<p>Each column header is the SNP name, an underscore and the allele being <strong>counted</strong> (A1). ANG_001 has 0 copies of G at snp00001 and 1 copy of T at snp00004. Missing genotypes are <code>NA</code> (12,456 of the 1.7 million cells here). Two cautions: the file holds every genotype as text, so for 50,000 SNPs and thousands of animals it gets large and slow to read in R; and if you combine <code>.raw</code> files made separately, check that the counted allele in the headers is the same, or force it with <code>--recode-allele</code> or <code>--keep-allele-order</code>. Add <code>include-alt</code> to name both alleles in the header (<code>snp00001_G(/A)</code>).</p>
+</section>
+<section id="recode-ad-additive-plus-dominance" class="level3" data-number="5.2.4">
+<h3 data-number="5.2.4" class="anchored" data-anchor-id="recode-ad-additive-plus-dominance"><span class="header-section-number">5.2.4</span> <code>--recode AD</code>: additive plus dominance</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--recode</span> AD <span class="at">--out</span> cattle_ad</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text"><code>FID IID ... snp00001_G snp00001_HET snp00002_C snp00002_HET
+ANG ANG_001 ...    0          0           0          0</code></pre>
+<p>Each SNP now has two columns: the count of A1 (0, 1, 2) and a heterozygote indicator (1 for heterozygotes, 0 for both homozygotes). Use it when you fit a dominance effect yourself; the file is twice the size of <code>--recode A</code>.</p>
+</section>
+<section id="recode-transpose-one-snp-per-line" class="level3" data-number="5.2.5">
+<h3 data-number="5.2.5" class="anchored" data-anchor-id="recode-transpose-one-snp-per-line"><span class="header-section-number">5.2.5</span> <code>--recode transpose</code>: one SNP per line</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--recode</span> transpose <span class="at">--out</span> cattle_t</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span> <span class="at">-1</span> cattle_t.tped <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-d</span><span class="st">" "</span> <span class="at">-f1-12</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text"><code>1 snp00001 0.484 484050 A A A A A A A A</code></pre>
+<p>Each line is one SNP: the four <code>.map</code> columns, then two letters per animal in the order of the <code>.tfam</code> file (which is a copy of the <code>.fam</code>). Some older programs, and simple per-SNP scripts, prefer this layout.</p>
+</section>
+<section id="recode-vcf-iid-vcf-for-other-programs" class="level3" data-number="5.2.6">
+<h3 data-number="5.2.6" class="anchored" data-anchor-id="recode-vcf-iid-vcf-for-other-programs"><span class="header-section-number">5.2.6</span> <code>--recode vcf-iid</code>: VCF for other programs</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--recode</span> vcf-iid <span class="at">--out</span> cattle_vcf</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-v</span> <span class="st">"^##"</span> cattle_vcf.vcf <span class="kw">|</span> <span class="fu">head</span> <span class="at">-2</span> <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-f1-12</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text"><code>#CHROM  POS     ID        REF  ALT  QUAL  FILTER  INFO  FORMAT  ANG_001  ANG_002  ANG_003
+1       484050  snp00001  A    G    .     .       PR    GT      0/0      0/0      0/0</code></pre>
+<p>PLINK 1.9 writes <strong>A2 as REF and A1 as ALT</strong>. Since it does not know the genome’s real reference allele, it marks every line <code>PR</code> (provisional reference). Before imputation or merging with sequence data, set the true REF allele (Chapter 14 shows how). <code>vcf-iid</code> uses only the IID as the sample name; plain <code>vcf</code> would write <code>ANG_ANG_001</code>.</p>
+<p>A VCF file has only one name per animal, so when PLINK reads a VCF back it tries to split that name at <code>_</code> into FID and IID. Our names already contain underscores, which gives:</p>
 <pre class="text"><code>Error: Multiple instances of '_' in sample ID.</code></pre>
-<p>The fix is to say how you want the IDs: <code>--double-id</code> (use the whole name as both FID and IID), <code>--const-fid</code> (FID = 0), or export with <code>--recode vcf-iid</code> in the first place. A VCF also has no sex or phenotype, so add them back with <code>--update-sex</code> and <code>--pheno</code>.</p>
+<p>The fix is to say how you want the IDs: <code>--double-id</code> (use the whole name as both FID and IID), <code>--const-fid</code> (FID = 0), or a different <code>--id-delim</code>. A VCF also has no sex or phenotype, so add them back with <code>--update-sex</code> and <code>--pheno</code>.</p>
+</section>
 </section>
 <section id="step-3-keep-or-drop-animals-and-snps" class="level2" data-number="5.3">
 <h2 data-number="5.3" class="anchored" data-anchor-id="step-3-keep-or-drop-animals-and-snps"><span class="header-section-number">5.3</span> Step 3: keep or drop animals and SNPs</h2>
-<p>Every subsetting flag reads a simple list. Animal lists have two columns (FID IID); SNP lists have one (the SNP name).</p>
+<p>Every subsetting flag either reads a list file or takes a rule. The pattern is always the same: add the flag to a command that writes something, and read the line in the log that says how many animals or SNPs are left. Below, every example was run as</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="op">&lt;</span>flag<span class="op">&gt;</span> --make-bed <span class="at">--out</span> <span class="op">&lt;</span>new name<span class="op">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>and the result is the line PLINK wrote in the log.</p>
+<section id="animals-from-a-list---keep---remove---keep-fam" class="level3" data-number="5.3.1">
+<h3 data-number="5.3.1" class="anchored" data-anchor-id="animals-from-a-list---keep---remove---keep-fam"><span class="header-section-number">5.3.1</span> Animals from a list: <code>--keep</code>, <code>--remove</code>, <code>--keep-fam</code></h3>
+<p>An animal list has <strong>two columns, FID and IID</strong>, separated by spaces or tabs, one animal per line. Here we make the list of all N’Dama from the breed file:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="st">'$3=="NDA" {print $1, $2}'</span> breed.clst <span class="op">&gt;</span> nda.txt</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span> <span class="at">-3</span> nda.txt          <span class="co"># NDA NDA_001 / NDA NDA_002 / NDA NDA_003   (140 lines)</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--keep</span> nda.txt <span class="at">--make-bed</span> <span class="at">--out</span> nda</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text"><code>--keep: 140 cattle remaining.
+Among remaining phenotypes, 16 are cases and 124 are controls.</code></pre>
+<p><code>--remove nda.txt</code> does the opposite (221 cattle remaining). <code>--keep-fam</code> reads a list of <strong>FIDs only</strong> and keeps whole families: a list of <code>HOL_F01</code>, <code>HOL_F02</code> and <code>NDA_F01</code> kept 12 animals (three families of sire, dam and two calves).</p>
+<p>Things to check. Both IDs must match exactly, including capital letters, and an animal that is in the list but not in the data is skipped without a warning. A test list of three lines (<code>NDA NDA_001</code>, <code>nda NDA_002</code> with a lower-case FID, and a made-up <code>NDA NDA_999</code>) gave <code>--keep: 1 cow remaining.</code> and no error. So always compare the number in the log with the number of lines in your list (here 140 and 140). A list with only the IID column does give an error: <code>Line 1 of --keep file has fewer tokens than expected.</code></p>
+</section>
+<section id="animals-by-a-group-label---filter" class="level3" data-number="5.3.2">
+<h3 data-number="5.3.2" class="anchored" data-anchor-id="animals-by-a-group-label---filter"><span class="header-section-number">5.3.2</span> Animals by a group label: <code>--filter</code></h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--filter</span> breed.clst HOL <span class="at">--mfilter</span> 1 <span class="at">--make-bed</span> <span class="at">--out</span> hol</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text"><code>--filter: 141 cattle remaining.</code></pre>
+<p><code>--filter</code> reads a file with FID, IID and one or more value columns, and keeps the animals whose value equals the one you give (<code>HOL</code>). <code>--mfilter 1</code> says which value column to use: 1 is the first column after FID and IID. Without <code>--mfilter</code>, PLINK uses that first column anyway. This is handy when you keep breed, herd or batch in one table and want to pick one level without making a separate list.</p>
+</section>
+<section id="animals-by-status---filter-females---filter-cases---filter-founders" class="level3" data-number="5.3.3">
+<h3 data-number="5.3.3" class="anchored" data-anchor-id="animals-by-status---filter-females---filter-cases---filter-founders"><span class="header-section-number">5.3.3</span> Animals by status: <code>--filter-females</code>, <code>--filter-cases</code>, <code>--filter-founders</code></h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Flag</th>
+<th>Log line in our data</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>--filter-females</code></td>
+<td><code>139 cattle removed due to gender filter</code> (222 left; the 137 males and the 2 unknowns go)</td>
+</tr>
+<tr class="even">
+<td><code>--filter-males</code></td>
+<td>keeps the 137 males</td>
+</tr>
+<tr class="odd">
+<td><code>--filter-cases</code> / <code>--filter-controls</code></td>
+<td><code>217 cattle removed due to case/control status</code> (144 cases left)</td>
+</tr>
+<tr class="even">
+<td><code>--filter-founders</code> / <code>--filter-nonfounders</code></td>
+<td><code>60 cattle removed due to founder status</code> (301 founders left)</td>
+</tr>
+</tbody>
+</table>
+<p>These read the <code>.fam</code> file, so they are only as good as the recorded sexes, phenotypes and parents. Animals with unknown sex are removed by both sex filters.</p>
+</section>
+<section id="snps-from-a-list---extract---exclude" class="level3" data-number="5.3.4">
+<h3 data-number="5.3.4" class="anchored" data-anchor-id="snps-from-a-list---extract---exclude"><span class="header-section-number">5.3.4</span> SNPs from a list: <code>--extract</code>, <code>--exclude</code></h3>
+<p>A SNP list has <strong>one column</strong>: the SNP names exactly as in the <code>.bim</code>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="st">'$1 == 6 {print $2}'</span> cattle.bim <span class="op">&gt;</span> chr6_snps.txt      <span class="co"># 210 SNP names</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--extract</span> chr6_snps.txt <span class="at">--make-bed</span> <span class="at">--out</span> chr6</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text"><code>--extract: 210 variants remaining.</code></pre>
+<p><code>--exclude chr6_snps.txt</code> left 4,590. Names that are not in the data are ignored without a warning, so compare counts again. With <code>--extract range file.txt</code> the file holds regions instead (chromosome, start, end, name).</p>
+</section>
+<section id="snps-by-position---chr---from-mb---to-mb---snp---window---autosome" class="level3" data-number="5.3.5">
+<h3 data-number="5.3.5" class="anchored" data-anchor-id="snps-by-position---chr---from-mb---to-mb---snp---window---autosome"><span class="header-section-number">5.3.5</span> SNPs by position: <code>--chr</code>, <code>--from-mb</code>, <code>--to-mb</code>, <code>--snp</code>, <code>--window</code>, <code>--autosome</code></h3>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 33%">
@@ -512,104 +641,85 @@ Among remaining phenotypes, 144 are cases and 217 are controls.</code></pre>
 </colgroup>
 <thead>
 <tr class="header">
-<th>Goal</th>
-<th>Add to <code>plink --bfile cattle --cow ... --make-bed --out new</code></th>
-<th>Result in our data</th>
+<th>Command (added to the template above)</th>
+<th>SNPs left</th>
+<th>What it selects</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>Keep listed animals</td>
-<td><code>--keep nda.txt</code></td>
-<td>80 cattle remaining</td>
-</tr>
-<tr class="even">
-<td>Drop listed animals</td>
-<td><code>--remove nda.txt</code></td>
-<td>281 remaining</td>
-</tr>
-<tr class="odd">
-<td>Keep whole families</td>
-<td><code>--keep-fam families.txt</code> (one FID per line)</td>
-<td>120 remaining</td>
-</tr>
-<tr class="even">
-<td>Keep one breed from a cluster file</td>
-<td><code>--filter breed.clst HOL --mfilter 1</code></td>
-<td>141 remaining</td>
-</tr>
-<tr class="odd">
-<td>Keep only females / cases / founders</td>
-<td><code>--filter-females</code>, <code>--filter-cases</code>, <code>--filter-founders</code></td>
-<td>222 females kept</td>
-</tr>
-<tr class="even">
-<td>Keep listed SNPs</td>
-<td><code>--extract chr6_snps.txt</code></td>
-<td>210 variants</td>
-</tr>
-<tr class="odd">
-<td>Drop listed SNPs</td>
-<td><code>--exclude chr6_snps.txt</code></td>
-<td>4,590 variants</td>
-</tr>
-<tr class="even">
-<td>One region</td>
 <td><code>--chr 14 --from-mb 23 --to-mb 27</code></td>
-<td>86 variants</td>
+<td>86</td>
+<td>Chromosome 14 from 23 to 27 Mb (also <code>--from-kb</code>, <code>--from-bp</code>)</td>
 </tr>
-<tr class="odd">
-<td>Several chromosomes</td>
+<tr class="even">
 <td><code>--chr 1-5,X</code></td>
-<td>1,060 variants</td>
+<td>1,060</td>
+<td>A range of chromosomes plus the X</td>
 </tr>
-<tr class="even">
-<td>Autosomes only</td>
+<tr class="odd">
 <td><code>--autosome</code></td>
-<td>4,550 variants</td>
-</tr>
-<tr class="odd">
-<td>A window around a SNP</td>
-<td><code>--snp snp02145 --window 500</code> (kb each side)</td>
-<td>14 variants</td>
+<td>4,550</td>
+<td>Chromosomes 1 to 29 only (no X, Y, MT)</td>
 </tr>
 <tr class="even">
-<td>A random share of SNPs</td>
-<td><code>--thin 0.25 --seed 7</code></td>
-<td>1,202 variants</td>
+<td><code>--snp snp02145 --window 500</code></td>
+<td>14</td>
+<td>One SNP and everything within 500 kb on either side</td>
 </tr>
 <tr class="odd">
-<td>An exact number of random SNPs</td>
-<td><code>--thin-count 1000 --seed 7</code></td>
-<td>1,000 variants</td>
+<td><code>--snps snp00001-snp00010</code></td>
+<td>10</td>
+<td>A run of SNPs by name, in file order</td>
 </tr>
 </tbody>
 </table>
-<p>Two habits worth forming: always set <code>--seed</code> with <code>--thin</code> so you can repeat the result, and keep your list files, because they are the exact record of what you did.</p>
+<p>Position flags read the chromosome and base-pair columns of the <code>.bim</code>, so they depend on the genome assembly the positions come from.</p>
+</section>
+<section id="random-snps---thin---thin-count" class="level3" data-number="5.3.6">
+<h3 data-number="5.3.6" class="anchored" data-anchor-id="random-snps---thin---thin-count"><span class="header-section-number">5.3.6</span> Random SNPs: <code>--thin</code>, <code>--thin-count</code></h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--thin</span> 0.25 <span class="at">--seed</span> 7 <span class="at">--make-bed</span> <span class="at">--out</span> thin25</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--thin-count</span> 1000 <span class="at">--seed</span> 7 <span class="at">--make-bed</span> <span class="at">--out</span> thin1000</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text"><code>--thin: 3598 variants removed (1202 remaining).
+--thin-count: 3800 variants removed (1000 remaining).</code></pre>
+<p><code>--thin 0.25</code> keeps each SNP with probability 0.25, so you get <em>about</em> a quarter (1,202 of 4,800); <code>--thin-count 1000</code> keeps exactly 1,000. Without <code>--seed</code>, PLINK takes its seed from the computer’s clock and writes it in the log (<code>Random number seed: 1794946461</code>), so two runs a few seconds apart pick different SNPs. Set <code>--seed</code> and the same command always gives the same SNPs. Random thinning ignores LD; for analyses that need roughly independent SNPs, prune instead (Chapter 9).</p>
+<p>Two habits worth forming: keep your list files, because they are the exact record of what you did, and read the “remaining” line of the log every time.</p>
+</section>
 </section>
 <section id="step-4-merge-files-from-two-labs" class="level2" data-number="5.4">
 <h2 data-number="5.4" class="anchored" data-anchor-id="step-4-merge-files-from-two-labs"><span class="header-section-number">5.4</span> Step 4: merge files from two labs</h2>
 <p>Merging adds new animals as rows and new SNPs as columns. The classic trap is the <strong>DNA strand</strong>. DNA has two strands that pair A with T and C with G. If one lab reports a SNP as A/G and the other reads the opposite strand, it reports T/C for the same SNP, and PLINK sees four alleles.</p>
-<div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>flowchart LR</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  A[File 1 and File 2] --&gt; B["plink --bmerge"]</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  B --&gt;|works| C[merged file]</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  B --&gt;|"Error: 3+ alleles"| D["SNP list in *-merge.missnp"]</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  D --&gt; E["--flip on File 2"]</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  E --&gt; B</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  C --&gt; F["Remove A/T and C/G SNPs&lt;br/&gt;and check with --flip-scan"]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<p></p><figure class="figure"><p></p>
-<div>
-
+<div id="fig-merge-flow" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-merge-flow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/flow_merge.png" class="img-fluid figure-img">
 </div>
-<p></p><figcaption> The merge workflow. The loop through –flip is usually needed once.</figcaption> </figure><p></p>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-merge-flow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.1: The merge workflow. The loop through <code>--flip</code> is usually needed once; the checks at the end are always needed.
+</figcaption>
+</figure>
 </div>
-</div>
-</div>
+<p>The whole workflow as commands (each step is explained below):</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. try the merge</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--bmerge</span> batch2 <span class="at">--make-bed</span> <span class="at">--out</span> merged_try1</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. it stopped with "3+ alleles": flip the listed SNPs in the second file</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> batch2 <span class="at">--cow</span> <span class="at">--flip</span> merged_try1-merge.missnp <span class="at">--make-bed</span> <span class="at">--out</span> batch2_flipped</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. merge again</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--bmerge</span> batch2_flipped <span class="at">--make-bed</span> <span class="at">--out</span> merged</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. checks: drop strand-ambiguous SNPs, drop SNPs missing in one lab, look for remaining flips</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="st">'($5=="A"&amp;&amp;$6=="T")||($5=="T"&amp;&amp;$6=="A")||($5=="C"&amp;&amp;$6=="G")||($5=="G"&amp;&amp;$6=="C"){print $2}'</span> merged.bim <span class="op">&gt;</span> ambiguous.txt</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> merged <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--exclude</span> ambiguous.txt <span class="at">--geno</span> 0.05 <span class="at">--make-bed</span> <span class="at">--out</span> merged_clean</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> merged_clean <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--flip-scan</span> <span class="at">--out</span> fscan</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text"><code>step 1: Error: 39 variants with 3+ alleles present.
+step 2: --flip: 39 SNPs flipped.
+step 3: 4920 variants and 401 cattle pass filters and QC.
+step 4: 177 ambiguous SNPs; --exclude: 4743 variants remaining.
+        816 variants removed due to missing genotype data (--geno).
+        3927 variants and 401 cattle pass filters and QC.
+        --flip-scan: 10 variants with at least one negative LD match.</code></pre>
+<p>The <code>--geno 0.05</code> in step 4 removed 816 SNPs. That is not a quality problem: those are the SNPs on only one lab’s chip (720 typed only by the first lab and 120 only by the second, minus the few already removed as ambiguous), which are missing for every animal of the other lab. Whether to keep them is a decision: drop them for analyses that need the same SNPs in every animal (PCA, relatedness, GRM), or keep them and impute (Chapter 14).</p>
 <p>Our second lab sent 40 animals and 4,200 SNPs, with 40 SNPs on the opposite strand:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--bmerge</span> batch2 <span class="at">--make-bed</span> <span class="at">--out</span> merged_try1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--bmerge</span> batch2 <span class="at">--make-bed</span> <span class="at">--out</span> merged_try1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre class="text"><code>40 cattle to be merged from batch2.fam.
 Of these, 40 are new, while 0 are present in the base dataset.
 4200 markers to be merged from batch2.bim.
@@ -618,13 +728,13 @@ Error: 39 variants with 3+ alleles present.
 * If you believe this is due to strand inconsistency, try --flip with
   merged_try1-merge.missnp.</code></pre>
 <p>Flip those SNPs in the second file and merge again:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> batch2 <span class="at">--cow</span> <span class="at">--flip</span> merged_try1-merge.missnp <span class="at">--make-bed</span> <span class="at">--out</span> batch2_flipped</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--bmerge</span> batch2_flipped <span class="at">--make-bed</span> <span class="at">--out</span> merged</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 4920 variants and 401 cattle pass filters and QC.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> batch2 <span class="at">--cow</span> <span class="at">--flip</span> merged_try1-merge.missnp <span class="at">--make-bed</span> <span class="at">--out</span> batch2_flipped</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--bmerge</span> batch2_flipped <span class="at">--make-bed</span> <span class="at">--out</span> merged</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 4920 variants and 401 cattle pass filters and QC.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>PLINK caught 39 of the 40. The missing one, snp03921, is a <strong>C/G SNP</strong>: flipping C/G gives G/C, the same two letters, so no error is raised and the alleles are silently swapped. A/T SNPs behave the same way. That is why the safe practice is:</p>
 <ol type="1">
 <li><p>Remove strand-ambiguous SNPs (A/T and C/G) before merging data from different sources. Our file had 143 of them:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="st">'($5=="A"&amp;&amp;$6=="T")||($5=="T"&amp;&amp;$6=="A")||($5=="C"&amp;&amp;$6=="G")||($5=="G"&amp;&amp;$6=="C"){print $2}'</span> cattle.bim <span class="op">&gt;</span> ambiguous.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div></li>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb30"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="st">'($5=="A"&amp;&amp;$6=="T")||($5=="T"&amp;&amp;$6=="A")||($5=="C"&amp;&amp;$6=="G")||($5=="G"&amp;&amp;$6=="C"){print $2}'</span> cattle.bim <span class="op">&gt;</span> ambiguous.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div></li>
 <li><p>Better still, ask both labs to export with the same allele coding (Illumina TOP or Forward strand).</p></li>
 <li><p>Run <code>--flip-scan</code>, which looks for SNPs whose LD with their neighbours has the wrong sign. It needs strong LD, so on our sparse SNPs it flagged 6 SNPs and missed snp03921. It is useful on dense chips.</p></li>
 </ol>
@@ -632,9 +742,9 @@ Error: 39 variants with 3+ alleles present.
 <section id="comparing-the-same-animals-genotyped-twice---merge-mode" class="level3" data-number="5.4.1">
 <h3 data-number="5.4.1" class="anchored" data-anchor-id="comparing-the-same-animals-genotyped-twice---merge-mode"><span class="header-section-number">5.4.1</span> Comparing the same animals genotyped twice: <code>--merge-mode</code></h3>
 <p>When the same animal is in both files, <code>--merge-mode</code> decides what to do with disagreements. Mode 6 does not merge at all; it reports every disagreement. We re-genotyped 10 Angus animals:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--bmerge</span> regeno <span class="at">--merge-mode</span> 6 <span class="at">--out</span> mm6</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 48000 overlapping calls, 47754 nonmissing in both filesets.</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 47650 concordant, for a concordance rate of 0.996904.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--bmerge</span> regeno <span class="at">--merge-mode</span> 6 <span class="at">--out</span> mm6</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 48000 overlapping calls, 47754 nonmissing in both filesets.</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 47650 concordant, for a concordance rate of 0.996904.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
@@ -672,58 +782,71 @@ Error: 39 variants with 3+ alleles present.
 </section>
 <section id="many-files-at-once" class="level3" data-number="5.4.2">
 <h3 data-number="5.4.2" class="anchored" data-anchor-id="many-files-at-once"><span class="header-section-number">5.4.2</span> Many files at once</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">"part2\npart3\n"</span> <span class="op">&gt;</span> mergelist.txt</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> part1 <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--merge-list</span> mergelist.txt <span class="at">--make-bed</span> <span class="at">--out</span> rejoined</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb32"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">"part2\npart3\n"</span> <span class="op">&gt;</span> mergelist.txt</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> part1 <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--merge-list</span> mergelist.txt <span class="at">--make-bed</span> <span class="at">--out</span> rejoined</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 </section>
 <section id="step-5-fix-ids-sexes-snp-names-and-alleles" class="level2" data-number="5.5">
 <h2 data-number="5.5" class="anchored" data-anchor-id="step-5-fix-ids-sexes-snp-names-and-alleles"><span class="header-section-number">5.5</span> Step 5: fix IDs, sexes, SNP names and alleles</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Goal</th>
-<th>Flag and file layout</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Correct sexes</td>
-<td><code>--update-sex file</code> (FID IID SEX)</td>
-</tr>
-<tr class="even">
-<td>Rename animals</td>
-<td><code>--update-ids file</code> (old FID, old IID, new FID, new IID)</td>
-</tr>
-<tr class="odd">
-<td>Add or fix parents</td>
-<td><code>--update-parents file</code> (FID IID sire dam)</td>
-</tr>
-<tr class="even">
-<td>Rename SNPs</td>
-<td><code>--update-name file</code> (old new)</td>
-</tr>
-<tr class="odd">
-<td>Update positions</td>
-<td><code>--update-map file</code> (SNP bp)</td>
-</tr>
-<tr class="even">
-<td>Choose which allele is A1</td>
-<td><code>--a1-allele file 2 1</code> (allele in column 2, SNP name in column 1)</td>
-</tr>
-<tr class="odd">
-<td>Keep the alleles as they are in the input</td>
-<td><code>--keep-allele-order</code></td>
-</tr>
-<tr class="even">
-<td>Reorder animals</td>
-<td><code>--indiv-sort f order.txt</code></td>
-</tr>
-</tbody>
-</table>
+<p>Each update flag reads a small text file and changes the <code>.fam</code> or <code>.bim</code> in the new fileset. The log says how many entries were changed; compare it with the number of lines in your file. Run each update in its own command, because some cannot be combined (<code>--update-parents cannot be used with --update-ids</code>).</p>
+<section id="sexes---update-sex" class="level3" data-number="5.5.1">
+<h3 data-number="5.5.1" class="anchored" data-anchor-id="sexes---update-sex"><span class="header-section-number">5.5.1</span> Sexes: <code>--update-sex</code></h3>
+<p>Chapter 8 shows that ANG_071 and NDA_022 are bulls recorded as cows. The file has three columns: FID, IID and the new sex code (1 male, 2 female, 0 unknown).</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb33"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">"ANG ANG_071 1\nNDA NDA_022 1\n"</span> <span class="op">&gt;</span> sex_fix.txt</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--update-sex</span> sex_fix.txt <span class="at">--make-bed</span> <span class="at">--out</span> cattle_sexfix</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-E</span> <span class="st">"ANG_071|NDA_022"</span> cattle.fam cattle_sexfix.fam</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text"><code>--update-sex: 2 cattle updated.
+cattle.fam:ANG ANG_071 0 0 2 1
+cattle_sexfix.fam:ANG ANG_071 0 0 1 1</code></pre>
+</section>
+<section id="animal-ids---update-ids" class="level3" data-number="5.5.2">
+<h3 data-number="5.5.2" class="anchored" data-anchor-id="animal-ids---update-ids"><span class="header-section-number">5.5.2</span> Animal IDs: <code>--update-ids</code></h3>
+<p>Four columns: old FID, old IID, new FID, new IID. Useful when a lab used its own sample codes and you want herd-book numbers.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb35"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">"ANG ANG_001 ANG BULL_DE_001\n"</span> <span class="op">&gt;</span> new_ids.txt</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--update-ids</span> new_ids.txt <span class="at">--make-bed</span> <span class="at">--out</span> cattle_ids</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text"><code>--update-ids: 1 cow updated.</code></pre>
+<p>Only the <code>.fam</code> changes; pedigree columns that pointed to the old ID are <strong>not</strong> updated, so rename parents’ IDs in the children’s lines too (with <code>--update-parents</code>).</p>
+</section>
+<section id="parents---update-parents" class="level3" data-number="5.5.3">
+<h3 data-number="5.5.3" class="anchored" data-anchor-id="parents---update-parents"><span class="header-section-number">5.5.3</span> Parents: <code>--update-parents</code></h3>
+<p>Four columns: FID, IID, sire ID, dam ID. In PLINK a parent must have <strong>the same FID</strong> as its calf. Chapter 10 finds that the true sire of HOL_F03_C2 is HOL_011, who is in family <code>HOL</code>. If you simply point the calf at HOL_011, PLINK finds no animal of that name in family HOL_F03:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb37"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">"HOL_F03 HOL_F03_C2 HOL_011 HOL_F03_D\n"</span> <span class="op">&gt;</span> new_parents.txt</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--update-parents</span> new_parents.txt <span class="at">--make-bed</span> <span class="at">--out</span> try1</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> try1 <span class="at">--cow</span> <span class="at">--mendel</span> <span class="at">--out</span> try1_mendel</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text"><code>--update-parents: 1 cow updated.
+--me/--mendel: 343 Mendel errors detected.      (877 before)</code></pre>
+<p>The errors did not fall because the pedigree is now right: they fell because PLINK can no longer find the sire, so it stopped checking that calf at all (877 − 343 = 534, exactly the calf’s errors). The correct fix moves the sire into the family first, then updates the parents:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb39"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">"HOL HOL_011 HOL_F03 HOL_011\n"</span> <span class="op">&gt;</span> move_sire.txt</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--update-ids</span> move_sire.txt <span class="at">--make-bed</span> <span class="at">--out</span> fixA</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> fixA <span class="at">--cow</span> <span class="at">--update-parents</span> new_parents.txt <span class="at">--make-bed</span> <span class="at">--out</span> fixB</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> fixB <span class="at">--cow</span> <span class="at">--mendel</span> <span class="at">--out</span> fixB_mendel</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> HOL_F03 fixB_mendel.fmendel</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text"><code>--me/--mendel: 346 Mendel errors detected.
+  HOL_F03    HOL_F03_S    HOL_F03_D      1    2
+  HOL_F03      HOL_011    HOL_F03_D      1    3</code></pre>
+<p>Now the calf is checked against its real sire and has only 3 errors, which is normal. Moving HOL_011 into family HOL_F03 also takes him out of family HOL; that only matters for commands that use FID, such as <code>--within</code> without a cluster file.</p>
+</section>
+<section id="snp-names-and-positions---update-name---update-map" class="level3" data-number="5.5.4">
+<h3 data-number="5.5.4" class="anchored" data-anchor-id="snp-names-and-positions---update-name---update-map"><span class="header-section-number">5.5.4</span> SNP names and positions: <code>--update-name</code>, <code>--update-map</code></h3>
+<p>Two columns each: old name and new name, or SNP name and new base-pair position.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb41"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">"snp00001 BTA1_484050\nsnp00002 BTA1_2223660\n"</span> <span class="op">&gt;</span> new_names.txt</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--update-name</span> new_names.txt <span class="at">--make-bed</span> <span class="at">--out</span> cattle_names</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">"snp00001 500000\n"</span> <span class="op">&gt;</span> new_pos.txt</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--update-map</span> new_pos.txt <span class="at">--make-bed</span> <span class="at">--out</span> cattle_pos</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text"><code>--update-name: 2 values updated.        1  BTA1_484050  0.484  484050  G  A
+--update-map: 1 value updated.          1  snp00001     0.484  500000  G  A</code></pre>
+<p>The usual reason is moving a file to a new genome assembly (for cattle, from UMD3.1 to ARS-UCD1.2): you need a table of old name and new position from the chip maker. PLINK does not re-sort the SNPs after <code>--update-map</code>, and SNPs that moved to another chromosome need <code>--update-chr</code> as well. Rewrite the files with <code>--make-bed</code> and check that positions increase along each chromosome.</p>
+</section>
+<section id="which-allele-is-a1---a1-allele---keep-allele-order" class="level3" data-number="5.5.5">
+<h3 data-number="5.5.5" class="anchored" data-anchor-id="which-allele-is-a1---a1-allele---keep-allele-order"><span class="header-section-number">5.5.5</span> Which allele is A1: <code>--a1-allele</code>, <code>--keep-allele-order</code></h3>
+<p><code>--a1-allele file 2 1</code> reads the allele from column 2 and the SNP name from column 1, and makes that allele A1. Here we set A1 to the current A2 for every SNP:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb43"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="st">'{print $2, $6}'</span> cattle.bim <span class="op">&gt;</span> a2_as_a1.txt</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--a1-allele</span> a2_as_a1.txt 2 1 <span class="at">--make-bed</span> <span class="at">--out</span> cattle_swapped</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span> <span class="at">-1</span> cattle.bim cattle_swapped.bim</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text"><code>--a1-allele: 4800 assignments made.
+cattle.bim:          1  snp00001  0.484  484050  G  A
+cattle_swapped.bim:  1  snp00001  0.484  484050  A  G</code></pre>
+<p>The genotypes are the same; only the allele being counted changes, so every BETA and log(OR) changes sign and every OR becomes its inverse. The usual reason is to make A1 match a reference (for example the ALT allele of a sequence panel). <code>--keep-allele-order</code> simply stops PLINK from re-choosing A1 as the minor allele in each new file. <code>--indiv-sort f order.txt</code> puts the animals in the order of a file (FID IID per line), which some programs expect.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -734,13 +857,14 @@ Error: 39 variants with 3+ alleles present.
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The <code>.pgen</code> format is even smaller (0.35 MB for our data). <code>--recode</code> becomes <code>--export</code> (<code>--export A</code>, <code>--export vcf bgz</code>), <code>--bmerge</code> becomes <code>--pmerge</code>, and <code>--flip</code> refuses A/T and C/G SNPs unless you add <code>permissive</code>, which is a useful safety catch.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--make-pgen</span> <span class="at">--out</span> cattle</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--pfile</span> cattle <span class="at">--cow</span> <span class="at">--export</span> vcf bgz <span class="at">--out</span> cattle</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The <code>.pgen</code> format is even smaller (0.35 MB for our data). <code>--recode</code> becomes <code>--export</code> (<code>--export A</code>, <code>--export vcf bgz</code>), <code>--bmerge</code> becomes <code>--pmerge</code>, and <code>--flip</code> stops with an error if a listed variant is not a SNP (an insertion or deletion) unless you add <code>permissive</code>. It flips A/T and C/G SNPs without complaint, exactly like PLINK 1.9, so remove those before merging in either version.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb45"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--make-pgen</span> <span class="at">--out</span> cattle</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--pfile</span> cattle <span class="at">--cow</span> <span class="at">--export</span> vcf bgz <span class="at">--out</span> cattle</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -1165,7 +1289,7 @@ Error: 39 variants with 3+ alleles present.
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-<p>PLINK for Livestock Genomics, by Ismaila Emmanuel</p>
+<p>PLINK for Livestock Genomics, by Ismaila Emmanuel Oluwasegun</p>
 </div>   
     <div class="nav-footer-center">
       &nbsp;

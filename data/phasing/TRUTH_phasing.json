@@ -1,0 +1,10 @@
+{
+ "n_hd": 2080,
+ "n_chip": 294,
+ "qtl": "hd01048",
+ "qtl_bp": 24920712,
+ "qtl_alt": "T",
+ "qtl_effect_per_alt": "+10 kg",
+ "chip_missing": 148,
+ "chip_errors": 30
+}

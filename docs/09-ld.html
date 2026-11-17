@@ -316,7 +316,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./14-haplotypes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, proxy association and imputation</span></span></a>
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, phasing and imputation</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -460,7 +460,7 @@ Figure&nbsp;9.1: A new mutation appears on one chromosome. Over generations, rec
 <section id="haplotypes" class="level2" data-number="9.2">
 <h2 data-number="9.2" class="anchored" data-anchor-id="haplotypes"><span class="header-section-number">9.2</span> Haplotypes</h2>
 <p>A <strong>haplotype</strong> is the set of alleles on one chromosome copy. With two SNPs, one with alleles A/C and one with alleles G/T, there are four possible haplotypes: A-G, A-T, C-G and C-T. Each animal carries two haplotypes, one from each parent.</p>
-<p>From genotypes alone we often cannot tell which haplotypes an animal has. An animal that is A/C at the first SNP and G/T at the second could carry A-G + C-T, or A-T + C-G. Finding the right pair is called <strong>phasing</strong>. PLINK estimates haplotype frequencies statistically, and dedicated programs such as BEAGLE and SHAPEIT phase whole chromosomes.</p>
+<p>From genotypes alone we often cannot tell which haplotypes an animal has. An animal that is A/C at the first SNP and G/T at the second could carry A-G + C-T, or A-T + C-G. Finding the right pair is called <strong>phasing</strong>. For two SNPs at a time, PLINK can estimate the four haplotype <em>frequencies</em> in the whole group without knowing every animal’s phase (below). Getting each animal’s two haplotypes along a whole chromosome is a different and much harder job, done by programs such as BEAGLE, SHAPEIT and Eagle (Chapter 14).</p>
 </section>
 <section id="measuring-ld-d-d-and-r²" class="level2" data-number="9.3">
 <h2 data-number="9.3" class="anchored" data-anchor-id="measuring-ld-d-d-and-r²"><span class="header-section-number">9.3</span> Measuring LD: D, D′ and r²</h2>
@@ -477,6 +477,7 @@ D' = \frac{D}{D_{\max}}
 <p>where D<sub>max</sub> is the largest value D could reach with these allele frequencies. <strong>r²</strong> is the squared correlation between the alleles; it ranges from 0 (independent) to 1 (one SNP perfectly predicts the other). <strong>D′</strong> is 1 when at most three of the four haplotypes exist, even if one of them is rare. For association and genomic prediction, r² is the one to use: it tells you how well one SNP can stand in for another.</p>
 <section id="a-worked-example-with-real-output" class="level3" data-number="9.3.1">
 <h3 data-number="9.3.1" class="anchored" data-anchor-id="a-worked-example-with-real-output"><span class="header-section-number">9.3.1</span> A worked example with real output</h3>
+<p><code>--ld</code> reports the haplotype frequencies of one pair of SNPs. Only animals that are heterozygous at <strong>both</strong> SNPs have an unknown phase; everyone else’s haplotypes can be read straight from the genotypes. PLINK estimates the frequencies with the EM algorithm: it splits each double heterozygote between the two possible phases in proportion to the current frequency estimates, re-counts, and repeats until the numbers stop changing.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--ld</span> snp02144 snp02145 <span class="at">--out</span> ld_pair</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre class="text"><code>   R-sq = 0.382072       D' = 0.642212
 
@@ -491,12 +492,25 @@ D' = \frac{D}{D_{\max}}
 <p>Let us check PLINK’s numbers by hand.</p>
 <ol type="1">
 <li>Allele frequencies: f<sub>A</sub> = AT + AG = 0.323 + 0.084 = 0.407, and f<sub>T</sub> = AT + CT = 0.323 + 0.102 = 0.426.</li>
-<li>If independent, AT would be 0.407 × 0.426 = 0.173 (PLINK’s “expectation under LE”, linkage equilibrium).</li>
+<li>If independent, AT would be 0.407 × 0.426 = 0.173. That is PLINK’s column <strong>“Expectation under LE”</strong>: the haplotype frequency expected under <em>linkage equilibrium</em>, the situation in which the alleles at the two SNPs are combined at random.</li>
 <li>D = 0.323 − 0.173 = 0.150.</li>
-<li>r² = 0.150² / (0.407 × 0.593 × 0.426 × 0.574) = 0.0225 / 0.0590 = 0.382. ✔</li>
-<li>D<sub>max</sub> = min(0.407 × 0.574, 0.593 × 0.426) = 0.234, so D′ = 0.150 / 0.234 = 0.642. ✔</li>
+<li>r² = 0.150² / (0.407 × 0.593 × 0.426 × 0.574) = 0.0225 / 0.0590 = 0.382, as PLINK reported.</li>
+<li>D<sub>max</sub> = min(0.407 × 0.574, 0.593 × 0.426) = 0.234, so D′ = 0.150 / 0.234 = 0.642, as PLINK reported.</li>
 </ol>
 <p>“In phase alleles are AT/CG” means A tends to travel with T, and C with G.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>LE is not HWE
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The two “equilibria” are easy to mix up. <strong>Hardy-Weinberg equilibrium</strong> (Chapter 7) is about <em>one</em> SNP: are the two alleles inside an animal combined at random, giving p², 2pq and q²? <strong>Linkage equilibrium</strong> is about <em>two</em> SNPs: are the alleles at SNP 1 combined at random with the alleles at SNP 2 on the same chromosome copy, giving f<sub>A</sub>f<sub>T</sub> for haplotype A-T? A SNP pair can be in perfect HWE at both SNPs and still be in strong linkage <em>dis</em>equilibrium. The expected values in the table come from multiplying allele frequencies, not from p², 2pq and q².</p>
+</div>
+</div>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -516,44 +530,142 @@ D' = \frac{D}{D_{\max}}
 <h2 data-number="9.4" class="anchored" data-anchor-id="ld-across-the-genome"><span class="header-section-number">9.4</span> LD across the genome</h2>
 <section id="step-1-compute-r²-for-many-pairs" class="level3" data-number="9.4.1">
 <h3 data-number="9.4.1" class="anchored" data-anchor-id="step-1-compute-r²-for-many-pairs"><span class="header-section-number">9.4.1</span> Step 1: compute r² for many pairs</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--autosome</span> <span class="at">--r2</span> <span class="at">--ld-window-kb</span> 1000 <span class="at">--ld-window</span> 99999 <span class="at">--ld-window-r2</span> 0 <span class="at">--out</span> ld</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>--r2</code> writes one line for every pair of SNPs that passes three windows. Start with the defaults, on chromosome 14 only:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--chr</span> 14 <span class="at">--r2</span> <span class="at">--out</span> ld_default</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span> <span class="at">-3</span> ld_default.ld</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text"><code> CHR_A         BP_A      SNP_A  CHR_B         BP_B      SNP_B           R2
+    14      3312654   snp02076     14      3399456   snp02077      0.32996
+    14     21869511   snp02106     14     22049638   snp02107     0.257487</code></pre>
+<p>Each line is one pair: positions and names of SNP A and SNP B, and their r². Only 152 pairs were written, because three filters were on:</p>
 <table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
 <thead>
 <tr class="header">
-<th>Option</th>
-<th>Meaning</th>
+<th>Window flag</th>
 <th>Default</th>
+<th>Meaning</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>--ld-window-kb</code></td>
-<td>Only pairs closer than this (kb)</td>
-<td>1000</td>
+<td><code>--ld-window</code></td>
+<td>10</td>
+<td>Pairs at most 9 SNPs apart in the file (counting SNPs, not distance)</td>
 </tr>
 <tr class="even">
-<td><code>--ld-window</code></td>
-<td>Only pairs fewer than this many SNPs apart</td>
-<td>10</td>
+<td><code>--ld-window-kb</code></td>
+<td>1000</td>
+<td>Pairs at most 1,000 kb apart</td>
 </tr>
 <tr class="odd">
 <td><code>--ld-window-r2</code></td>
-<td>Only report pairs with r² at least this</td>
 <td>0.2</td>
-</tr>
-<tr class="even">
-<td><code>--r2 square</code></td>
-<td>Write a full matrix instead of a list</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td><code>--r</code></td>
-<td>Report r (with sign) instead of r²</td>
-<td></td>
+<td>Only pairs with r² of at least 0.2 are <strong>written</strong></td>
 </tr>
 </tbody>
 </table>
-<p>The default <code>--ld-window-r2 0.2</code> hides weak pairs. To study LD decay you need all pairs, so set it to 0.</p>
+<p>The last one is the trap: it hides every weak pair, so an average of the written r² values is biased upwards. Relaxing the filters one at a time on chromosome 14:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Command</th>
+<th>Pairs written</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>--r2</code> (defaults)</td>
+<td>152</td>
+</tr>
+<tr class="even">
+<td><code>--r2 --ld-window-r2 0</code></td>
+<td>962</td>
+</tr>
+<tr class="odd">
+<td><code>--r2 --ld-window-r2 0 --ld-window 99999 --ld-window-kb 1000</code></td>
+<td>1,721</td>
+</tr>
+</tbody>
+</table>
+<p>For an LD decay curve you need every pair up to some distance, so set <code>--ld-window-r2 0</code>, make <code>--ld-window</code> large and let <code>--ld-window-kb</code> set the distance:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--autosome</span> <span class="at">--r2</span> <span class="at">--ld-window-kb</span> 1000 <span class="at">--ld-window</span> 99999 <span class="at">--ld-window-r2</span> 0 <span class="at">--out</span> ld</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>On 50K or HD chips with thousands of animals this file becomes very large (every pair within 1 Mb), so use <code>--ld-window-kb</code> to limit the distance, or <code>--thin</code> to sample SNPs first.</p>
+<p><strong>Other forms of the output</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--chr</span> 14 <span class="at">--r</span> <span class="at">--ld-snp</span> snp02145 <span class="at">--ld-window</span> 3 <span class="at">--ld-window-r2</span> 0 <span class="at">--out</span> ld_signed</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--chr</span> 14 <span class="at">--from-mb</span> 24.9 <span class="at">--to-mb</span> 25.0 <span class="at">--r2</span> square <span class="at">--out</span> ld_matrix</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text"><code>ld_signed.ld:
+     SNP_A     SNP_B         R
+  snp02145  snp02143  -0.580685
+  snp02145  snp02144   0.58117
+  snp02145  snp02146   0.472939
+ld_matrix.ld (snp02143, snp02144, snp02145):
+1         0.195501  0.337195
+0.195501  1         0.337758
+0.337195  0.337758  1</code></pre>
+<ul>
+<li><strong><code>--r</code></strong> reports r with its sign. A negative r means the A1 allele of one SNP tends to sit with the A2 allele of the other. Since A1 is simply the minor allele, the sign carries no biological meaning on its own; it matters when you compare LD phase between breeds or check strand (<code>--flip-scan</code> uses it).</li>
+<li><strong><code>--ld-snp snp02145</code></strong> reports only pairs that include that SNP: the quickest way to see what a top hit is linked to.</li>
+<li><strong><code>--r2 square</code></strong> writes a full matrix with no names, in the order of the <code>.bim</code> file, for heatmaps. The diagonal is 1. Use it only on small regions: for n SNPs it writes n² numbers.</li>
+<li><strong><code>--r2 dprime</code></strong> adds a D′ column (see the box below).</li>
+</ul>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Two different r² values
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>PLINK can report two versions of r², and they are not the same number:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Command</th>
+<th>What it computes</th>
+<th>snp02144 and snp02145</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>plink --r2</code></td>
+<td>Squared correlation of the two genotype counts (0, 1, 2), no phasing needed: the <strong>unphased</strong> r²</td>
+<td>0.338</td>
+</tr>
+<tr class="even">
+<td><code>plink --r2 dprime</code>, <code>plink --ld</code></td>
+<td>r² from the EM haplotype frequencies, the textbook definition above: the <strong>phased</strong> r²</td>
+<td>0.382</td>
+</tr>
+<tr class="odd">
+<td><code>plink2 --r2-unphased</code></td>
+<td>Same as <code>plink --r2</code></td>
+<td>0.338</td>
+</tr>
+<tr class="even">
+<td><code>plink2 --r2-phased</code></td>
+<td>Same as <code>plink --r2 dprime</code>; uses the real phase when the data are phased (Chapter 14)</td>
+<td>0.382</td>
+</tr>
+</tbody>
+</table>
+<p>The unphased version is fast and fine for pruning and LD decay curves; the phased version is the one population-genetics formulas (for example, estimating effective population size from LD) assume. Always say which one you used. PLINK 2.0 makes you choose, which is a good habit.</p>
+</div>
+</div>
 </section>
 <section id="step-2-plot-ld-decay" class="level3" data-number="9.4.2">
 <h3 data-number="9.4.2" class="anchored" data-anchor-id="step-2-plot-ld-decay"><span class="header-section-number">9.4.2</span> Step 2: plot LD decay</h3>
@@ -582,7 +694,7 @@ Figure&nbsp;9.3: LD heatmap of the PLAG1 region on chromosome 14 (–r2 square).
 </figcaption>
 </figure>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--chr</span> 14 <span class="at">--from-mb</span> 23.5 <span class="at">--to-mb</span> 26.5 <span class="at">--r2</span> square <span class="at">--out</span> ld14</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--chr</span> 14 <span class="at">--from-mb</span> 23.5 <span class="at">--to-mb</span> 26.5 <span class="at">--r2</span> square <span class="at">--out</span> ld14</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>A square of dark red is a <strong>haplotype block</strong>: SNPs that are rarely separated by recombination. <code>--blocks</code> finds such blocks automatically, using the same rules as the Haploview program.</p>
 </section>
 </section>
@@ -591,7 +703,7 @@ Figure&nbsp;9.3: LD heatmap of the PLAG1 region on chromosome 14 (–r2 square).
 <p><strong>1. Tagging.</strong> A chip SNP does not need to be the causal mutation. If it is in strong LD with the causal variant, it shows the association for it. This is how genome-wide association works.</p>
 <p><strong>2. The top SNP is not necessarily causal.</strong> In Chapter 13 the weaning-weight signal appears at five SNPs in the PLAG1 region, because they are all in LD with each other. Separating the real cause from its neighbours is called fine-mapping. Conditional analysis (<code>--condition</code>, Chapter 13) is the PLINK tool for a first look.</p>
 <p><strong>3. Many analyses need independent SNPs.</strong> PCA, relatedness, F and admixture assume each SNP is a separate piece of evidence. In a block of ten SNPs in perfect LD, the region would count ten times. So we <strong>prune</strong>:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--autosome</span> <span class="at">--indep-pairwise</span> 50 5 0.2 <span class="at">--out</span> prune</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--autosome</span> <span class="at">--indep-pairwise</span> 50 5 0.2 <span class="at">--out</span> prune</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre class="text"><code>Pruned 82 variants from chromosome 14, leaving 148.
 Pruning complete.  969 of 4550 variants removed.</code></pre>
 <p><code>--indep-pairwise 50 5 0.2</code> looks at a window of 50 SNPs, removes one SNP from every pair with r² above 0.2, then slides the window 5 SNPs along and repeats. It writes <code>prune.prune.in</code> (SNPs to keep) and <code>prune.prune.out</code>; use them with <code>--extract prune.prune.in</code>. The heaviest pruning happened in the dense regions on chromosomes 14, 6 and 5, as expected. Chapter 17 shows how the three numbers change the result.</p>
@@ -606,7 +718,7 @@ Pruning complete.  969 of 4550 variants removed.</code></pre>
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><code>plink2 --r2-unphased</code> and <code>--r2-phased</code> replace <code>--r2</code>; <code>--ld</code>, <code>--indep-pairwise</code> and <code>--clump</code> work as in 1.9.</p>
+<p><code>plink2 --r2-unphased</code> replaces <code>plink --r2</code>, and <code>plink2 --r2-phased</code> replaces <code>plink --r2 dprime</code> (see the box above). <code>--ld</code>, <code>--indep-pairwise</code>, <code>--blocks</code> and <code>--clump</code> work as in 1.9.</p>
 </div>
 </div>
 
@@ -1035,7 +1147,7 @@ Pruning complete.  969 of 4550 variants removed.</code></pre>
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-<p>PLINK for Livestock Genomics, by Ismaila Emmanuel</p>
+<p>PLINK for Livestock Genomics, by Ismaila Emmanuel Oluwasegun</p>
 </div>   
     <div class="nav-footer-center">
       &nbsp;

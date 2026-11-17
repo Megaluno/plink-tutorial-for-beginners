@@ -30,28 +30,31 @@ breed = {l.split()[1]: l.split()[2] for l in open(f"{W}/data/breed.clst")}
 
 # ---------------------------------------------------------------- 1. file formats schematic
 def fig_formats():
-    fig, ax = plt.subplots(figsize=(10, 5.2)); ax.axis("off"); ax.set_xlim(0, 100); ax.set_ylim(0, 60)
+    fig, ax = plt.subplots(figsize=(11.5, 5.2)); ax.axis("off"); ax.set_xlim(0, 112); ax.set_ylim(0, 61)
     def box(x, y, w, h, title, lines, col):
         ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.4,rounding_size=1.2", fc=col, ec="#333", alpha=0.18))
         ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.4,rounding_size=1.2", fc="none", ec="#333"))
         ax.text(x + 1.2, y + h - 2.6, title, fontweight="bold", fontsize=11)
         for i, t in enumerate(lines):
             ax.text(x + 1.2, y + h - 6.2 - i * 3.1, t, family="monospace", fontsize=8.6)
-    box(1, 31, 44, 27, "cattle.ped  (one line per animal)",
+    box(1, 31, 45, 27, "cattle.ped  (one line per animal)",
         ["FID  IID      sire dam sex phen  genotypes",
          "ANG  ANG_001  0    0   2   1     A A  T C ...",
          "HOL_F01 HOL_F01_C1 HOL_F01_S HOL_F01_D 1 2 ...",
          "", "6 columns about the animal,", "then 2 letters per SNP (0 0 = missing)"], ORANGE)
-    box(1, 3, 44, 22, "cattle.map  (one line per SNP)",
+    box(1, 3, 45, 22, "cattle.map  (one line per SNP)",
         ["chr  SNP       cM      bp", "1    snp00001  0.484   484050", "1    snp00002  2.2237  2223660", "",
          "same order as the genotype columns"], ORANGE)
-    ax.annotate("", xy=(55, 30), xytext=(47, 30), arrowprops=dict(arrowstyle="-|>", lw=2, color="#333"))
-    ax.text(51, 33.5, "--make-bed", ha="center", fontsize=10, family="monospace")
-    box(56, 42, 43, 16, "cattle.fam  (= first 6 columns of .ped)", ["ANG ANG_001 0 0 2 1", "ANG ANG_002 0 0 1 2"], BLUE)
-    box(56, 22, 43, 16, "cattle.bim  (= .map + the two alleles)", ["1 snp00001 0.484 484050 G A", "1 snp00002 2.2237 2223660 C A"], BLUE)
-    box(56, 3, 43, 15, "cattle.bed  (genotypes, 2 bits each)", ["binary: do not open in a text editor", "6.9 MB .ped  ->  0.44 MB .bed"], BLUE)
-    ax.text(1, 59.5, "Text format (easy to read, large)", color="#8a5a00", fontweight="bold")
-    ax.text(56, 59.5, "Binary format (compact, fast)", color="#004f7c", fontweight="bold")
+    # arrow and label centred in the gap between the two columns
+    xl, xr, ymid = 49.5, 63.5, 30.5
+    ax.annotate("", xy=(xr, ymid), xytext=(xl, ymid), arrowprops=dict(arrowstyle="-|>", lw=2.2, color="#333"))
+    ax.text((xl + xr) / 2, ymid + 2.2, "--make-bed", ha="center", va="bottom", fontsize=10, family="monospace",
+            bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="none"))
+    box(66, 42, 44, 16, "cattle.fam  (= first 6 columns of .ped)", ["ANG ANG_001 0 0 2 1", "ANG ANG_002 0 0 1 2"], BLUE)
+    box(66, 22, 44, 16, "cattle.bim  (= .map + the two alleles)", ["1 snp00001 0.484 484050 G A", "1 snp00002 2.2237 2223660 C A"], BLUE)
+    box(66, 3, 44, 15, "cattle.bed  (genotypes, 2 bits each)", ["binary: do not open in a text editor", "6.9 MB .ped  ->  0.44 MB .bed"], BLUE)
+    ax.text(1, 59.8, "Text format (easy to read, large)", color="#8a5a00", fontweight="bold")
+    ax.text(66, 59.8, "Binary format (compact, fast)", color="#004f7c", fontweight="bold")
     save("01_file_formats")
 
 # ---------------------------------------------------------------- 2. toy missingness grid

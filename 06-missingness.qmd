@@ -39,14 +39,18 @@ The rule behind both cases: **a bad SNP inflates every animal's rate, and a bad 
 
 A practical plan follows from this. First remove only the disasters, with a lenient cut-off in both directions. Then apply the strict cut-offs, **animals before SNPs**, so that a few bad samples cannot drag good SNPs over the line.
 
-```{mermaid}
-%%| fig-cap: "A two-round missingness filter. The lenient round removes only the obvious failures; the strict round handles animals before SNPs."
-flowchart LR
-  A[raw data] --> B["Round 1: --geno 0.10<br/>then --mind 0.10<br/>(obvious failures)"]
-  B --> C["Round 2: --mind 0.03<br/>(animals, strict)"]
-  C --> D["--geno 0.01<br/>(SNPs, strict)"]
-  D --> E[clean data]
+![A two-round missingness filter, with what each step removed from our data. The lenient round removes only the obvious failures; the strict round handles animals before SNPs.](images/flow_missingness.png){#fig-miss-flow}
+
+Each box is one PLINK command, and each command reads the file the previous one wrote:
+
+```bash
+plink --bfile cattle --cow --geno 0.10 --make-bed --out qc1   # round 1, SNPs
+plink --bfile qc1    --cow --mind 0.10 --make-bed --out qc2   # round 1, animals
+plink --bfile qc2    --cow --mind 0.03 --make-bed --out qc3   # round 2, animals
+plink --bfile qc3    --cow --geno 0.01 --make-bed --out qc4   # round 2, SNPs
 ```
+
+Step 3 below shows what each command printed and why the order matters.
 
 ## Step 1: measure missingness
 

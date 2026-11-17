@@ -316,7 +316,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./14-haplotypes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, proxy association and imputation</span></span></a>
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, phasing and imputation</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -409,16 +409,17 @@ window.Quarto = {
   </ul></li>
   <li><a href="#snp-by-environment-interaction" id="toc-snp-by-environment-interaction" class="nav-link" data-scroll-target="#snp-by-environment-interaction"><span class="header-section-number">13.2</span> SNP-by-environment interaction</a></li>
   <li><a href="#conditional-analysis-one-signal-or-several" id="toc-conditional-analysis-one-signal-or-several" class="nav-link" data-scroll-target="#conditional-analysis-one-signal-or-several"><span class="header-section-number">13.3</span> Conditional analysis: one signal or several?</a></li>
-  <li><a href="#family-based-tests" id="toc-family-based-tests" class="nav-link" data-scroll-target="#family-based-tests"><span class="header-section-number">13.4</span> Family-based tests</a>
+  <li><a href="#relatives-and-breeds-together-mixed-models" id="toc-relatives-and-breeds-together-mixed-models" class="nav-link" data-scroll-target="#relatives-and-breeds-together-mixed-models"><span class="header-section-number">13.4</span> Relatives and breeds together: mixed models</a></li>
+  <li><a href="#family-based-tests" id="toc-family-based-tests" class="nav-link" data-scroll-target="#family-based-tests"><span class="header-section-number">13.5</span> Family-based tests</a>
   <ul class="collapse">
-  <li><a href="#the-transmission-disequilibrium-test-tdt" id="toc-the-transmission-disequilibrium-test-tdt" class="nav-link" data-scroll-target="#the-transmission-disequilibrium-test-tdt"><span class="header-section-number">13.4.1</span> The transmission disequilibrium test (TDT)</a></li>
-  <li><a href="#sibship-tests---dfam" id="toc-sibship-tests---dfam" class="nav-link" data-scroll-target="#sibship-tests---dfam"><span class="header-section-number">13.4.2</span> Sibship tests: <code>--dfam</code></a></li>
+  <li><a href="#the-transmission-disequilibrium-test-tdt" id="toc-the-transmission-disequilibrium-test-tdt" class="nav-link" data-scroll-target="#the-transmission-disequilibrium-test-tdt"><span class="header-section-number">13.5.1</span> The transmission disequilibrium test (TDT)</a></li>
+  <li><a href="#sibship-tests---dfam" id="toc-sibship-tests---dfam" class="nav-link" data-scroll-target="#sibship-tests---dfam"><span class="header-section-number">13.5.2</span> Sibship tests: <code>--dfam</code></a></li>
   </ul></li>
-  <li><a href="#asymptotic-and-empirical-p-values" id="toc-asymptotic-and-empirical-p-values" class="nav-link" data-scroll-target="#asymptotic-and-empirical-p-values"><span class="header-section-number">13.5</span> Asymptotic and empirical p-values</a>
+  <li><a href="#asymptotic-and-empirical-p-values" id="toc-asymptotic-and-empirical-p-values" class="nav-link" data-scroll-target="#asymptotic-and-empirical-p-values"><span class="header-section-number">13.6</span> Asymptotic and empirical p-values</a>
   <ul class="collapse">
-  <li><a href="#clustered-permutation---within" id="toc-clustered-permutation---within" class="nav-link" data-scroll-target="#clustered-permutation---within"><span class="header-section-number">13.5.1</span> Clustered permutation: <code>--within</code></a></li>
+  <li><a href="#clustered-permutation---within" id="toc-clustered-permutation---within" class="nav-link" data-scroll-target="#clustered-permutation---within"><span class="header-section-number">13.6.1</span> Clustered permutation: <code>--within</code></a></li>
   </ul></li>
-  <li><a href="#imputed-data---dosage" id="toc-imputed-data---dosage" class="nav-link" data-scroll-target="#imputed-data---dosage"><span class="header-section-number">13.6</span> Imputed data: <code>--dosage</code></a></li>
+  <li><a href="#imputed-data---dosage" id="toc-imputed-data---dosage" class="nav-link" data-scroll-target="#imputed-data---dosage"><span class="header-section-number">13.7</span> Imputed data: <code>--dosage</code></a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Megaluno/plink-tutorial-for-beginners/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -445,7 +446,7 @@ window.Quarto = {
 
 
 <div class="lead">
-<p>Most livestock traits are measured on a scale (kilograms, litres, days) rather than as sick or healthy. This chapter covers quantitative traits and covariates, family-based tests that cannot be fooled by breed, SNP-by-environment interaction, conditional analysis, permutation and imputed dosages.</p>
+<p>Most livestock traits are measured on a scale (kilograms, litres, days) rather than as sick or healthy. This chapter covers quantitative traits and covariates, SNP-by-environment interaction, conditional analysis, mixed models for related animals, family-based tests that cannot be fooled by breed, permutation and imputed dosages.</p>
 </div>
 <section id="quantitative-traits" class="level2" data-number="13.1">
 <h2 data-number="13.1" class="anchored" data-anchor-id="quantitative-traits"><span class="header-section-number">13.1</span> Quantitative traits</h2>
@@ -456,44 +457,62 @@ window.Quarto = {
 <p>You do not pick “case/control” or “quantitative” yourself: PLINK looks at the phenotype. If it only contains 1, 2 and missing, it is case/control; otherwise it is quantitative. The same <code>--assoc</code> flag then writes <code>.assoc</code> or <code>.qassoc</code>.</p>
 <section id="phenotype-files" class="level3" data-number="13.1.1">
 <h3 data-number="13.1.1" class="anchored" data-anchor-id="phenotype-files"><span class="header-section-number">13.1.1</span> Phenotype files</h3>
+<p><code>pheno.txt</code> holds four traits for every animal, with a header line:</p>
+<pre class="text"><code>FID IID WWT BW YWT BRD
+ANG ANG_001 265.6 37.3 475.0 1</code></pre>
+<p>There are four ways to tell PLINK which column to use. Each was run with <code>--assoc</code> on the cleaned file:</p>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
 </colgroup>
 <thead>
 <tr class="header">
-<th>Option</th>
-<th>Meaning</th>
+<th>Command</th>
+<th>Log line</th>
+<th>Result</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td><code>--pheno pheno.txt --pheno-name WWT</code></td>
-<td>Use the column named WWT</td>
+<td><code>348 phenotype values present after --pheno.</code></td>
+<td>Weaning weight; 3 animals are -9 (missing)</td>
 </tr>
 <tr class="even">
 <td><code>--pheno pheno.txt --mpheno 2</code></td>
-<td>Use the 2nd trait column (BW); counting starts after FID and IID</td>
+<td><code>351 phenotype values present after --pheno.</code></td>
+<td>The 2nd trait column, BW; counting starts after FID and IID</td>
 </tr>
 <tr class="odd">
 <td><code>--pheno pheno.txt --all-pheno</code></td>
-<td>Analyse every column, one output file per trait</td>
+<td></td>
+<td>One output per trait: <code>.BRD.assoc</code>, <code>.BW.qassoc</code>, <code>.WWT.qassoc</code>, <code>.YWT.qassoc</code></td>
 </tr>
 <tr class="even">
-<td><code>--missing-phenotype -99</code></td>
-<td>Change the missing code (default -9)</td>
-</tr>
-<tr class="odd">
-<td><code>--1</code></td>
-<td>Case/control coded 0/1 instead of 1/2</td>
+<td>no <code>--pheno</code></td>
+<td></td>
+<td>Column 6 of the <code>.fam</code> (BRD here)</td>
 </tr>
 </tbody>
 </table>
+<p>Prefer <code>--pheno-name</code>: <code>--mpheno 2</code> silently picks the wrong trait if someone adds a column to the file. With <code>--all-pheno</code>, PLINK chose the test for each trait by itself: BRD contains only 1 and 2, so it was treated as case/control (<code>.assoc</code>), and the three weights as quantitative (<code>.qassoc</code>).</p>
+<p>Two coding traps, both silent:</p>
+<p><strong>Case/control coded 0/1.</strong> PLINK 1.9 expects 1 = control and 2 = case, with 0 and -9 meaning missing. We recoded BRD as 0 (healthy) and 1 (sick) and ran the same test:</p>
+<pre class="text"><code>without --1:  138 phenotype values present after --pheno.
+              Among remaining phenotypes, 0 are cases and 138 are controls.
+with --1:     351 phenotype values present after --pheno.
+              Among remaining phenotypes, 138 are cases and 213 are controls.</code></pre>
+<p>Without <code>--1</code>, the 213 healthy animals (coded 0) became missing and the 138 sick ones became “controls”, leaving no cases at all. PLINK did not stop; it simply had nothing to test. Read the cases/controls line in every log.</p>
+<p><strong>A different missing code.</strong> We wrote the three missing weights as -99 instead of -9:</p>
+<pre class="text"><code>without --missing-phenotype -99:  351 values present; snp02145 BETA -1.172, P 0.72
+with    --missing-phenotype -99:  348 values present; snp02145 BETA -0.202, P 0.93</code></pre>
+<p>Without the flag, three calves were analysed as weighing -99 kg, which changed the estimate five-fold. Check the “phenotype values present” number against what you expect, and summarise each trait (minimum, maximum) in R before analysis.</p>
 </section>
 <section id="step-1-the-naive-test" class="level3" data-number="13.1.2">
 <h3 data-number="13.1.2" class="anchored" data-anchor-id="step-1-the-naive-test"><span class="header-section-number">13.1.2</span> Step 1: the naive test</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--pheno</span> pheno.txt <span class="at">--pheno-name</span> WWT <span class="at">--assoc</span> <span class="at">--adjust</span> <span class="at">--out</span> q_adj</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--pheno</span> pheno.txt <span class="at">--pheno-name</span> WWT <span class="at">--assoc</span> <span class="at">--adjust</span> <span class="at">--out</span> q_adj</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre class="text"><code>--adjust: Genomic inflation est. lambda (based on median chisq) = 20.186.
   27   snp04131    8978640      347     -23.15      1.444     0.4271   -16.04    1.201e-43
   ...
@@ -513,8 +532,8 @@ Figure&nbsp;13.1: Mean weaning weight by genotype at snp02145, within each breed
 </section>
 <section id="step-2-linear-regression-with-covariates" class="level3" data-number="13.1.3">
 <h3 data-number="13.1.3" class="anchored" data-anchor-id="step-2-linear-regression-with-covariates"><span class="header-section-number">13.1.3</span> Step 2: linear regression with covariates</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--pheno</span> pheno.txt <span class="at">--pheno-name</span> WWT <span class="dt">\</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>      <span class="at">--linear</span> <span class="at">--covar</span> cov_all.txt <span class="at">--hide-covar</span> <span class="at">--adjust</span> <span class="at">--out</span> lin</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--pheno</span> pheno.txt <span class="at">--pheno-name</span> WWT <span class="dt">\</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>      <span class="at">--linear</span> <span class="at">--covar</span> cov_all.txt <span class="at">--hide-covar</span> <span class="at">--adjust</span> <span class="at">--out</span> lin</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre class="text"><code>--adjust: Genomic inflation est. lambda (based on median chisq) = 1.10172.
  CHR        SNP         BP   A1       TEST    NMISS       BETA         STAT            P
   14   snp02145   24936133    T        ADD      347     -9.642       -6.681     9.73e-11
@@ -554,21 +573,21 @@ Figure&nbsp;13.3: Weaning weight (as deviation from breed mean) by genotype at s
 </figure>
 </div>
 <p><code>--interaction</code> adds a SNP × covariate term for every covariate, and <code>--parameters</code> keeps only the terms you want. The numbering is: 1 = ADD, then the covariates in file order (2 to 6), then ADD × each covariate in the same order (7 to 11). So ADD × FEEDLOT is 10.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--pheno</span> pheno.txt <span class="at">--pheno-name</span> WWT <span class="dt">\</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>      <span class="at">--linear</span> <span class="at">--covar</span> cov_all.txt <span class="at">--interaction</span> <span class="at">--parameters</span> 1-6,10 <span class="at">--out</span> lin_int</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--pheno</span> pheno.txt <span class="at">--pheno-name</span> WWT <span class="dt">\</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>      <span class="at">--linear</span> <span class="at">--covar</span> cov_all.txt <span class="at">--interaction</span> <span class="at">--parameters</span> 1-6,10 <span class="at">--out</span> lin_int</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre class="text"><code>  10   snp01540   52104483    T         ADD      347    -0.3653      -0.2039       0.8385
   10   snp01540   52104483    T     FEEDLOT      347      23.19        7.813    7.086e-14
   10   snp01540   52104483    T ADDxFEEDLOT      347     -10.51       -4.051    6.322e-05</code></pre>
 <p>On pasture (FEEDLOT = 0), the T allele does nothing (BETA -0.37, p = 0.84). In the feedlot, each T allele costs an extra 10.5 kg (p = 6.3 × 10⁻⁵; 12 kg was planted).</p>
 <p>PLINK 1.9 also has <code>--gxe</code>, which fits the SNP separately in two groups and compares the slopes:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--pheno</span> pheno.txt <span class="at">--pheno-name</span> WWT <span class="at">--gxe</span> <span class="at">--covar</span> env.txt <span class="at">--out</span> gxe</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--pheno</span> pheno.txt <span class="at">--pheno-name</span> WWT <span class="at">--gxe</span> <span class="at">--covar</span> env.txt <span class="at">--out</span> gxe</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>env.txt</code> gives each animal a group (1 or 2). Across all breeds, <code>--gxe</code> gave p = 0.13, because it cannot include other covariates and breed differences blur the slopes. Within Holsteins only, the slopes were 0.34 kg (pasture) and -11.5 kg (feedlot), p = 0.0096. So prefer <code>--linear --interaction</code> with covariates; for case/control traits use <code>--logistic --interaction</code>. Chapter 16 adds continuous environments.</p>
 </section>
 <section id="conditional-analysis-one-signal-or-several" class="level2" data-number="13.3">
 <h2 data-number="13.3" class="anchored" data-anchor-id="conditional-analysis-one-signal-or-several"><span class="header-section-number">13.3</span> Conditional analysis: one signal or several?</h2>
 <p>Several SNPs in the PLAG1 region were significant. Is that one QTL seen through LD, or several? Add the top SNP as a covariate and test again:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> ... <span class="at">--linear</span> <span class="at">--covar</span> cov_all.txt <span class="at">--hide-covar</span> <span class="at">--chr</span> 14 <span class="at">--from-mb</span> 23 <span class="at">--to-mb</span> 27 <span class="dt">\</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>          <span class="at">--condition</span> snp02145 <span class="at">--out</span> lin_chr14_cond</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> ... <span class="at">--linear</span> <span class="at">--covar</span> cov_all.txt <span class="at">--hide-covar</span> <span class="at">--chr</span> 14 <span class="at">--from-mb</span> 23 <span class="at">--to-mb</span> 27 <span class="dt">\</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>          <span class="at">--condition</span> snp02145 <span class="at">--out</span> lin_chr14_cond</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -592,22 +611,106 @@ Figure&nbsp;13.3: Weaning weight (as deviation from breed mean) by genotype at s
 </table>
 <p>The region’s signal collapses: one QTL. <code>--condition-list file.txt</code> conditions on several SNPs. Conditioning genome-wide on snp02145 and snp00891 made the feedlot SNP the top SNP (p = 5.0 × 10⁻⁶).</p>
 </section>
-<section id="family-based-tests" class="level2" data-number="13.4">
-<h2 data-number="13.4" class="anchored" data-anchor-id="family-based-tests"><span class="header-section-number">13.4</span> Family-based tests</h2>
-<section id="the-transmission-disequilibrium-test-tdt" class="level3" data-number="13.4.1">
-<h3 data-number="13.4.1" class="anchored" data-anchor-id="the-transmission-disequilibrium-test-tdt"><span class="header-section-number">13.4.1</span> The transmission disequilibrium test (TDT)</h3>
+<section id="relatives-and-breeds-together-mixed-models" class="level2" data-number="13.4">
+<h2 data-number="13.4" class="anchored" data-anchor-id="relatives-and-breeds-together-mixed-models"><span class="header-section-number">13.4</span> Relatives and breeds together: mixed models</h2>
+<p>Principal components remove the broad structure (breeds), but livestock data also contain many close relatives: half sibs by the same bull, full-sib families, cousins. Relatives share chromosome segments, so their phenotypes are correlated in ways a few PCs cannot capture, and test statistics stay slightly inflated (λ = 1.10 above). The standard answer in livestock genetics, and in most GWAS of related animals, is a <strong>linear mixed model</strong>:</p>
+<p><span class="math display">\[
+\mathbf{y} = \mathbf{X}\mathbf{b} + \mathbf{g}\,\beta + \mathbf{u} + \mathbf{e},
+\qquad \mathbf{u} \sim N(\mathbf{0},\, \sigma^2_g\,\mathbf{G}),
+\qquad \mathbf{e} \sim N(\mathbf{0},\, \sigma^2_e\,\mathbf{I})
+\]</span></p>
+<p><strong>X b</strong> holds the fixed covariates (sex, feedlot, age, and PCs if you wish), <strong>g β</strong> is the SNP being tested, <strong>u</strong> is each animal’s polygenic (breeding) value, and <strong>G</strong> is the genomic relationship matrix from Chapter 10. Animals that are closely related according to G are expected to have similar u, so the model accounts for every degree of relatedness at once, from breed to full sib. It is the same model as GBLUP, with one SNP added as a fixed effect.</p>
+<p>PLINK does not fit mixed models. It prepares the data, and a dedicated program fits the model. The common choices are GCTA (<code>--mlma</code>, <code>--mlma-loco</code>; Yang and colleagues, 2014), GEMMA (<code>-lmm</code>; Zhou and Stephens, 2012) and, for very large data, BOLT-LMM or REGENIE. These programs read PLINK <code>.bed/.bim/.fam</code> files directly; PLINK 2.0 can also write the GRM in GCTA’s binary format:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--autosome</span> <span class="at">--maf</span> 0.05 <span class="at">--make-grm-bin</span> <span class="at">--out</span> grm   <span class="co"># grm.grm.bin, .grm.N.bin, .grm.id</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>(With <code>--maf 0.01</code> PLINK 2.0 refused, because it considers a GRM unreliable when the rarest SNP has a frequency below a quarter of 1/√n, here 0.013 for 351 animals.)</p>
+<p>The commands for GCTA and GEMMA look like this. They are shown for reference and <strong>were not run for this book</strong>, because those programs could not be installed in the environment it was built in:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gcta64</span> <span class="at">--mlma-loco</span> <span class="at">--bfile</span> cattle_qc <span class="at">--autosome-num</span> 29 <span class="at">--pheno</span> wwt.phen <span class="dt">\</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>       <span class="at">--qcovar</span> qcovar.txt <span class="at">--covar</span> covar.txt <span class="at">--out</span> wwt_mlma          <span class="co"># GCTA</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="ex">gemma</span> <span class="at">-bfile</span> cattle_qc <span class="at">-gk</span> 1 <span class="at">-o</span> grm                                  <span class="co"># GEMMA: 1. relationship matrix</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="ex">gemma</span> <span class="at">-bfile</span> cattle_qc <span class="at">-k</span> output/grm.cXX.txt <span class="at">-lmm</span> 4 <span class="at">-c</span> covar_gemma.txt <span class="at">-o</span> wwt   <span class="co"># 2. association</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>To show what a mixed model does to the results, we fitted one with a short Python program written for this book, <code>scripts/lmm_gwas.py</code>. It follows the approach of EMMAX and GCTA’s <code>--mlma-loco</code>: the variance components are estimated once per chromosome by REML, and each SNP is then tested with them held fixed. “LOCO” (leave one chromosome out) means the GRM used when testing a SNP on chromosome 14 is built from the other 28 chromosomes, so the SNP is not fitted twice, once as a fixed effect and once inside G.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--autosome</span> <span class="at">--recode</span> A <span class="at">--out</span> geno</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> scripts/lmm_gwas.py geno.raw cattle_qc.bim pheno.txt WWT cov_all.txt SEX_M,FEEDLOT,AGE lmm_noPC.txt</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> scripts/lmm_gwas.py geno.raw cattle_qc.bim pheno.txt WWT cov_all.txt PC1,PC2,SEX_M,FEEDLOT,AGE lmm_PC.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model for weaning weight (4,208 autosomal SNPs)</th>
+<th>λ</th>
+<th>snp02145 p (rank)</th>
+<th>snp01540 rank</th>
+<th>snp00891 rank</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Linear regression, sex + feedlot + age</td>
+<td>21.86</td>
+<td>0.63 (3,898)</td>
+<td>3,970</td>
+<td>693</td>
+</tr>
+<tr class="even">
+<td>Linear regression, + PC1 and PC2 (above)</td>
+<td>1.10</td>
+<td>9.7 × 10⁻¹¹ (1)</td>
+<td>7</td>
+<td>17</td>
+</tr>
+<tr class="odd">
+<td>Mixed model with the GRM, sex + feedlot + age</td>
+<td>1.06</td>
+<td>7.2 × 10⁻⁹ (1)</td>
+<td>29</td>
+<td>23</td>
+</tr>
+<tr class="even">
+<td>Mixed model with the GRM, + PC1 and PC2</td>
+<td>1.03</td>
+<td>1.2 × 10⁻¹⁰ (1)</td>
+<td>7</td>
+<td>25</td>
+</tr>
+</tbody>
+</table>
+<p>The GRM alone took λ from 21.9 to 1.06: the model learned the breed structure and the families from the genotypes, without being told about either. Its REML estimate of the SNP heritability was 0.58, because it counted the large breed differences as “genetic”. Adding the two PCs as fixed effects took the breed means out of the polygenic part (heritability 0.29) and gave the cleanest test statistics of all (λ = 1.03), with the PLAG1 SNP as strong as before. That combination, <strong>PCs or breed as fixed effects plus the GRM as a random effect</strong>, is the usual recommendation for multi-breed livestock data. In our small dataset the mixed model did not move the weaker QTL up the list; its benefit is that the p-values you report can be trusted.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Notes on the teaching program
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>lmm_gwas.py</code> fills missing genotypes with the SNP’s average (so it uses 348 animals at every SNP, where PLINK’s <code>--linear</code> dropped animals with a missing genotype), and it fixes the variance ratio per chromosome instead of re-estimating it for each SNP. GCTA and GEMMA handle both more carefully. Use them for real analyses; use the script to see how the model works.</p>
+</div>
+</div>
+</section>
+<section id="family-based-tests" class="level2" data-number="13.5">
+<h2 data-number="13.5" class="anchored" data-anchor-id="family-based-tests"><span class="header-section-number">13.5</span> Family-based tests</h2>
+<section id="the-transmission-disequilibrium-test-tdt" class="level3" data-number="13.5.1">
+<h3 data-number="13.5.1" class="anchored" data-anchor-id="the-transmission-disequilibrium-test-tdt"><span class="header-section-number">13.5.1</span> The transmission disequilibrium test (TDT)</h3>
 <p>A heterozygous parent (Aa) passes A or a to a calf with a 50:50 chance, whatever its breed. If sick calves received A much more than half the time, A is linked to the disease. Because the comparison is inside the family, breed differences cannot fool it.</p>
 <p><span class="math display">\[
 \chi^2_{TDT} = \frac{(T - U)^2}{T + U}
 \]</span></p>
 <p>where T is the number of times A was transmitted from a heterozygous parent to an affected calf, and U the number of times it was not.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--tdt</span> <span class="at">--out</span> tdt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--tdt</span> <span class="at">--out</span> tdt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre class="text"><code> CHR      SNP   A1 A2   T   U   OR   CHISQ      P   A:U_PAR  CHISQ_PAR   P_PAR  CHISQ_COM   P_COM
    5 snp00706    A  C  16   8    2   2.667 0.1025       9:2      3.769  0.0522      6.081 0.01366</code></pre>
 <p>The direction is right (OR = 2) but p = 0.10: our 30 families give only 24 informative transmissions. A TDT needs hundreds of trios. Options: <code>--tdt poo</code> splits transmissions by parent of origin (11:5 from sires, 5:3 from dams here), <code>--tdt exact</code> gives exact p-values, <code>--tdt perm</code> empirical ones.</p>
 </section>
-<section id="sibship-tests---dfam" class="level3" data-number="13.4.2">
-<h3 data-number="13.4.2" class="anchored" data-anchor-id="sibship-tests---dfam"><span class="header-section-number">13.4.2</span> Sibship tests: <code>--dfam</code></h3>
+<section id="sibship-tests---dfam" class="level3" data-number="13.5.2">
+<h3 data-number="13.5.2" class="anchored" data-anchor-id="sibship-tests---dfam"><span class="header-section-number">13.5.2</span> Sibship tests: <code>--dfam</code></h3>
 <p><code>--dfam</code> extends the TDT to sibships and can include unrelated animals for more power. The unrelated part needs clusters, or stratification comes back:</p>
 <table class="caption-top table">
 <thead>
@@ -638,8 +741,8 @@ Figure&nbsp;13.3: Weaning weight (as deviation from breed mean) by genotype at s
 <p>For quantitative traits in families, <code>--qfam</code> (within-family test) and <code>--qfam-total</code> (total association) exist, but with only 58 animals in sibships, <code>--qfam</code> gave the PLAG1 SNP an empirical p of 0.26.</p>
 </section>
 </section>
-<section id="asymptotic-and-empirical-p-values" class="level2" data-number="13.5">
-<h2 data-number="13.5" class="anchored" data-anchor-id="asymptotic-and-empirical-p-values"><span class="header-section-number">13.5</span> Asymptotic and empirical p-values</h2>
+<section id="asymptotic-and-empirical-p-values" class="level2" data-number="13.6">
+<h2 data-number="13.6" class="anchored" data-anchor-id="asymptotic-and-empirical-p-values"><span class="header-section-number">13.6</span> Asymptotic and empirical p-values</h2>
 <p>A normal (asymptotic) p-value comes from a formula that assumes a large sample and a well-behaved test. A <strong>permutation test</strong> makes no such assumption: it shuffles the phenotypes among the animals many times, recomputes the test each time, and asks how often a shuffled result beats the real one.</p>
 <table class="caption-top table">
 <colgroup>
@@ -677,12 +780,12 @@ Figure&nbsp;13.3: Weaning weight (as deviation from breed mean) by genotype at s
 <li><strong>EMP2</strong> is corrected for testing all SNPs. In each permutation PLINK keeps the largest statistic across the genome (“max(T)”), and EMP2 is how often that maximum beats this SNP’s real statistic. It is like Bonferroni but accounts for LD.</li>
 <li>With N permutations, the smallest possible EMP1 is 1/(N + 1): 0.000999 with 1,000 permutations.</li>
 </ul>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> ... <span class="at">--logistic</span> <span class="at">--covar</span> pcs.txt <span class="at">--hide-covar</span> <span class="at">--mperm</span> 1000 <span class="at">--seed</span> 1 <span class="at">--out</span> lg_mperm</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> ... <span class="at">--logistic</span> <span class="at">--covar</span> pcs.txt <span class="at">--hide-covar</span> <span class="at">--mperm</span> 1000 <span class="at">--seed</span> 1 <span class="at">--out</span> lg_mperm</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>snp00706 got EMP1 = 0.000999 and <strong>EMP2 = 0.000999</strong>: significant genome-wide. Its LD neighbour snp00708 got EMP2 = 0.13. With adaptive <code>--perm</code>, snp00706 reached EMP1 = 10⁻⁶ after a million permutations while most SNPs stopped early (an average of 191,673 per SNP).</p>
-<section id="clustered-permutation---within" class="level3" data-number="13.5.1">
-<h3 data-number="13.5.1" class="anchored" data-anchor-id="clustered-permutation---within"><span class="header-section-number">13.5.1</span> Clustered permutation: <code>--within</code></h3>
+<section id="clustered-permutation---within" class="level3" data-number="13.6.1">
+<h3 data-number="13.6.1" class="anchored" data-anchor-id="clustered-permutation---within"><span class="header-section-number">13.6.1</span> Clustered permutation: <code>--within</code></h3>
 <p>Permutation alone does not fix stratification: shuffling all animals breaks the breed-disease link that the real data have, so breed SNPs still look extreme. Shuffling <strong>within breed</strong> keeps that link in every shuffle:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--assoc</span> <span class="at">--mperm</span> 1000 <span class="at">--seed</span> 1 <span class="at">--within</span> breed.clst <span class="at">--out</span> mperm_within</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--assoc</span> <span class="at">--mperm</span> 1000 <span class="at">--seed</span> 1 <span class="at">--within</span> breed.clst <span class="at">--out</span> mperm_within</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -716,11 +819,11 @@ Figure&nbsp;13.3: Weaning weight (as deviation from breed mean) by genotype at s
 </table>
 </section>
 </section>
-<section id="imputed-data---dosage" class="level2" data-number="13.6">
-<h2 data-number="13.6" class="anchored" data-anchor-id="imputed-data---dosage"><span class="header-section-number">13.6</span> Imputed data: <code>--dosage</code></h2>
-<p>After imputation you do not know a genotype for sure; you have an expected count of A1 between 0 and 2, the <strong>dosage</strong>. Analysing dosages keeps that uncertainty in the model.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--fam</span> cattle.fam <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--dosage</span> chr14.dosage format=1 <span class="at">--map</span> chr14.dosage.map <span class="dt">\</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>      <span class="at">--pheno</span> pheno.txt <span class="at">--pheno-name</span> WWT <span class="at">--covar</span> cov_all.txt <span class="at">--out</span> dos</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="imputed-data---dosage" class="level2" data-number="13.7">
+<h2 data-number="13.7" class="anchored" data-anchor-id="imputed-data---dosage"><span class="header-section-number">13.7</span> Imputed data: <code>--dosage</code></h2>
+<p>After imputation (Chapter 14) you do not know a genotype for sure; you have an expected count of A1 between 0 and 2, the <strong>dosage</strong>. Analysing dosages keeps that uncertainty in the model.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--fam</span> cattle.fam <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--dosage</span> chr14.dosage format=1 <span class="at">--map</span> chr14.dosage.map <span class="dt">\</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>      <span class="at">--pheno</span> pheno.txt <span class="at">--pheno-name</span> WWT <span class="at">--covar</span> cov_all.txt <span class="at">--out</span> dos</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre class="text"><code> CHR         SNP          BP  A1  A2     FRQ    INFO    BETA      SE        P
   14    snp02145    24936133   G   T  0.5777  0.8674  9.7368  1.5105  3.92e-10</code></pre>
 <p>The same QTL with almost the same effect (+9.7 kg per G allele). <strong>INFO</strong> measures imputation quality from 0 to 1; 23 of the 86 imputed SNPs were below 0.8, a common cut-off. <code>format=1</code> means one dosage per animal, <code>format=2</code> two genotype probabilities, <code>format=3</code> three.</p>
@@ -734,7 +837,7 @@ Figure&nbsp;13.3: Weaning weight (as deviation from breed mean) by genotype at s
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><code>--glm</code> replaces <code>--linear</code>, <code>--logistic</code> and <code>--qassoc</code>, with <code>interaction</code>, <code>--parameters</code>, <code>--condition</code> and <code>--covar-name</code> working as in 1.9. Permutation is a modifier (<code>--glm mperm=1000</code>), and clustered permutation uses <code>--permute-within</code>. <code>--glm</code> reads dosages directly from <code>.pgen</code>, BGEN or VCF files, so <code>--dosage</code> is not needed. <code>--tdt</code>, <code>--dfam</code>, <code>--qfam</code> and <code>--gxe</code> are only in PLINK 1.9.</p>
+<p><code>--glm</code> replaces <code>--linear</code>, <code>--logistic</code> and <code>--qassoc</code>, with <code>interaction</code>, <code>--parameters</code>, <code>--condition</code> and <code>--covar-name</code> working as in 1.9. Permutation is a modifier (<code>--glm mperm=1000</code>), and clustered permutation uses <code>--permute-within</code>. <code>--glm</code> uses dosages stored in a <code>.pgen</code> file, which you create from an imputed VCF (<code>--vcf file dosage=DS</code>) or a BGEN file (<code>--bgen</code>), so <code>--dosage</code> is not needed. Chapter 14 shows the whole route from imputation to <code>--glm</code>. <code>--tdt</code>, <code>--dfam</code>, <code>--qfam</code> and <code>--gxe</code> are only in PLINK 1.9.</p>
 </div>
 </div>
 
@@ -1154,8 +1257,8 @@ Figure&nbsp;13.3: Weaning weight (as deviation from breed mean) by genotype at s
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./14-haplotypes.html" class="pagination-link" aria-label="Haplotypes, proxy association and imputation">
-        <span class="nav-page-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, proxy association and imputation</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./14-haplotypes.html" class="pagination-link" aria-label="Haplotypes, phasing and imputation">
+        <span class="nav-page-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, phasing and imputation</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -1163,7 +1266,7 @@ Figure&nbsp;13.3: Weaning weight (as deviation from breed mean) by genotype at s
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-<p>PLINK for Livestock Genomics, by Ismaila Emmanuel</p>
+<p>PLINK for Livestock Genomics, by Ismaila Emmanuel Oluwasegun</p>
 </div>   
     <div class="nav-footer-center">
       &nbsp;

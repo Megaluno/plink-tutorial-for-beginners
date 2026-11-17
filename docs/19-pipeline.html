@@ -106,9 +106,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
-<script src="site_libs/quarto-diagram/mermaid.min.js"></script>
-<script src="site_libs/quarto-diagram/mermaid-init.js"></script>
-<link href="site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 
 
 </head>
@@ -290,7 +287,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./14-haplotypes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, proxy association and imputation</span></span></a>
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, phasing and imputation</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -409,61 +406,51 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <section id="the-pipeline-at-a-glance" class="level2" data-number="19.1">
 <h2 data-number="19.1" class="anchored" data-anchor-id="the-pipeline-at-a-glance"><span class="header-section-number">19.1</span> The pipeline at a glance</h2>
-<div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>flowchart TD</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  A["Raw data&lt;br/&gt;361 animals, 4,800 SNPs"] --&gt; B["0. Look&lt;br/&gt;--missing, --freq, --hardy within breed,&lt;br/&gt;--test-missing, --het, --check-sex,&lt;br/&gt;--mendel, --genome, PCA"]</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  B --&gt; C["1. Decide&lt;br/&gt;animals to remove, sexes to fix,&lt;br/&gt;SNPs to exclude, breed labels to fix"]</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  C --&gt; D["2a. Animals&lt;br/&gt;--remove, --update-sex"]</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  D --&gt; E["2b. SNPs&lt;br/&gt;--exclude, --geno 0.05"]</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  E --&gt; F["2c. Safety check&lt;br/&gt;--mind 0.05"]</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  F --&gt; G["2d. --maf 0.01"]</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  G --&gt; H["Clean data&lt;br/&gt;351 animals, 4,443 SNPs"]</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  H --&gt; I["3. Structure for association&lt;br/&gt;prune, PCA"]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<p></p><figure class="figure"><p></p>
-<div>
-
+<div id="fig-pipeline" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-pipeline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/flow_pipeline.png" class="img-fluid figure-img">
 </div>
-<p></p><figcaption> The QC pipeline used in this book. Look first, decide on lists, then apply them with animals before SNPs.</figcaption> </figure><p></p>
-</div>
-</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-pipeline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;19.1: The QC pipeline used in this book. Look first, decide on lists, then apply them with animals before SNPs. The full script, with the command for every box, follows below.
+</figcaption>
+</figure>
 </div>
 </section>
 <section id="the-script" class="level2" data-number="19.2">
 <h2 data-number="19.2" class="anchored" data-anchor-id="the-script"><span class="header-section-number">19.2</span> The script</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 0. Convert and look (nothing is removed yet)</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--file</span> cattle <span class="at">--cow</span> <span class="at">--make-bed</span> <span class="at">--out</span> cattle</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--missing</span> <span class="at">--out</span> miss                                <span class="co"># Chapter 6</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--freq</span> <span class="at">--out</span> freq                                   <span class="co"># Chapter 7</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> b <span class="kw">in</span> ANG HOL NDA<span class="kw">;</span> <span class="cf">do</span>                                                       <span class="co"># Chapter 7: HWE within breed</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--keep</span> k_<span class="va">$b</span>.txt <span class="at">--hardy</span> <span class="at">--out</span> hwe_<span class="va">$b</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--test-missing</span> <span class="at">--out</span> tmiss           <span class="co"># Chapter 6</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--autosome</span> <span class="at">--indep-pairwise</span> 50 5 0.2 <span class="at">--out</span> prune</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--extract</span> prune.prune.in <span class="at">--het</span> <span class="at">--out</span> het            <span class="co"># Chapter 8</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--check-sex</span> <span class="at">--out</span> sexcheck                          <span class="co"># Chapter 8</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--mendel</span> <span class="at">--out</span> mendel                               <span class="co"># Chapter 8</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--extract</span> prune.prune.in <span class="at">--genome</span> <span class="at">--min</span> 0.2 <span class="at">--out</span> ibd   <span class="co"># Chapter 10</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--extract</span> prune.prune.in <span class="at">--maf</span> 0.05 <span class="at">--pca</span> 10 header tabs <span class="at">--out</span> pca  <span class="co"># Chapter 11</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Build the lists from those results (by reading the outputs and plots)</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co">#    remove_animals.txt : 6 poor-DNA animals, contaminated ANG_030, duplicate HOL_050_rep,</span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co">#                         calf with the wrong sire HOL_F03_C2, crossbred HOL_077</span></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co">#    sex_update.txt     : 4 animals set to their genetic sex</span></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co">#    snp_exclude.txt    : 12 SNPs failing HWE (p &lt; 1e-6) in any breed</span></span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co">#                         + 8 SNPs with --test-missing p &lt; 1e-4</span></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="co">#    breed_fixed.clst   : ANG_066 relabelled as HOL</span></span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Apply them: animals first, then SNPs</span></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--remove</span> remove_animals.txt <span class="at">--update-sex</span> sex_update.txt <span class="at">--make-bed</span> <span class="at">--out</span> step1</span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> step1  <span class="at">--cow</span> <span class="at">--exclude</span> snp_exclude.txt <span class="at">--geno</span> 0.05 <span class="at">--make-bed</span> <span class="at">--out</span> step2</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> step2  <span class="at">--cow</span> <span class="at">--mind</span> 0.05 <span class="at">--make-bed</span> <span class="at">--out</span> step3</span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> step3  <span class="at">--cow</span> <span class="at">--maf</span> 0.01 <span class="at">--make-bed</span> <span class="at">--out</span> cattle_qc</span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Structure for the association models</span></span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--autosome</span> <span class="at">--indep-pairwise</span> 50 5 0.2 <span class="at">--out</span> qc_prune</span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--extract</span> qc_prune.prune.in <span class="at">--pca</span> 10 header tabs <span class="at">--out</span> qc_pca</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 0. Convert and look (nothing is removed yet)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--file</span> cattle <span class="at">--cow</span> <span class="at">--make-bed</span> <span class="at">--out</span> cattle</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--missing</span> <span class="at">--out</span> miss                                <span class="co"># Chapter 6</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--freq</span> <span class="at">--out</span> freq                                   <span class="co"># Chapter 7</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> b <span class="kw">in</span> ANG HOL NDA<span class="kw">;</span> <span class="cf">do</span>                                                       <span class="co"># Chapter 7: HWE within breed</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--keep</span> k_<span class="va">$b</span>.txt <span class="at">--hardy</span> <span class="at">--out</span> hwe_<span class="va">$b</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--test-missing</span> <span class="at">--out</span> tmiss           <span class="co"># Chapter 6</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--autosome</span> <span class="at">--indep-pairwise</span> 50 5 0.2 <span class="at">--out</span> prune</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--extract</span> prune.prune.in <span class="at">--het</span> <span class="at">--out</span> het            <span class="co"># Chapter 8</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--check-sex</span> <span class="at">--out</span> sexcheck                          <span class="co"># Chapter 8</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--mendel</span> <span class="at">--out</span> mendel                               <span class="co"># Chapter 8</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--extract</span> prune.prune.in <span class="at">--genome</span> <span class="at">--min</span> 0.2 <span class="at">--out</span> ibd   <span class="co"># Chapter 10</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--extract</span> prune.prune.in <span class="at">--maf</span> 0.05 <span class="at">--pca</span> 10 header tabs <span class="at">--out</span> pca  <span class="co"># Chapter 11</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Build the lists from those results (by reading the outputs and plots)</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co">#    remove_animals.txt : 6 poor-DNA animals, contaminated ANG_030, duplicate HOL_050_rep,</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co">#                         calf with the wrong sire HOL_F03_C2, crossbred HOL_077</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co">#    sex_update.txt     : 4 animals set to their genetic sex</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co">#    snp_exclude.txt    : 12 SNPs failing HWE (p &lt; 1e-6) in any breed</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co">#                         + 8 SNPs with --test-missing p &lt; 1e-4</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co">#    breed_fixed.clst   : ANG_066 relabelled as HOL</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Apply them: animals first, then SNPs</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--remove</span> remove_animals.txt <span class="at">--update-sex</span> sex_update.txt <span class="at">--make-bed</span> <span class="at">--out</span> step1</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> step1  <span class="at">--cow</span> <span class="at">--exclude</span> snp_exclude.txt <span class="at">--geno</span> 0.05 <span class="at">--make-bed</span> <span class="at">--out</span> step2</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> step2  <span class="at">--cow</span> <span class="at">--mind</span> 0.05 <span class="at">--make-bed</span> <span class="at">--out</span> step3</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> step3  <span class="at">--cow</span> <span class="at">--maf</span> 0.01 <span class="at">--make-bed</span> <span class="at">--out</span> cattle_qc</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Structure for the association models</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--autosome</span> <span class="at">--indep-pairwise</span> 50 5 0.2 <span class="at">--out</span> qc_prune</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--extract</span> qc_prune.prune.in <span class="at">--pca</span> 10 header tabs <span class="at">--out</span> qc_pca</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>What the logs reported at each step:</p>
 <table class="caption-top table">
 <colgroup>
@@ -688,6 +675,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>Draws every figure from the PLINK output</td>
 </tr>
 <tr class="odd">
+<td><code>data/phasing/</code>, <code>scripts/simulate_phasing.py</code></td>
+<td>The phasing and imputation data of Chapter 14 (msprime simulation, seed 2026)</td>
+</tr>
+<tr class="even">
+<td><code>scripts/phasing_imputation_pipeline.sh</code></td>
+<td>Runs every phasing and imputation step of Chapter 14, using <code>ls_impute.py</code>, <code>eval_imputation.py</code>, <code>eval_window_phase.py</code> and <code>fig_imputation.py</code></td>
+</tr>
+<tr class="odd">
+<td><code>scripts/lmm_gwas.py</code></td>
+<td>The teaching mixed-model GWAS of Chapter 13</td>
+</tr>
+<tr class="even">
+<td><code>data/ascertainment/</code>, <code>scripts/simulate_ascertainment.py</code>, <code>scripts/ascertainment_pipeline.sh</code></td>
+<td>The ascertainment-bias simulation and PLINK runs of Chapter 18</td>
+</tr>
+<tr class="odd">
+<td><code>scripts/fig_flowcharts.py</code>, <code>scripts/fig_imputation.py</code>, <code>scripts/fig_ascertainment.py</code></td>
+<td>The workflow diagrams and the figures of Chapters 14 and 18</td>
+</tr>
+<tr class="even">
 <td><code>downloads/plink_tutorial_data_and_scripts.zip</code></td>
 <td>Everything above in one file</td>
 </tr>
@@ -1120,7 +1127,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-<p>PLINK for Livestock Genomics, by Ismaila Emmanuel</p>
+<p>PLINK for Livestock Genomics, by Ismaila Emmanuel Oluwasegun</p>
 </div>   
     <div class="nav-footer-center">
       &nbsp;

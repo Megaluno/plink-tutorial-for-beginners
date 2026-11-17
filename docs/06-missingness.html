@@ -106,9 +106,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
-<script src="site_libs/quarto-diagram/mermaid.min.js"></script>
-<script src="site_libs/quarto-diagram/mermaid-init.js"></script>
-<link href="site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -319,7 +316,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./14-haplotypes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, proxy association and imputation</span></span></a>
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, phasing and imputation</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -483,22 +480,22 @@ Figure&nbsp;6.2: Case 2: one failed sample. Animal 4’s DNA could not be read a
 <p>In case 2, Animal 4’s sample failed at six of eight SNPs (75%). In a table of only six animals, that one sample makes six SNPs look 17% missing. Filter SNPs first and we lose six good SNPs; drop the animal first and every SNP is back to 0%.</p>
 <p>The rule behind both cases: <strong>a bad SNP inflates every animal’s rate, and a bad animal inflates every SNP’s rate.</strong> How much depends on the size of the table. On a chip with 50,000 SNPs, one failed SNP adds only 0.002% to each animal. In a study of a few hundred animals, one failed sample adds a visible amount to every SNP. So in livestock studies, which usually have far more SNPs than animals, bad animals are the bigger threat to SNP call rates.</p>
 <p>A practical plan follows from this. First remove only the disasters, with a lenient cut-off in both directions. Then apply the strict cut-offs, <strong>animals before SNPs</strong>, so that a few bad samples cannot drag good SNPs over the line.</p>
-<div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>flowchart LR</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  A[raw data] --&gt; B["Round 1: --geno 0.10&lt;br/&gt;then --mind 0.10&lt;br/&gt;(obvious failures)"]</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  B --&gt; C["Round 2: --mind 0.03&lt;br/&gt;(animals, strict)"]</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  C --&gt; D["--geno 0.01&lt;br/&gt;(SNPs, strict)"]</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  D --&gt; E[clean data]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<p></p><figure class="figure"><p></p>
-<div>
-
+<div id="fig-miss-flow" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-miss-flow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/flow_missingness.png" class="img-fluid figure-img">
 </div>
-<p></p><figcaption> A two-round missingness filter. The lenient round removes only the obvious failures; the strict round handles animals before SNPs.</figcaption> </figure><p></p>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-miss-flow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.3: A two-round missingness filter, with what each step removed from our data. The lenient round removes only the obvious failures; the strict round handles animals before SNPs.
+</figcaption>
+</figure>
 </div>
-</div>
-</div>
+<p>Each box is one PLINK command, and each command reads the file the previous one wrote:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--geno</span> 0.10 <span class="at">--make-bed</span> <span class="at">--out</span> qc1   <span class="co"># round 1, SNPs</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> qc1    <span class="at">--cow</span> <span class="at">--mind</span> 0.10 <span class="at">--make-bed</span> <span class="at">--out</span> qc2   <span class="co"># round 1, animals</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> qc2    <span class="at">--cow</span> <span class="at">--mind</span> 0.03 <span class="at">--make-bed</span> <span class="at">--out</span> qc3   <span class="co"># round 2, animals</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> qc3    <span class="at">--cow</span> <span class="at">--geno</span> 0.01 <span class="at">--make-bed</span> <span class="at">--out</span> qc4   <span class="co"># round 2, SNPs</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Step 3 below shows what each command printed and why the order matters.</p>
 </section>
 <section id="step-1-measure-missingness" class="level2" data-number="6.3">
 <h2 data-number="6.3" class="anchored" data-anchor-id="step-1-measure-missingness"><span class="header-section-number">6.3</span> Step 1: measure missingness</h2>
@@ -566,7 +563,7 @@ Figure&nbsp;6.2: Case 2: one failed sample. Animal 4’s DNA could not be read a
 <img src="images/03_missingness_hist.png" class="img-fluid figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-miss-hist-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;6.3: Missingness in the practice data. Most SNPs and animals sit below 1%; a long tail of bad SNPs and six clearly bad animals stand apart.
+Figure&nbsp;6.4: Missingness in the practice data. Most SNPs and animals sit below 1%; a long tail of bad SNPs and six clearly bad animals stand apart.
 </figcaption>
 </figure>
 </div>
@@ -736,7 +733,7 @@ qc4: 279 variants removed due to missing genotype data (--geno).
 <img src="images/03_miss_vs_het.png" class="img-fluid figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-miss-het-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;6.4: Each dot is one animal. Bad DNA shows up on the right; contamination shows up at the top; inbreeding at the bottom.
+Figure&nbsp;6.5: Each dot is one animal. Bad DNA shows up on the right; contamination shows up at the top; inbreeding at the bottom.
 </figcaption>
 </figure>
 </div>
@@ -1214,7 +1211,7 @@ Figure&nbsp;6.4: Each dot is one animal. Bad DNA shows up on the right; contamin
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-<p>PLINK for Livestock Genomics, by Ismaila Emmanuel</p>
+<p>PLINK for Livestock Genomics, by Ismaila Emmanuel Oluwasegun</p>
 </div>   
     <div class="nav-footer-center">
       &nbsp;

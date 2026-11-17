@@ -18,3 +18,10 @@ plink --bfile sheep_qc --sheep --indep-pairwise 50 5 0.2 --out s_prune         #
 plink --bfile sheep_qc --sheep --extract s_prune.prune.in --pca 10 header tabs --out s_pca
 plink --bfile sheep_qc --sheep --fst --within sheep_breed.clst --out s_fst
 plink --bfile cattle_real_qc --cow --r2 --ld-window-kb 5000 --ld-window 99999 --ld-window-r2 0 --out c_ld
+
+# Ascertainment bias (the full set of runs is scripts/ascertainment_pipeline.sh)
+plink --bfile chipEUR --cow --freq --within breeds.clst --out f_chipEUR     # allele frequency per breed
+plink --bfile chipEUR --cow --het --out h_chipEUR                           # observed heterozygosity per animal
+plink --bfile chipEUR --cow --keep EUR1_AFR.txt --fst --within breeds.clst --out fst_chipEUR
+plink --bfile chipEUR --cow --homozyg --homozyg-snp 40 --homozyg-kb 1000 --homozyg-density 100 \
+      --homozyg-gap 1000 --homozyg-window-snp 40 --out roh_chipEUR

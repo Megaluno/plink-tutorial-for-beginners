@@ -106,9 +106,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
-<script src="site_libs/quarto-diagram/mermaid.min.js"></script>
-<script src="site_libs/quarto-diagram/mermaid-init.js"></script>
-<link href="site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 
 
 </head>
@@ -290,7 +287,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./14-haplotypes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, proxy association and imputation</span></span></a>
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Haplotypes, phasing and imputation</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -611,19 +608,24 @@ Figure&nbsp;17.1: SNPs removed by three common filters at different thresholds. 
 </tbody>
 </table>
 <p>Removing bad animals first saved 670 good SNPs. Inside one command, PLINK 1.9 always applies its filters in this order, whatever order you type them in:</p>
-<div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>flowchart LR</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  A["--keep / --remove&lt;br/&gt;--extract / --exclude"] --&gt; B["--mind"] --&gt; C["--geno"] --&gt; D["--hwe"] --&gt; E["--maf"] --&gt; F[analysis or --make-bed]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<p></p><figure class="figure"><p></p>
-<div>
-
+<div id="fig-filter-order" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-filter-order-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/flow_filter_order.png" class="img-fluid figure-img">
 </div>
-<p></p><figcaption> The order in which PLINK 1.9 applies filters inside one command.</figcaption> </figure><p></p>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-filter-order-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;17.2: The order in which PLINK 1.9 applies filters inside one command.
+</figcaption>
+</figure>
 </div>
-</div>
-</div>
+<p>You can see this order in any log. Here the flags are typed in the reverse order:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--maf</span> 0.01 <span class="at">--hwe</span> 1e-6 <span class="at">--geno</span> 0.05 <span class="at">--mind</span> 0.05 <span class="at">--make-bed</span> <span class="at">--out</span> order_demo</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text"><code>6 cattle removed due to missing genotype data (--mind).
+33 variants removed due to missing genotype data (--geno).
+--hwe: 59 variants removed due to Hardy-Weinberg exact test.
+309 variants removed due to minor allele threshold(s)
+4399 variants and 355 cattle pass filters and QC.</code></pre>
+<p>The log lines come out as <code>--mind</code>, <code>--geno</code>, <code>--hwe</code>, <code>--maf</code>, whatever the order on the command line, and each filter sees only what the previous one left. That is why <code>--hwe</code> removed 59 SNPs here but 63 when run alone on the raw file: six samples and 33 SNPs were already gone before it ran.</p>
 <p>When in doubt, run each filter as a separate step and report the order (Chapter 6 shows the two-round scheme).</p>
 </section>
 <section id="maf-rare-variants" class="level2" data-number="17.5">
@@ -1354,7 +1356,7 @@ Figure&nbsp;17.1: SNPs removed by three common filters at different thresholds. 
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
-<p>PLINK for Livestock Genomics, by Ismaila Emmanuel</p>
+<p>PLINK for Livestock Genomics, by Ismaila Emmanuel Oluwasegun</p>
 </div>   
     <div class="nav-footer-center">
       &nbsp;
