@@ -8,11 +8,11 @@ I wrote this tutorial because most PLINK material is written for human genetics.
 
 ## How this book works
 
-Each chapter follows the same rhythm:
+Each chapter follows the same teaching style:
 
 1. **The idea**, in plain words, usually with a picture.
 2. **The command**, ready to copy.
-3. **The real output**, exactly as PLINK printed it.
+3. **The real output**, exactly as PLINK prints it.
 4. **What it means**, and what you should do next.
 
 Boxes like the one below give extra help along the way.
@@ -63,6 +63,6 @@ This tutorial stands on the shoulders of excellent open teaching material, espec
 
 ## How to cite
 
-> Ismaila Emmanuel Oluwasegun (2026). *PLINK for Livestock Genomics: a step-by-step tutorial with cattle and sheep data.* https://megaluno.github.io/plink-tutorial-for-beginners/
+> Ismaila Emmanuel Oluwasegun (2026). *PLINK for Livestock Genomics: a step-by-step tutorial for beginners and intermediates in population genetics.* https://megaluno.github.io/plink-tutorial-for-beginners/
 
 The text and figures are shared under a [Creative Commons Attribution 4.0](https://creativecommons.org/licenses/by/4.0/) licence. The real datasets keep the licences of the packages they come from (GPL-2 for synbreedData, GPL-3 for detectRUNS).

@@ -30,4 +30,4 @@ Text and figures: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The
 
 ## Citation
 
-Emmanuel, I. (2026). *PLINK for Livestock Genomics: a step-by-step tutorial with cattle and sheep data.* https://megaluno.github.io/plink-tutorial-for-beginners/
+Ismaila Emmanuel Oluwasegun (2026). *PLINK for Livestock Genomics: a step-by-step tutorial for beginners and intermediates in population genetics.* https://megaluno.github.io/plink-tutorial-for-beginners/

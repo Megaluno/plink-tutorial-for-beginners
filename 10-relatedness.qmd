@@ -105,7 +105,7 @@ $$
 \hat r_{ij} = \frac{1}{p}\sum_{l=1}^{p}\frac{(g_{il}-2f_l)(g_{jl}-2f_l)}{2f_l(1-f_l)}
 $$
 
-In words: standardise each genotype by subtracting its expected value and dividing by its standard deviation, then average the products over all p SNPs. Two animals that carry the same unusual alleles get a positive value; unrelated animals average about zero (and can be slightly negative). This is the GRM of Yang and colleagues (2011), used by GCTA and in GBLUP genomic prediction; VanRaden's (2008) G matrix is a close relative.
+In words: standardize each genotype by subtracting its expected value and dividing by its standard deviation, then average the products over all p SNPs. Two animals that carry the same unusual alleles get a positive value; unrelated animals average about zero (and can be slightly negative). This is the GRM of Yang and colleagues (2011), used by GCTA and in GBLUP genomic prediction; VanRaden's (2008) G matrix is a close relative.
 
 ```bash
 plink --bfile cattle_real_qc --cow --make-rel square --out grm

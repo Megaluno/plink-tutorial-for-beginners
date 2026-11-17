@@ -375,7 +375,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#what-plink-has-to-guess-phase" id="toc-what-plink-has-to-guess-phase" class="nav-link active" data-scroll-target="#what-plink-has-to-guess-phase"><span class="header-section-number">14.1</span> What PLINK has to guess: phase</a></li>
   <li><a href="#haplotype-frequencies-and-a-casecontrol-test" id="toc-haplotype-frequencies-and-a-casecontrol-test" class="nav-link" data-scroll-target="#haplotype-frequencies-and-a-casecontrol-test"><span class="header-section-number">14.2</span> Haplotype frequencies and a case/control test</a></li>
   <li><a href="#is-it-one-snp-or-the-whole-haplotype---chap" id="toc-is-it-one-snp-or-the-whole-haplotype---chap" class="nav-link" data-scroll-target="#is-it-one-snp-or-the-whole-haplotype---chap"><span class="header-section-number">14.3</span> Is it one SNP or the whole haplotype? <code>--chap</code></a></li>
-  <li><a href="#proxy-association-do-the-neighbours-agree" id="toc-proxy-association-do-the-neighbours-agree" class="nav-link" data-scroll-target="#proxy-association-do-the-neighbours-agree"><span class="header-section-number">14.4</span> Proxy association: do the neighbours agree?</a></li>
+  <li><a href="#proxy-association-do-the-neighbors-agree" id="toc-proxy-association-do-the-neighbors-agree" class="nav-link" data-scroll-target="#proxy-association-do-the-neighbors-agree"><span class="header-section-number">14.4</span> Proxy association: do the neighbors agree?</a></li>
   <li><a href="#phasing-whole-chromosomes" id="toc-phasing-whole-chromosomes" class="nav-link" data-scroll-target="#phasing-whole-chromosomes"><span class="header-section-number">14.5</span> Phasing whole chromosomes</a>
   <ul class="collapse">
   <li><a href="#why-you-would-want-phased-data" id="toc-why-you-would-want-phased-data" class="nav-link" data-scroll-target="#why-you-would-want-phased-data"><span class="header-section-number">14.5.1</span> Why you would want phased data</a></li>
@@ -431,7 +431,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>PLINK 1.9 and 2.0 dropped the haplotype tests, so the first half of this chapter uses the old PLINK 1.07 (<code>plink107</code>). Every 1.07 command needs <code>--noweb</code>, which stops it trying to check for updates online. The second half uses PLINK 2.0 to store and analyse phased and imputed data, while the phasing and imputation themselves are done by other programs.</p>
+<p>PLINK 1.9 and 2.0 dropped the haplotype tests, so the first half of this chapter uses the old PLINK 1.07 (<code>plink107</code>). Every 1.07 command needs <code>--noweb</code>, which stops it trying to check for updates online. The second half uses PLINK 2.0 to store and analyze phased and imputed data, while the phasing and imputation themselves are done by other programs.</p>
 </div>
 </div>
 <p>We work on one small region around the BRD SNP, cut out with PLINK 1.9:</p>
@@ -477,7 +477,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td><code>--hap-window 3</code></td>
-<td>Every run of 3 neighbouring SNPs (a sliding window; 57 windows here)</td>
+<td>Every run of 3 neighboring SNPs (a sliding window; 57 windows here)</td>
 </tr>
 <tr class="even">
 <td><code>--hap-window 1,2,3</code></td>
@@ -519,7 +519,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>A haplotype signal raises two questions:</p>
 <ol type="1">
 <li>Does one SNP explain all of it?</li>
-<li>Does that SNP matter on its own, or only through its neighbours?</li>
+<li>Does that SNP matter on its own, or only through its neighbors?</li>
 </ol>
 <p><code>--chap</code> answers both by comparing two models. In the <em>alternative</em> model every haplotype has its own effect. In the <em>null</em> model some haplotypes are forced to share one effect. If forcing them together costs little, the simpler explanation is enough.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. is there any haplotype effect at all?</span></span>
@@ -576,8 +576,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 <p>In test 2, the two haplotypes carrying A at snp00706 (TAT and GAT) had odds ratios of 2.50 and 3.85 when free, and 3.33 when forced to share. Tests 2 and 3 together say that snp00706 is the causal SNP, or a perfect tag for it, which is exactly how the data were simulated.</p>
 </section>
-<section id="proxy-association-do-the-neighbours-agree" class="level2" data-number="14.4">
-<h2 data-number="14.4" class="anchored" data-anchor-id="proxy-association-do-the-neighbours-agree"><span class="header-section-number">14.4</span> Proxy association: do the neighbours agree?</h2>
+<section id="proxy-association-do-the-neighbors-agree" class="level2" data-number="14.4">
+<h2 data-number="14.4" class="anchored" data-anchor-id="proxy-association-do-the-neighbors-agree"><span class="header-section-number">14.4</span> Proxy association: do the neighbors agree?</h2>
 <p>For one SNP, PLINK searches nearby SNPs for haplotypes that tag it well (“proxies”), and tests those. This is a good sanity check for a hit: if a strong single-SNP result has no support from any proxy, suspect a genotyping problem at that SNP.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink107</span> <span class="at">--noweb</span> <span class="at">--bfile</span> brd_region <span class="at">--cow</span> <span class="at">--proxy-assoc</span> snp00706 <span class="at">--proxy-verbose</span> <span class="at">--out</span> proxy1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre class="text"><code>       SNP      MAF     GENO       KB      RSQ       OR    CHISQ        P
@@ -587,7 +587,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 Of 60 subhaplotypes considered, 5 met proxy criteria
            HAP       FREQ        RSQ         OR      CHISQ          P
          .. TG      0.543      0.588       2.73       36.4   1.57e-09</code></pre>
-<p>Read <code>.. TG</code> as: skip the two proxy SNPs on the left and use the next two. That two-SNP haplotype has r² = 0.59 with snp00706 and gives the same signal, so the hit is backed by its neighbours. Settings to know: <code>--proxy-r2</code>, <code>--proxy-window 15</code>, <code>--proxy-kb 250</code>; <code>--proxy-tdt</code> for families and <code>--proxy-glm</code> for measured traits.</p>
+<p>Read <code>.. TG</code> as: skip the two proxy SNPs on the left and use the next two. That two-SNP haplotype has r² = 0.59 with snp00706 and gives the same signal, so the hit is backed by its neighbors. Settings to know: <code>--proxy-r2</code>, <code>--proxy-window 15</code>, <code>--proxy-kb 250</code>; <code>--proxy-tdt</code> for families and <code>--proxy-glm</code> for measured traits.</p>
 </section>
 <section id="phasing-whole-chromosomes" class="level2" data-number="14.5">
 <h2 data-number="14.5" class="anchored" data-anchor-id="phasing-whole-chromosomes"><span class="header-section-number">14.5</span> Phasing whole chromosomes</h2>
@@ -1170,7 +1170,7 @@ Figure&nbsp;14.5: Weaning weight in the 100 targets, tested on the chip SNPs onl
 <li><strong>Go up in steps.</strong> From a low-density chip, impute first to 50K, then to HD, then to sequence. In Holstein cattle, imputing straight from 50K to sequence gave an accuracy of 0.37 to 0.46 per SNP, and going through the HD panel first raised it to 0.65 (van Binsbergen and colleagues, 2014).</li>
 <li><strong>Check accuracy by masking</strong>, per SNP and per animal. Animals with few relatives in the reference impute worst.</li>
 <li><strong>Treat the X chromosome separately</strong>: males are haploid outside the pseudoautosomal region. SHAPEIT5 takes a list of haploid samples (<code>--haploids</code>), and FImpute needs a pedigree for the X.</li>
-<li><strong>Keep the dosages.</strong> In Fleckvieh and Holstein cattle, dosages of imputed sequence variants agreed better with the true genotypes than best-guess calls did, and were better at detecting causal mutations (Pausch and colleagues, 2017). Analyse dosages with <code>plink2 --glm</code> (or a mixed model, Chapter 13) and filter on DR2 or INFO; round to hard calls only when a later program demands it.</li>
+<li><strong>Keep the dosages.</strong> In Fleckvieh and Holstein cattle, dosages of imputed sequence variants agreed better with the true genotypes than best-guess calls did, and were better at detecting causal mutations (Pausch and colleagues, 2017). Analyze dosages with <code>plink2 --glm</code> (or a mixed model, Chapter 13) and filter on DR2 or INFO; round to hard calls only when a later program demands it.</li>
 <li><strong>Record everything</strong>: assembly, reference panel (breeds, size), program and version, settings, and the quality filter.</li>
 </ul>
 <div class="callout callout-style-default callout-note callout-titled">

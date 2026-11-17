@@ -32,7 +32,7 @@
 | Mendel error | A calf genotype that is impossible given its parents' genotypes |
 | Mixed model | Regression with a random polygenic effect whose covariance follows the GRM; corrects for relatives and structure together |
 | OR / BETA | Odds ratio (yes/no trait) / regression slope (measured trait) per copy of A1 |
-| PCA | Principal component analysis: a few axes that summarise genetic differences between animals |
+| PCA | Principal component analysis: a few axes that summarize genetic differences between animals |
 | Phase | Which alleles sit together on the same chromosome copy; `0\|1` in a VCF is phased, `0/1` unphased |
 | PI_HAT | Estimated share of the genome two animals share IBD |
 | Population stratification | False associations caused by differences in both allele frequency and trait between groups |

@@ -593,7 +593,7 @@ Figure&nbsp;16.1: Share of PKE cases for each two-SNP genotype. Risk is high in 
 <section id="snp-environment-with-a-continuous-environment" class="level2" data-number="16.3">
 <h2 data-number="16.3" class="anchored" data-anchor-id="snp-environment-with-a-continuous-environment"><span class="header-section-number">16.3</span> SNP × environment with a continuous environment</h2>
 <p>Chapter 13 tested a two-level environment (feedlot or pasture). For a continuous one (age at weaning, temperature-humidity index, rainfall) you use the same <code>--interaction</code>, with one trap. Our first try with AGE in days gave NA for every SNP. The interaction column ADD × AGE (values near 0, 205 or 410) is almost a copy of ADD × 205, so it is nearly collinear with ADD, and PLINK’s collinearity check (<code>--vif</code>, default 50) rejects the model.</p>
-<p>The fix is to <strong>centre</strong> the environment, which also makes the ADD term easier to read (it becomes the SNP effect at the average age):</p>
+<p>The fix is to <strong>center</strong> the environment, which also makes the ADD term easier to read (it becomes the SNP effect at the average age):</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># AGE_C = (AGE - 205) / 10</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> ... <span class="at">--linear</span> <span class="at">--covar</span> cov_c.txt <span class="at">--covar-name</span> PC1,PC2,SEX_M,FEEDLOT,AGE_C <span class="dt">\</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">--interaction</span> <span class="at">--parameters</span> 1-6,11 <span class="at">--out</span> int_agec</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -610,7 +610,7 @@ Figure&nbsp;16.1: Share of PKE cases for each two-SNP genotype. Risk is high in 
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Our first centred version, AGE − 205, gave the value -9 to calves weaned at 196 days, and PLINK silently treated them as missing (NMISS fell from 347 to 336). Dividing by 10 avoided it. <code>--missing-phenotype</code> changes the missing code.</p>
+<p>Our first centered version, AGE − 205, gave the value -9 to calves weaned at 196 days, and PLINK silently treated them as missing (NMISS fell from 347 to 336). Dividing by 10 avoided it. <code>--missing-phenotype</code> changes the missing code.</p>
 </div>
 </div>
 </section>

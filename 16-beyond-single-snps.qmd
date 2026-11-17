@@ -96,7 +96,7 @@ For measured traits, `--epistasis` fits linear regression. Always use `--autosom
 
 Chapter 13 tested a two-level environment (feedlot or pasture). For a continuous one (age at weaning, temperature-humidity index, rainfall) you use the same `--interaction`, with one trap. Our first try with AGE in days gave NA for every SNP. The interaction column ADD × AGE (values near 0, 205 or 410) is almost a copy of ADD × 205, so it is nearly collinear with ADD, and PLINK's collinearity check (`--vif`, default 50) rejects the model.
 
-The fix is to **centre** the environment, which also makes the ADD term easier to read (it becomes the SNP effect at the average age):
+The fix is to **center** the environment, which also makes the ADD term easier to read (it becomes the SNP effect at the average age):
 
 ```bash
 # AGE_C = (AGE - 205) / 10
@@ -113,7 +113,7 @@ The feedlot SNP's effect does not change with age (p = 0.66), which is correct: 
 
 ::: {.callout-warning}
 ## The -9 trap
-Our first centred version, AGE − 205, gave the value -9 to calves weaned at 196 days, and PLINK silently treated them as missing (NMISS fell from 347 to 336). Dividing by 10 avoided it. `--missing-phenotype` changes the missing code.
+Our first centered version, AGE − 205, gave the value -9 to calves weaned at 196 days, and PLINK silently treated them as missing (NMISS fell from 347 to 336). Dividing by 10 avoided it. `--missing-phenotype` changes the missing code.
 :::
 
 ## Meta-analysis: combining several studies

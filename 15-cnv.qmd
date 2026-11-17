@@ -6,7 +6,7 @@ A copy number variant (CNV) is a stretch of DNA that some animals have lost (a d
 
 ::: {.callout-important}
 ## Which PLINK?
-PLINK does not call CNVs. A caller such as PennCNV or QuantiSNP reads the raw SNP-chip intensities (Log R Ratio and B Allele Frequency) and writes a list of segments. PLINK 1.07 then filters, summarises and tests those segments. PLINK 1.9 and 2.0 have no CNV tools, so this chapter uses `plink107 --noweb --cow`.
+PLINK does not call CNVs. A caller such as PennCNV or QuantiSNP reads the raw SNP-chip intensities (Log R Ratio and B Allele Frequency) and writes a list of segments. PLINK 1.07 then filters, summarizes and tests those segments. PLINK 1.9 and 2.0 have no CNV tools, so this chapter uses `plink107 --noweb --cow`.
 :::
 
 ## What a CNV looks like in the data

@@ -6,7 +6,7 @@ A single SNP is one letter. A haplotype is a short word: the alleles that travel
 
 ::: {.callout-important}
 ## Which PLINK?
-PLINK 1.9 and 2.0 dropped the haplotype tests, so the first half of this chapter uses the old PLINK 1.07 (`plink107`). Every 1.07 command needs `--noweb`, which stops it trying to check for updates online. The second half uses PLINK 2.0 to store and analyse phased and imputed data, while the phasing and imputation themselves are done by other programs.
+PLINK 1.9 and 2.0 dropped the haplotype tests, so the first half of this chapter uses the old PLINK 1.07 (`plink107`). Every 1.07 command needs `--noweb`, which stops it trying to check for updates online. The second half uses PLINK 2.0 to store and analyze phased and imputed data, while the phasing and imputation themselves are done by other programs.
 :::
 
 We work on one small region around the BRD SNP, cut out with PLINK 1.9:
@@ -32,7 +32,7 @@ You tell PLINK which SNPs make up each haplotype:
 
 | Option | Defines the haplotypes as |
 |---|---|
-| `--hap-window 3` | Every run of 3 neighbouring SNPs (a sliding window; 57 windows here) |
+| `--hap-window 3` | Every run of 3 neighboring SNPs (a sliding window; 57 windows here) |
 | `--hap-window 1,2,3` | Windows of 1, 2 and 3 SNPs together (174 windows) |
 | `--hap-snps snp00705-snp00707` | One block of SNPs that you name |
 | `--hap myfile.hlist` | A file of haplotypes or blocks you define |
@@ -76,7 +76,7 @@ With PCs as covariates, the three best windows all contain snp00706. For family 
 A haplotype signal raises two questions:
 
 1. Does one SNP explain all of it?
-2. Does that SNP matter on its own, or only through its neighbours?
+2. Does that SNP matter on its own, or only through its neighbors?
 
 `--chap` answers both by comparing two models. In the *alternative* model every haplotype has its own effect. In the *null* model some haplotypes are forced to share one effect. If forcing them together costs little, the simpler explanation is enough.
 
@@ -97,7 +97,7 @@ plink107 --noweb --bfile brd_region --cow --chap --hap-snps snp00705-snp00707 --
 
 In test 2, the two haplotypes carrying A at snp00706 (TAT and GAT) had odds ratios of 2.50 and 3.85 when free, and 3.33 when forced to share. Tests 2 and 3 together say that snp00706 is the causal SNP, or a perfect tag for it, which is exactly how the data were simulated.
 
-## Proxy association: do the neighbours agree?
+## Proxy association: do the neighbors agree?
 
 For one SNP, PLINK searches nearby SNPs for haplotypes that tag it well ("proxies"), and tests those. This is a good sanity check for a hit: if a strong single-SNP result has no support from any proxy, suspect a genotyping problem at that SNP.
 
@@ -115,7 +115,7 @@ Of 60 subhaplotypes considered, 5 met proxy criteria
          .. TG      0.543      0.588       2.73       36.4   1.57e-09
 ```
 
-Read `.. TG` as: skip the two proxy SNPs on the left and use the next two. That two-SNP haplotype has r² = 0.59 with snp00706 and gives the same signal, so the hit is backed by its neighbours. Settings to know: `--proxy-r2`, `--proxy-window 15`, `--proxy-kb 250`; `--proxy-tdt` for families and `--proxy-glm` for measured traits.
+Read `.. TG` as: skip the two proxy SNPs on the left and use the next two. That two-SNP haplotype has r² = 0.59 with snp00706 and gives the same signal, so the hit is backed by its neighbors. Settings to know: `--proxy-r2`, `--proxy-window 15`, `--proxy-kb 250`; `--proxy-tdt` for families and `--proxy-glm` for measured traits.
 
 ## Phasing whole chromosomes
 
@@ -435,7 +435,7 @@ PLINK fills a genotype only when the best guess has a probability of at least 0.
 - **Go up in steps.** From a low-density chip, impute first to 50K, then to HD, then to sequence. In Holstein cattle, imputing straight from 50K to sequence gave an accuracy of 0.37 to 0.46 per SNP, and going through the HD panel first raised it to 0.65 (van Binsbergen and colleagues, 2014).
 - **Check accuracy by masking**, per SNP and per animal. Animals with few relatives in the reference impute worst.
 - **Treat the X chromosome separately**: males are haploid outside the pseudoautosomal region. SHAPEIT5 takes a list of haploid samples (`--haploids`), and FImpute needs a pedigree for the X.
-- **Keep the dosages.** In Fleckvieh and Holstein cattle, dosages of imputed sequence variants agreed better with the true genotypes than best-guess calls did, and were better at detecting causal mutations (Pausch and colleagues, 2017). Analyse dosages with `plink2 --glm` (or a mixed model, Chapter 13) and filter on DR2 or INFO; round to hard calls only when a later program demands it.
+- **Keep the dosages.** In Fleckvieh and Holstein cattle, dosages of imputed sequence variants agreed better with the true genotypes than best-guess calls did, and were better at detecting causal mutations (Pausch and colleagues, 2017). Analyze dosages with `plink2 --glm` (or a mixed model, Chapter 13) and filter on DR2 or INFO; round to hard calls only when a later program demands it.
 - **Record everything**: assembly, reference panel (breeds, size), program and version, settings, and the quality filter.
 
 ::: {.callout-note}

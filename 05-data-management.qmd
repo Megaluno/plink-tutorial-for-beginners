@@ -204,7 +204,7 @@ plink --bfile cattle --cow --allow-no-sex --extract chr6_snps.txt --make-bed --o
 
 ### SNPs by position: `--chr`, `--from-mb`, `--to-mb`, `--snp`, `--window`, `--autosome`
 
-| Command (added to the template above) | SNPs left | What it selects |
+| Extra Commands (added to the template above) | SNPs left | What it selects |
 |---|---|---|
 | `--chr 14 --from-mb 23 --to-mb 27` | 86 | Chromosome 14 from 23 to 27 Mb (also `--from-kb`, `--from-bp`) |
 | `--chr 1-5,X` | 1,060 | A range of chromosomes plus the X |
