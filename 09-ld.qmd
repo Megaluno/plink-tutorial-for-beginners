@@ -193,7 +193,7 @@ Pruning complete.  969 of 4550 variants removed.
 
 `--indep-pairwise 50 5 0.2` looks at a window of 50 SNPs, removes one SNP from every pair with r² above 0.2, then slides the window 5 SNPs along and repeats. It writes `prune.prune.in` (SNPs to keep) and `prune.prune.out`; use them with `--extract prune.prune.in`. The heaviest pruning happened in the dense regions on chromosomes 14, 6 and 5, as expected. Chapter 17 shows how the three numbers change the result.
 
-**4. Summarizing association results.** `--clump` groups significant SNPs that are in LD with each other into one "clump" per signal, so that a list of 50 significant SNPs becomes, for example, 3 independent loci.
+**4. Summarising association results.** `--clump` groups significant SNPs that are in LD with each other into one "clump" per signal, so that a list of 50 significant SNPs becomes, for example, 3 independent loci.
 
 ::: {.callout-note}
 ## PLINK 2.0
