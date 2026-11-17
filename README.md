@@ -2,7 +2,7 @@
 
 A step-by-step tutorial on PLINK 1.9 (with PLINK 2.0 and 1.07 notes) using cattle and sheep data, by **Ismaila Emmanuel**.
 
-**Read it online:** https://megaluno.github.io/PLINK_Tutorial/
+**Read it online:** https://megaluno.github.io/plink-tutorial-for-beginners/
 
 ## What is covered
 
@@ -30,4 +30,4 @@ Text and figures: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The
 
 ## Citation
 
-Emmanuel, I. (2026). *PLINK for Livestock Genomics: a step-by-step tutorial with cattle and sheep data.* https://megaluno.github.io/PLINK_Tutorial/
+Emmanuel, I. (2026). *PLINK for Livestock Genomics: a step-by-step tutorial with cattle and sheep data.* https://megaluno.github.io/plink-tutorial-for-beginners/

@@ -102,7 +102,7 @@ Almost every planted problem was found, and the two that were not (four SNPs wit
 
 ## Reproduce everything
 
-All data, scripts and figures are in the [GitHub repository](https://github.com/Megaluno/PLINK_Tutorial):
+All data, scripts and figures are in the [GitHub repository](https://github.com/Megaluno/plink-tutorial-for-beginners):
 
 | Folder or file | Contents |
 |---|---|

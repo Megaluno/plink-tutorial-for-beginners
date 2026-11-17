@@ -8,8 +8,8 @@ book:
   author: "Ismaila Emmanuel"
   date: "2026-11-17"
   date-format: "D MMMM YYYY"
-  site-url: https://megaluno.github.io/PLINK_Tutorial/
-  repo-url: https://github.com/Megaluno/PLINK_Tutorial
+  site-url: https://megaluno.github.io/plink-tutorial-for-beginners/
+  repo-url: https://github.com/Megaluno/plink-tutorial-for-beginners
   repo-actions: [issue]
   downloads: []
   search: true

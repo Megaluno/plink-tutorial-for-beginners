@@ -51,7 +51,7 @@ We use two kinds of data.
 
 **Two real public datasets**: 500 genotyped cattle with a pedigree (from the synbreedData R package) and 100 sheep of two breeds, Jacob and Navajo-Churro, published by Kijas and colleagues (2016) and shipped with the detectRUNS R package. These show what real data look like, which is always a little messier than a simulation.
 
-Everything is in the [`data/`](https://github.com/Megaluno/PLINK_Tutorial/tree/main/data) and [`scripts/`](https://github.com/Megaluno/PLINK_Tutorial/tree/main/scripts) folders of the GitHub repository, so you can repeat every step.
+Everything is in the [`data/`](https://github.com/Megaluno/plink-tutorial-for-beginners/tree/main/data) and [`scripts/`](https://github.com/Megaluno/plink-tutorial-for-beginners/tree/main/scripts) folders of the GitHub repository, so you can repeat every step.
 
 ## Which PLINK?
 
@@ -63,6 +63,6 @@ This tutorial stands on the shoulders of excellent open teaching material, espec
 
 ## How to cite
 
-> Ismaila Emmanuel (2026). *PLINK for Livestock Genomics: a step-by-step tutorial with cattle and sheep data.* https://megaluno.github.io/PLINK_Tutorial/
+> Ismaila Emmanuel (2026). *PLINK for Livestock Genomics: a step-by-step tutorial with cattle and sheep data.* https://megaluno.github.io/plink-tutorial-for-beginners/
 
 The text and figures are shared under a [Creative Commons Attribution 4.0](https://creativecommons.org/licenses/by/4.0/) licence. The real datasets keep the licences of the packages they come from (GPL-2 for synbreedData, GPL-3 for detectRUNS).

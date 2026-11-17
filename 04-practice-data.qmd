@@ -8,9 +8,9 @@ Learning QC on perfect data is like learning to drive on an empty road. The prac
 
 All files are in the GitHub repository:
 
-- Data: <https://github.com/Megaluno/PLINK_Tutorial/tree/main/data>
-- Scripts that ran every chapter: <https://github.com/Megaluno/PLINK_Tutorial/tree/main/scripts>
-- Everything in one zip: [`downloads/plink_tutorial_data_and_scripts.zip`](https://github.com/Megaluno/PLINK_Tutorial/raw/main/downloads/plink_tutorial_data_and_scripts.zip)
+- Data: <https://github.com/Megaluno/plink-tutorial-for-beginners/tree/main/data>
+- Scripts that ran every chapter: <https://github.com/Megaluno/plink-tutorial-for-beginners/tree/main/scripts>
+- Everything in one zip: [`downloads/plink_tutorial_data_and_scripts.zip`](https://github.com/Megaluno/plink-tutorial-for-beginners/raw/main/downloads/plink_tutorial_data_and_scripts.zip)
 
 ## The simulated cattle
 

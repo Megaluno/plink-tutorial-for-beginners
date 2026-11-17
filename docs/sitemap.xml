@@ -1,95 +1,95 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://megaluno.github.io/PLINK_Tutorial/index.html</loc>
-    <lastmod>2026-11-17T17:16:00.144Z</lastmod>
+    <loc>https://megaluno.github.io/plink-tutorial-for-beginners/index.html</loc>
+    <lastmod>2026-11-17T18:47:11.628Z</lastmod>
   </url>
   <url>
-    <loc>https://megaluno.github.io/PLINK_Tutorial/01-install.html</loc>
+    <loc>https://megaluno.github.io/plink-tutorial-for-beginners/01-install.html</loc>
     <lastmod>2026-11-17T17:16:34.985Z</lastmod>
   </url>
   <url>
-    <loc>https://megaluno.github.io/PLINK_Tutorial/02-rstudio.html</loc>
+    <loc>https://megaluno.github.io/plink-tutorial-for-beginners/02-rstudio.html</loc>
     <lastmod>2026-11-17T17:17:14.674Z</lastmod>
   </url>
   <url>
-    <loc>https://megaluno.github.io/PLINK_Tutorial/03-files.html</loc>
+    <loc>https://megaluno.github.io/plink-tutorial-for-beginners/03-files.html</loc>
     <lastmod>2026-11-17T17:17:37.265Z</lastmod>
   </url>
   <url>
-    <loc>https://megaluno.github.io/PLINK_Tutorial/04-practice-data.html</loc>
-    <lastmod>2026-11-17T18:44:09.001Z</lastmod>
+    <loc>https://megaluno.github.io/plink-tutorial-for-beginners/04-practice-data.html</loc>
+    <lastmod>2026-11-17T18:47:11.622Z</lastmod>
   </url>
   <url>
-    <loc>https://megaluno.github.io/PLINK_Tutorial/05-data-management.html</loc>
+    <loc>https://megaluno.github.io/plink-tutorial-for-beginners/05-data-management.html</loc>
     <lastmod>2026-11-17T17:18:38.030Z</lastmod>
   </url>
   <url>
-    <loc>https://megaluno.github.io/PLINK_Tutorial/06-missingness.html</loc>
+    <loc>https://megaluno.github.io/plink-tutorial-for-beginners/06-missingness.html</loc>
     <lastmod>2026-11-17T18:36:13.356Z</lastmod>
   </url>
   <url>
-    <loc>https://megaluno.github.io/PLINK_Tutorial/07-maf-hwe.html</loc>
+    <loc>https://megaluno.github.io/plink-tutorial-for-beginners/07-maf-hwe.html</loc>
     <lastmod>2026-11-17T18:31:57.514Z</lastmod>
   </url>
   <url>
-    <loc>https://megaluno.github.io/PLINK_Tutorial/08-sex-mendel-het.html</loc>
+    <loc>https://megaluno.github.io/plink-tutorial-for-beginners/08-sex-mendel-het.html</loc>
     <lastmod>2026-11-17T17:20:33.121Z</lastmod>
   </url>
   <url>
-    <loc>https://megaluno.github.io/PLINK_Tutorial/09-ld.html</loc>
+    <loc>https://megaluno.github.io/plink-tutorial-for-beginners/09-ld.html</loc>
     <lastmod>2026-11-17T17:21:11.081Z</lastmod>
   </url>
   <url>
-    <loc>https://megaluno.github.io/PLINK_Tutorial/10-relatedness.html</loc>
+    <loc>https://megaluno.github.io/plink-tutorial-for-beginners/10-relatedness.html</loc>
     <lastmod>2026-11-17T18:32:25.863Z</lastmod>
   </url>
   <url>
-    <loc>https://megaluno.github.io/PLINK_Tutorial/11-pca.html</loc>
+    <loc>https://megaluno.github.io/plink-tutorial-for-beginners/11-pca.html</loc>
     <lastmod>2026-11-17T18:32:25.862Z</lastmod>
   </url>
   <url>
-    <loc>https://megaluno.github.io/PLINK_Tutorial/12-association.html</loc>
+    <loc>https://megaluno.github.io/plink-tutorial-for-beginners/12-association.html</loc>
     <lastmod>2026-11-17T17:25:09.261Z</lastmod>
   </url>
   <url>
-    <loc>https://megaluno.github.io/PLINK_Tutorial/13-families-traits.html</loc>
+    <loc>https://megaluno.github.io/plink-tutorial-for-beginners/13-families-traits.html</loc>
     <lastmod>2026-11-17T17:25:54.465Z</lastmod>
   </url>
   <url>
-    <loc>https://megaluno.github.io/PLINK_Tutorial/14-haplotypes.html</loc>
+    <loc>https://megaluno.github.io/plink-tutorial-for-beginners/14-haplotypes.html</loc>
     <lastmod>2026-11-17T17:28:17.641Z</lastmod>
   </url>
   <url>
-    <loc>https://megaluno.github.io/PLINK_Tutorial/15-cnv.html</loc>
+    <loc>https://megaluno.github.io/plink-tutorial-for-beginners/15-cnv.html</loc>
     <lastmod>2026-11-17T17:28:08.269Z</lastmod>
   </url>
   <url>
-    <loc>https://megaluno.github.io/PLINK_Tutorial/16-beyond-single-snps.html</loc>
+    <loc>https://megaluno.github.io/plink-tutorial-for-beginners/16-beyond-single-snps.html</loc>
     <lastmod>2026-11-17T17:28:55.797Z</lastmod>
   </url>
   <url>
-    <loc>https://megaluno.github.io/PLINK_Tutorial/17-parameters.html</loc>
+    <loc>https://megaluno.github.io/plink-tutorial-for-beginners/17-parameters.html</loc>
     <lastmod>2026-11-17T18:32:25.862Z</lastmod>
   </url>
   <url>
-    <loc>https://megaluno.github.io/PLINK_Tutorial/18-real-data.html</loc>
+    <loc>https://megaluno.github.io/plink-tutorial-for-beginners/18-real-data.html</loc>
     <lastmod>2026-11-17T18:44:09.000Z</lastmod>
   </url>
   <url>
-    <loc>https://megaluno.github.io/PLINK_Tutorial/19-pipeline.html</loc>
-    <lastmod>2026-11-17T18:44:09.000Z</lastmod>
+    <loc>https://megaluno.github.io/plink-tutorial-for-beginners/19-pipeline.html</loc>
+    <lastmod>2026-11-17T18:47:11.623Z</lastmod>
   </url>
   <url>
-    <loc>https://megaluno.github.io/PLINK_Tutorial/A-plink2.html</loc>
+    <loc>https://megaluno.github.io/plink-tutorial-for-beginners/A-plink2.html</loc>
     <lastmod>2026-11-17T18:34:51.373Z</lastmod>
   </url>
   <url>
-    <loc>https://megaluno.github.io/PLINK_Tutorial/B-glossary.html</loc>
+    <loc>https://megaluno.github.io/plink-tutorial-for-beginners/B-glossary.html</loc>
     <lastmod>2026-11-17T18:35:00.673Z</lastmod>
   </url>
   <url>
-    <loc>https://megaluno.github.io/PLINK_Tutorial/C-resources.html</loc>
+    <loc>https://megaluno.github.io/plink-tutorial-for-beginners/C-resources.html</loc>
     <lastmod>2026-11-17T18:35:33.377Z</lastmod>
   </url>
 </urlset>

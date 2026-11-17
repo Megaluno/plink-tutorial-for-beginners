@@ -64,7 +64,7 @@
     "href": "index.html#how-to-cite",
     "title": "PLINK for Livestock Genomics",
     "section": "How to cite",
-    "text": "How to cite\n\nIsmaila Emmanuel (2026). PLINK for Livestock Genomics: a step-by-step tutorial with cattle and sheep data. https://megaluno.github.io/PLINK_Tutorial/\n\nThe text and figures are shared under a Creative Commons Attribution 4.0 licence. The real datasets keep the licences of the packages they come from (GPL-2 for synbreedData, GPL-3 for detectRUNS).",
+    "text": "How to cite\n\nIsmaila Emmanuel (2026). PLINK for Livestock Genomics: a step-by-step tutorial with cattle and sheep data. https://megaluno.github.io/plink-tutorial-for-beginners/\n\nThe text and figures are shared under a Creative Commons Attribution 4.0 licence. The real datasets keep the licences of the packages they come from (GPL-2 for synbreedData, GPL-3 for detectRUNS).",
     "crumbs": [
       "Welcome"
     ]
@@ -316,7 +316,7 @@
     "href": "04-practice-data.html#download",
     "title": "4  The practice data",
     "section": "",
-    "text": "Data: https://github.com/Megaluno/PLINK_Tutorial/tree/main/data\nScripts that ran every chapter: https://github.com/Megaluno/PLINK_Tutorial/tree/main/scripts\nEverything in one zip: downloads/plink_tutorial_data_and_scripts.zip",
+    "text": "Data: https://github.com/Megaluno/plink-tutorial-for-beginners/tree/main/data\nScripts that ran every chapter: https://github.com/Megaluno/plink-tutorial-for-beginners/tree/main/scripts\nEverything in one zip: downloads/plink_tutorial_data_and_scripts.zip",
     "crumbs": [
       "Getting started",
       "<span class='chapter-number'>4</span>  <span class='chapter-title'>The practice data</span>"
