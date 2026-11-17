@@ -436,3 +436,35 @@ plink2 --bfile cattle --cow --make-pgen --out cattle
 plink2 --pfile cattle --cow --export vcf bgz --out cattle
 ```
 :::
+
+## Exercises
+
+Try each question first, then open the answer. The challenge goes a step further than the chapter.
+
+**1.** Make a file that holds only the N'Dama females. How many animals does it have?
+
+::: {.callout-note collapse="true" title="Answer"}
+```bash
+awk '$1 ~ /^NDA/ && $5 == 2 {print $1, $2}' cattle.fam > nda_f.txt
+plink --bfile cattle --cow --keep nda_f.txt --make-bed --out nda_f
+```
+`--keep: 80 cattle remaining.` The same result comes from `--filter-females` combined with `--keep-fam`, or with `--filter` on a cluster file.
+:::
+
+**2.** Keep only chromosome 29. How many SNPs are left?
+
+::: {.callout-note collapse="true" title="Answer"}
+`plink --bfile cattle --cow --chr 29 --make-bed --out c29` keeps 150 of the 4,800 SNPs.
+:::
+
+**Challenge.** Run `--thin-count 500 --write-snplist` twice, once with `--seed 1` and once with `--seed 2`. How many SNPs do the two lists share? Is that what you would expect by chance?
+
+::: {.callout-note collapse="true" title="Answer"}
+```bash
+for s in 1 2; do
+  plink --bfile cattle --cow --thin-count 500 --seed $s --write-snplist --out th$s
+done
+comm -12 <(sort th1.snplist) <(sort th2.snplist) | wc -l     # 53
+```
+Two random draws of 500 from 4,800 are expected to share 500 × 500 / 4,800 ≈ 52 SNPs, so 53 is just what chance predicts. The lesson: a random subset changes with the seed, so always record the seed in your methods.
+:::

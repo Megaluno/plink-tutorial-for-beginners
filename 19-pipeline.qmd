@@ -109,3 +109,25 @@ All data, scripts and figures are in the [GitHub repository](https://github.com/
 | `downloads/plink_tutorial_data_and_scripts.zip` | Everything above in one file |
 
 The results were produced with PLINK v1.07, v1.9.2-dev and v2.0.0-b.1.5-dev built from the official source. Another build or random seed can give slightly different numbers.
+
+## Exercises
+
+Try each question first, then open the answer. The challenge goes a step further than the chapter.
+
+**1.** How many animals of each breed are in `cattle_qc`?
+
+::: {.callout-note collapse="true" title="Answer"}
+`cut -d' ' -f1 cattle_qc.fam | cut -c1-3 | sort | uniq -c` gives 77 ANG, 136 HOL and 138 NDA (351 animals).
+:::
+
+**2.** If the last step used `--maf 0.05` instead of 0.01, how many SNPs would `cattle_qc` keep?
+
+::: {.callout-note collapse="true" title="Answer"}
+3,952 instead of 4,443: 491 more SNPs are removed.
+:::
+
+**Challenge.** Run the whole pipeline yourself from `cattle.ped`, without looking at the lists in the comments. Build `remove_animals.txt`, `sex_update.txt` and `snp_exclude.txt` from your own reading of the outputs. Then compare your final file with ours (`cattle_qc`: 351 animals, 4,443 SNPs) and with the answer key above.
+
+::: {.callout-note collapse="true" title="Answer"}
+There is no single correct file: two careful analysts can make different but defensible choices (for example about HOL_077 or ANG_066). What matters is that each removal is justified by an output you can show, and that your lists are saved with the data. If your file differs from ours, find the animals and SNPs in which they differ (`comm` on the `.fam` and `.bim` IDs) and check whether you can defend each difference.
+:::

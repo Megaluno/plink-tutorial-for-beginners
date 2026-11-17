@@ -409,6 +409,7 @@ window.Quarto = {
   <li><a href="#step-4-check-that-missingness-is-random" id="toc-step-4-check-that-missingness-is-random" class="nav-link" data-scroll-target="#step-4-check-that-missingness-is-random"><span class="header-section-number">6.6</span> Step 4: check that missingness is random</a></li>
   <li><a href="#step-5-plot-missingness-against-heterozygosity" id="toc-step-5-plot-missingness-against-heterozygosity" class="nav-link" data-scroll-target="#step-5-plot-missingness-against-heterozygosity"><span class="header-section-number">6.7</span> Step 5: plot missingness against heterozygosity</a></li>
   <li><a href="#typical-thresholds" id="toc-typical-thresholds" class="nav-link" data-scroll-target="#typical-thresholds"><span class="header-section-number">6.8</span> Typical thresholds</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">6.9</span> Exercises</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Megaluno/plink-tutorial-for-beginners/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -783,6 +784,46 @@ Figure&nbsp;6.5: Each dot is one animal. Bad DNA shows up on the right; contamin
 </div>
 <div class="callout-body-container callout-body">
 <p><code>plink2 --bfile cattle --cow --missing</code> writes <code>.smiss</code> (samples) and <code>.vmiss</code> (variants). <code>--geno</code> and <code>--mind</code> work as in 1.9.</p>
+</div>
+</div>
+</section>
+<section id="exercises" class="level2" data-number="6.9">
+<h2 data-number="6.9" class="anchored" data-anchor-id="exercises"><span class="header-section-number">6.9</span> Exercises</h2>
+<p>Try each question first, then open the answer. The challenge goes a step further than the chapter.</p>
+<p><strong>1.</strong> From <code>miss.lmiss</code> and <code>miss.imiss</code>, count the SNPs with more than 2% missing calls and the animals with more than 5% and more than 10%.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="st">'NR &gt; 1 &amp;&amp; $5 &gt; 0.02'</span> miss.lmiss <span class="kw">|</span> <span class="fu">wc</span> <span class="at">-l</span>    <span class="co"># 49 SNPs</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="st">'NR &gt; 1 &amp;&amp; $6 &gt; 0.05'</span> miss.imiss <span class="kw">|</span> <span class="fu">wc</span> <span class="at">-l</span>    <span class="co"># 6 animals</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="st">'NR &gt; 1 &amp;&amp; $6 &gt; 0.10'</span> miss.imiss <span class="kw">|</span> <span class="fu">wc</span> <span class="at">-l</span>    <span class="co"># 4 animals</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+<p><strong>Challenge.</strong> Run the two filters in two steps, first <code>--mind 0.05</code> then <code>--geno 0.05</code>, and then in the opposite order. Do you lose the same animals and SNPs? When could the order make a difference?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Both orders end with 4,767 SNPs and 355 animals: 6 animals and 33 SNPs are removed either way. Here the bad animals and the bad SNPs are clearly separate, so the order does not matter. It matters when a few very poor samples push many SNPs over the <code>--geno</code> limit: removing those samples first saves the SNPs. That is why the two-round approach removes the worst animals first.</p>
+</div>
 </div>
 </div>
 

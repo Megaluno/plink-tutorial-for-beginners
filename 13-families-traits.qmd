@@ -293,3 +293,23 @@ The same QTL with almost the same effect (+9.7 kg per G allele). **INFO** measur
 ## PLINK 2.0
 `--glm` replaces `--linear`, `--logistic` and `--qassoc`, with `interaction`, `--parameters`, `--condition` and `--covar-name` working as in 1.9. Permutation is a modifier (`--glm mperm=1000`), and clustered permutation uses `--permute-within`. `--glm` uses dosages stored in a `.pgen` file, which you create from an imputed VCF (`--vcf file dosage=DS`) or a BGEN file (`--bgen`), so `--dosage` is not needed. Chapter 14 shows the whole route from imputation to `--glm`. `--tdt`, `--dfam`, `--qfam` and `--gxe` are only in PLINK 1.9.
 :::
+
+## Exercises
+
+Try each question first, then open the answer. The challenge goes a step further than the chapter.
+
+**1.** Run `--linear` on yearling weight (YWT) with the PCs as covariates. Which two SNPs come first?
+
+::: {.callout-note collapse="true" title="Answer"}
+```bash
+plink --bfile cattle_qc --cow --allow-no-sex --pheno pheno.txt --pheno-name YWT \
+      --linear --covar pcs.txt --hide-covar --adjust --out ly
+```
+λ = 1.05. First is snp00217 on chromosome 2 (p = 6.8 × 10⁻⁵), then snp02145 on chromosome 14 (p = 9.8 × 10⁻⁵), the planted PLAG1-like weaning weight SNP. Neither reaches genome-wide significance.
+:::
+
+**Challenge.** Run `--assoc` on YWT without covariates. Compare λ and the top SNP with the run above. What does this tell you about the traits in this dataset?
+
+::: {.callout-note collapse="true" title="Answer"}
+Without covariates, λ = 16.3 and the top SNP is snp04131 on chromosome 27, with p = 4.5 × 10⁻³⁵, a breed-difference SNP rather than a QTL. Yearling weight differs strongly between breeds, so any SNP whose frequency differs between breeds looks "associated". In the simulation, yearling weight was built as 1.8 × weaning weight plus extra noise, so it inherits both the breed differences and, diluted by the noise, the PLAG1-like effect. Without the breed correction that trace is buried; with it, snp02145 comes second.
+:::

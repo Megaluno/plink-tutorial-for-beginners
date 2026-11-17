@@ -386,6 +386,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#relatedness-settings" id="toc-relatedness-settings" class="nav-link" data-scroll-target="#relatedness-settings"><span class="header-section-number">17.12</span> Relatedness settings</a></li>
   <li><a href="#ld-settings" id="toc-ld-settings" class="nav-link" data-scroll-target="#ld-settings"><span class="header-section-number">17.13</span> LD settings</a></li>
   <li><a href="#a-checklist-for-choosing-thresholds" id="toc-a-checklist-for-choosing-thresholds" class="nav-link" data-scroll-target="#a-checklist-for-choosing-thresholds"><span class="header-section-number">17.14</span> A checklist for choosing thresholds</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">17.15</span> Exercises</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Megaluno/plink-tutorial-for-beginners/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -930,6 +931,74 @@ Figure&nbsp;17.2: The order in which PLINK 1.9 applies filters inside one comman
 <li><strong>Work within breed</strong> for HWE, MAF, heterozygosity and sex checks in multi-breed or crossbred data.</li>
 <li><strong>Write down the exact commands.</strong> The <code>.log</code> file is your record.</li>
 </ol>
+</section>
+<section id="exercises" class="level2" data-number="17.15">
+<h2 data-number="17.15" class="anchored" data-anchor-id="exercises"><span class="header-section-number">17.15</span> Exercises</h2>
+<p>Try each question first, then open the answer. The challenge goes a step further than the chapter.</p>
+<p><strong>1.</strong> Apply a strict set of filters in one run: <code>--geno 0.02 --mind 0.02 --maf 0.05 --hwe 1e-6</code>. Then a loose set: <code>--geno 0.1 --mind 0.1 --maf 0.01 --hwe 1e-10</code>. How many SNPs and animals pass each?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Set</th>
+<th>Animals removed (–mind)</th>
+<th>SNPs removed: geno / hwe / maf</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Strict</td>
+<td>6</td>
+<td>33 / 59 / 797</td>
+<td>3,911 SNPs, 355 animals</td>
+</tr>
+<tr class="even">
+<td>Loose</td>
+<td>4</td>
+<td>18 / 19 / 310</td>
+<td>4,453 SNPs, 357 animals</td>
+</tr>
+</tbody>
+</table>
+<p>Most of the difference comes from the MAF limit. Note that this pooled <code>--hwe</code> run suffers from the Wahlund effect (Chapter 7).</p>
+</div>
+</div>
+</div>
+<p><strong>Challenge.</strong> In the strict run, the 2% and 5% missingness limits removed the same 33 SNPs and 6 animals. What does that tell you about the shape of the missingness distribution, and how would you justify your threshold in a paper?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>The missingness distribution has a clear gap: good SNPs and animals are well below 2%, and the bad ones are well above 5%. Any threshold inside the gap gives the same result, so the choice is robust. In a paper, show the histogram (Chapter 6) and say that the results did not change between 2% and 5%. That is stronger than quoting a “standard” value.</p>
+</div>
+</div>
+</div>
 
 
 </section>

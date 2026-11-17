@@ -188,3 +188,35 @@ Write your commands in an R script or a Quarto notebook rather than typing them 
 ## Common mistake
 If `system2()` returns status 127 or "cannot find", R is not looking where PLINK is. Check with `file.exists(plink)`, and on macOS or Linux make the file executable once with `Sys.chmod(plink, mode = "0755")`.
 :::
+
+## Exercises
+
+Try each question first, then open the answer. The challenge goes a step further than the chapter.
+
+**1.** Use `system2()` to run `--freq` on `cattle`, then read `plink.frq` (or the file named by your `--out`) into R. How many SNPs have a MAF below 0.05?
+
+::: {.callout-note collapse="true" title="Answer"}
+```r
+system2("./plink", c("--bfile", "cattle", "--cow", "--freq", "--out", "frq_all"))
+frq <- read.table("frq_all.frq", header = TRUE)
+sum(frq$MAF < 0.05)    # 802
+sum(frq$MAF == 0)      # 83 monomorphic SNPs
+```
+:::
+
+**Challenge.** Write a loop in R that runs `--freq` separately for each breed (using a keep file per breed) and prints the number of SNPs with MAF below 0.05 in each breed. Which breed has the most rare or fixed SNPs, and why might that be?
+
+::: {.callout-note collapse="true" title="Answer"}
+```r
+fam <- read.table("cattle.fam")
+for (b in c("ANG", "HOL", "NDA")) {
+  write.table(fam[fam$V1 == b, 1:2], paste0("k_", b, ".txt"),
+              quote = FALSE, row.names = FALSE, col.names = FALSE)
+  system2("./plink", c("--bfile", "cattle", "--cow", "--keep", paste0("k_", b, ".txt"),
+                       "--freq", "--out", paste0("fr_", b)))
+  f <- read.table(paste0("fr_", b, ".frq"), header = TRUE)
+  cat(b, sum(f$MAF < 0.05), "SNPs with MAF < 0.05,", sum(f$MAF == 0), "fixed\n")
+}
+```
+PLINK gave ANG 1,022 (375 fixed), HOL 1,009 (335 fixed) and NDA 1,358 (578 fixed). N'Dama has the most because, in this simulation, it is the breed that drifted furthest from the common ancestor (it has the highest F_ST), so more alleles were lost or fixed. In real data, ascertainment bias adds to this: chip SNPs are mostly chosen in European breeds, so fewer of them vary in African cattle (Chapter 18). Note that a SNP fixed in one breed can still be informative across breeds.
+:::

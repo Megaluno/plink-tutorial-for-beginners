@@ -382,6 +382,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#step-5-read-the-results-into-r" id="toc-step-5-read-the-results-into-r" class="nav-link" data-scroll-target="#step-5-read-the-results-into-r"><span class="header-section-number">2.5</span> Step 5: read the results into R</a></li>
   <li><a href="#step-6-let-a-package-do-routine-qc-for-you" id="toc-step-6-let-a-package-do-routine-qc-for-you" class="nav-link" data-scroll-target="#step-6-let-a-package-do-routine-qc-for-you"><span class="header-section-number">2.6</span> Step 6: let a package do routine QC for you</a></li>
   <li><a href="#keep-a-record" id="toc-keep-a-record" class="nav-link" data-scroll-target="#keep-a-record"><span class="header-section-number">2.7</span> Keep a record</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">2.8</span> Exercises</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Megaluno/plink-tutorial-for-beginners/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -629,6 +630,56 @@ Total genotyping rate is 0.992812.
 </div>
 <div class="callout-body-container callout-body">
 <p>If <code>system2()</code> returns status 127 or “cannot find”, R is not looking where PLINK is. Check with <code>file.exists(plink)</code>, and on macOS or Linux make the file executable once with <code>Sys.chmod(plink, mode = "0755")</code>.</p>
+</div>
+</div>
+</section>
+<section id="exercises" class="level2" data-number="2.8">
+<h2 data-number="2.8" class="anchored" data-anchor-id="exercises"><span class="header-section-number">2.8</span> Exercises</h2>
+<p>Try each question first, then open the answer. The challenge goes a step further than the chapter.</p>
+<p><strong>1.</strong> Use <code>system2()</code> to run <code>--freq</code> on <code>cattle</code>, then read <code>plink.frq</code> (or the file named by your <code>--out</code>) into R. How many SNPs have a MAF below 0.05?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system2</span>(<span class="st">"./plink"</span>, <span class="fu">c</span>(<span class="st">"--bfile"</span>, <span class="st">"cattle"</span>, <span class="st">"--cow"</span>, <span class="st">"--freq"</span>, <span class="st">"--out"</span>, <span class="st">"frq_all"</span>))</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>frq <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">"frq_all.frq"</span>, <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(frq<span class="sc">$</span>MAF <span class="sc">&lt;</span> <span class="fl">0.05</span>)    <span class="co"># 802</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(frq<span class="sc">$</span>MAF <span class="sc">==</span> <span class="dv">0</span>)      <span class="co"># 83 monomorphic SNPs</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+<p><strong>Challenge.</strong> Write a loop in R that runs <code>--freq</code> separately for each breed (using a keep file per breed) and prints the number of SNPs with MAF below 0.05 in each breed. Which breed has the most rare or fixed SNPs, and why might that be?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>fam <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">"cattle.fam"</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (b <span class="cf">in</span> <span class="fu">c</span>(<span class="st">"ANG"</span>, <span class="st">"HOL"</span>, <span class="st">"NDA"</span>)) {</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">write.table</span>(fam[fam<span class="sc">$</span>V1 <span class="sc">==</span> b, <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>], <span class="fu">paste0</span>(<span class="st">"k_"</span>, b, <span class="st">".txt"</span>),</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">quote =</span> <span class="cn">FALSE</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>, <span class="at">col.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">system2</span>(<span class="st">"./plink"</span>, <span class="fu">c</span>(<span class="st">"--bfile"</span>, <span class="st">"cattle"</span>, <span class="st">"--cow"</span>, <span class="st">"--keep"</span>, <span class="fu">paste0</span>(<span class="st">"k_"</span>, b, <span class="st">".txt"</span>),</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"--freq"</span>, <span class="st">"--out"</span>, <span class="fu">paste0</span>(<span class="st">"fr_"</span>, b)))</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  f <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="fu">paste0</span>(<span class="st">"fr_"</span>, b, <span class="st">".frq"</span>), <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(b, <span class="fu">sum</span>(f<span class="sc">$</span>MAF <span class="sc">&lt;</span> <span class="fl">0.05</span>), <span class="st">"SNPs with MAF &lt; 0.05,"</span>, <span class="fu">sum</span>(f<span class="sc">$</span>MAF <span class="sc">==</span> <span class="dv">0</span>), <span class="st">"fixed</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>PLINK gave ANG 1,022 (375 fixed), HOL 1,009 (335 fixed) and NDA 1,358 (578 fixed). N’Dama has the most because, in this simulation, it is the breed that drifted furthest from the common ancestor (it has the highest F_ST), so more alleles were lost or fixed. In real data, ascertainment bias adds to this: chip SNPs are mostly chosen in European breeds, so fewer of them vary in African cattle (Chapter 18). Note that a SNP fixed in one breed can still be informative across breeds.</p>
+</div>
 </div>
 </div>
 

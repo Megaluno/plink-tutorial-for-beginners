@@ -404,6 +404,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#snp-names-and-positions---update-name---update-map" id="toc-snp-names-and-positions---update-name---update-map" class="nav-link" data-scroll-target="#snp-names-and-positions---update-name---update-map"><span class="header-section-number">5.5.4</span> SNP names and positions: <code>--update-name</code>, <code>--update-map</code></a></li>
   <li><a href="#which-allele-is-a1---a1-allele---keep-allele-order" id="toc-which-allele-is-a1---a1-allele---keep-allele-order" class="nav-link" data-scroll-target="#which-allele-is-a1---a1-allele---keep-allele-order"><span class="header-section-number">5.5.5</span> Which allele is A1: <code>--a1-allele</code>, <code>--keep-allele-order</code></a></li>
   </ul></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">5.6</span> Exercises</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Megaluno/plink-tutorial-for-beginners/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -862,9 +863,70 @@ cattle_swapped.bim:  1  snp00001  0.484  484050  A  G</code></pre>
 <span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--pfile</span> cattle <span class="at">--cow</span> <span class="at">--export</span> vcf bgz <span class="at">--out</span> cattle</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
-
-
 </section>
+</section>
+<section id="exercises" class="level2" data-number="5.6">
+<h2 data-number="5.6" class="anchored" data-anchor-id="exercises"><span class="header-section-number">5.6</span> Exercises</h2>
+<p>Try each question first, then open the answer. The challenge goes a step further than the chapter.</p>
+<p><strong>1.</strong> Make a file that holds only the N’Dama females. How many animals does it have?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb46"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="st">'$1 ~ /^NDA/ &amp;&amp; $5 == 2 {print $1, $2}'</span> cattle.fam <span class="op">&gt;</span> nda_f.txt</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--keep</span> nda_f.txt <span class="at">--make-bed</span> <span class="at">--out</span> nda_f</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>--keep: 80 cattle remaining.</code> The same result comes from <code>--filter-females</code> combined with <code>--keep-fam</code>, or with <code>--filter</code> on a cluster file.</p>
+</div>
+</div>
+</div>
+<p><strong>2.</strong> Keep only chromosome 29. How many SNPs are left?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><code>plink --bfile cattle --cow --chr 29 --make-bed --out c29</code> keeps 150 of the 4,800 SNPs.</p>
+</div>
+</div>
+</div>
+<p><strong>Challenge.</strong> Run <code>--thin-count 500 --write-snplist</code> twice, once with <code>--seed 1</code> and once with <code>--seed 2</code>. How many SNPs do the two lists share? Is that what you would expect by chance?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb47"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> s <span class="kw">in</span> 1 2<span class="kw">;</span> <span class="cf">do</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>  <span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--thin-count</span> 500 <span class="at">--seed</span> <span class="va">$s</span> <span class="at">--write-snplist</span> <span class="at">--out</span> th<span class="va">$s</span></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a><span class="fu">comm</span> <span class="at">-12</span> <span class="op">&lt;(</span><span class="fu">sort</span> th1.snplist<span class="op">)</span> <span class="op">&lt;(</span><span class="fu">sort</span> th2.snplist<span class="op">)</span> <span class="kw">|</span> <span class="fu">wc</span> <span class="at">-l</span>     <span class="co"># 53</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Two random draws of 500 from 4,800 are expected to share 500 × 500 / 4,800 ≈ 52 SNPs, so 53 is just what chance predicts. The lesson: a random subset changes with the seed, so always record the seed in your methods.</p>
+</div>
+</div>
+</div>
+
+
 </section>
 
 </main> <!-- /main -->

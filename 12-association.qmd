@@ -212,3 +212,24 @@ plink2 --bfile cattle_qc --cow --glm hide-covar firth-fallback --covar pcs.txt -
 
 It gave the same answer: snp00706, OR 3.319, p = 2.29 × 10⁻⁸, λ = 1.04.
 :::
+
+## Exercises
+
+Try each question first, then open the answer. The challenge goes a step further than the chapter.
+
+**1.** With `--assoc` and no covariates, how many SNPs have p < 10⁻⁵? With `--logistic` and `pcs.txt`?
+
+::: {.callout-note collapse="true" title="Answer"}
+679 without correction (λ = 10.19) against 1 with two PCs (λ = 1.04): the planted BRD SNP, snp00706.
+:::
+
+**Challenge.** Use 10 PCs instead of 2 as covariates. What happens to λ and to the p-value of snp00706? Are more PCs always better?
+
+::: {.callout-note collapse="true" title="Answer"}
+```bash
+plink --bfile cattle_qc --cow --extract qc_prune.prune.in --pca 10 --out p10
+awk '{printf "%s %s", $1, $2; for (i = 3; i <= 12; i++) printf " %s", $i; print ""}' p10.eigenvec > pc10.txt
+plink --bfile cattle_qc --cow --allow-no-sex --logistic --covar pc10.txt --hide-covar --adjust --out a10
+```
+λ fell to 1.00, and snp00706 is still first, but its p-value weakened from 2.3 × 10⁻⁸ to 2.0 × 10⁻⁷. Extra PCs cost degrees of freedom, and they can absorb part of a true signal if it is correlated with breed. Use the scree plot and λ to choose: enough PCs to remove the stratification, but no more.
+:::

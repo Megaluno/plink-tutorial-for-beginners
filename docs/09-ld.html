@@ -414,6 +414,7 @@ window.Quarto = {
   <li><a href="#step-3-look-at-one-region-as-a-heatmap" id="toc-step-3-look-at-one-region-as-a-heatmap" class="nav-link" data-scroll-target="#step-3-look-at-one-region-as-a-heatmap"><span class="header-section-number">9.4.3</span> Step 3: look at one region as a heatmap</a></li>
   </ul></li>
   <li><a href="#why-ld-matters-in-practice" id="toc-why-ld-matters-in-practice" class="nav-link" data-scroll-target="#why-ld-matters-in-practice"><span class="header-section-number">9.5</span> Why LD matters in practice</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">9.6</span> Exercises</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Megaluno/plink-tutorial-for-beginners/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -719,6 +720,48 @@ Pruning complete.  969 of 4550 variants removed.</code></pre>
 </div>
 <div class="callout-body-container callout-body">
 <p><code>plink2 --r2-unphased</code> replaces <code>plink --r2</code>, and <code>plink2 --r2-phased</code> replaces <code>plink --r2 dprime</code> (see the box above). <code>--ld</code>, <code>--indep-pairwise</code>, <code>--blocks</code> and <code>--clump</code> work as in 1.9.</p>
+</div>
+</div>
+</section>
+<section id="exercises" class="level2" data-number="9.6">
+<h2 data-number="9.6" class="anchored" data-anchor-id="exercises"><span class="header-section-number">9.6</span> Exercises</h2>
+<p>Try each question first, then open the answer. The challenge goes a step further than the chapter.</p>
+<p><strong>1.</strong> On <code>cattle_qc</code>, prune with <code>--indep-pairwise 50 5 0.5</code> instead of 0.2. How many SNPs are kept?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>4,376 of 4,443 SNPs are kept with r² &lt; 0.5, against 3,533 with r² &lt; 0.2. A looser threshold keeps more SNPs but leaves more LD for analyses that assume independent SNPs (PCA, relatedness).</p>
+</div>
+</div>
+</div>
+<p><strong>Challenge.</strong> Using <code>--r2 --ld-window 99999 --ld-window-kb 1000 --ld-window-r2 0</code>, compare the mean r² of SNP pairs less than 50 kb apart with that of pairs 500 to 1,000 kb apart.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--r2</span> <span class="at">--ld-window</span> 99999 <span class="at">--ld-window-kb</span> 1000 <span class="at">--ld-window-r2</span> 0 <span class="at">--out</span> ldd</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="st">'NR &gt; 1 {d = ($5 - $2) / 1000</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="st">             if (d &lt; 50) {a += $7; n++} else if (d &gt;= 500) {b += $7; m++}}</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="st">     END {print a/n, n, b/m, m}'</span> ldd.ld</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Mean r² was 0.163 over 607 close pairs and 0.054 over 5,254 distant pairs: LD falls quickly with distance. The distant value is not zero, partly because of real long-range LD in small populations and partly because three breeds are pooled.</p>
+</div>
 </div>
 </div>
 

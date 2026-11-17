@@ -173,3 +173,23 @@ Other modifiers: `logscale` (ORs already on log scale), `study` (adds each study
 ## PLINK 2.0
 Set-based tests are not in 2.0 (use 1.9, or tools such as MAGMA, SKAT or GCTA-fastBAT). Recent 2.0 builds have `--epistasis`, `--epistasis-boost` and `--twolocus`. G × E uses `--glm interaction` with `--parameters`. Recent builds include `--meta-analysis`; METAL is the most widely used external tool.
 :::
+
+## Exercises
+
+Try each question first, then open the answer. The challenge goes a step further than the chapter.
+
+**1.** Run the set test on BRD with `--logistic mperm=5000 set-test` and `pcs.txt` as covariates. Which set is significant?
+
+::: {.callout-note collapse="true" title="Answer"}
+```bash
+plink --bfile cattle_qc --cow --allow-no-sex --make-set genes.txt \
+      --logistic mperm=5000 set-test --covar pcs.txt --hide-covar --seed 2 --out setbrd
+```
+Only BRD_region: 10 of its 29 SNPs have p < 0.05, 5 are used, and EMP1 = 0.0012. PLAG1_region (a weaning weight region) gives 0.32 for BRD, as it should.
+:::
+
+**Challenge.** Repeat `--fast-epistasis` on PKE with `--epi1 1e-4`. How many pairs are reported? What do the top two pairs have in common?
+
+::: {.callout-note collapse="true" title="Answer"}
+257 pairs are reported (25 have p < 10⁻⁵). The top pair is the true one, snp01294 × snp03388 (p = 6.0 × 10⁻²⁰). Second is snp01294 × snp03387, a neighbour of snp03388 in LD with it (p = 2.0 × 10⁻⁸). The rest are chance results. A loose `--epi1` makes long lists that are mostly noise; judge against the Bonferroni threshold for 8.85 million tests.
+:::

@@ -412,6 +412,7 @@ window.Quarto = {
   <li><a href="#stratified-tests-cochran-mantel-haenszel-and-breslow-day" id="toc-stratified-tests-cochran-mantel-haenszel-and-breslow-day" class="nav-link" data-scroll-target="#stratified-tests-cochran-mantel-haenszel-and-breslow-day"><span class="header-section-number">12.4.4</span> Stratified tests: Cochran-Mantel-Haenszel and Breslow-Day</a></li>
   </ul></li>
   <li><a href="#which-test-should-i-use" id="toc-which-test-should-i-use" class="nav-link" data-scroll-target="#which-test-should-i-use"><span class="header-section-number">12.5</span> Which test should I use?</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">12.6</span> Exercises</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Megaluno/plink-tutorial-for-beginners/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -761,6 +762,47 @@ Figure&nbsp;12.3: A simple guide to choosing a case/control test, with the PLINK
 <p>One command, <code>--glm</code>, replaces <code>--assoc</code>, <code>--model</code>, <code>--logistic</code> and <code>--linear</code>; it picks logistic or linear regression from the phenotype. <code>firth-fallback</code> uses Firth regression for rare SNPs, which handles complete separation. <code>--mh</code>, <code>--bd</code>, <code>--homog</code> and <code>--model</code> are not in PLINK 2.0.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--glm</span> hide-covar firth-fallback <span class="at">--covar</span> pcs.txt <span class="at">--adjust</span> <span class="at">--out</span> glm_brd</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>It gave the same answer: snp00706, OR 3.319, p = 2.29 × 10⁻⁸, λ = 1.04.</p>
+</div>
+</div>
+</section>
+<section id="exercises" class="level2" data-number="12.6">
+<h2 data-number="12.6" class="anchored" data-anchor-id="exercises"><span class="header-section-number">12.6</span> Exercises</h2>
+<p>Try each question first, then open the answer. The challenge goes a step further than the chapter.</p>
+<p><strong>1.</strong> With <code>--assoc</code> and no covariates, how many SNPs have p &lt; 10⁻⁵? With <code>--logistic</code> and <code>pcs.txt</code>?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>679 without correction (λ = 10.19) against 1 with two PCs (λ = 1.04): the planted BRD SNP, snp00706.</p>
+</div>
+</div>
+</div>
+<p><strong>Challenge.</strong> Use 10 PCs instead of 2 as covariates. What happens to λ and to the p-value of snp00706? Are more PCs always better?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--extract</span> qc_prune.prune.in <span class="at">--pca</span> 10 <span class="at">--out</span> p10</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="st">'{printf "%s %s", $1, $2; for (i = 3; i &lt;= 12; i++) printf " %s", $i; print ""}'</span> p10.eigenvec <span class="op">&gt;</span> pc10.txt</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--logistic</span> <span class="at">--covar</span> pc10.txt <span class="at">--hide-covar</span> <span class="at">--adjust</span> <span class="at">--out</span> a10</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>λ fell to 1.00, and snp00706 is still first, but its p-value weakened from 2.3 × 10⁻⁸ to 2.0 × 10⁻⁷. Extra PCs cost degrees of freedom, and they can absorb part of a true signal if it is correlated with breed. Use the scree plot and λ to choose: enough PCs to remove the stratification, but no more.</p>
+</div>
 </div>
 </div>
 

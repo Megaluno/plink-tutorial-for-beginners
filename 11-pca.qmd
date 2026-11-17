@@ -199,3 +199,25 @@ PCA shows structure; clustering assigns animals to groups. `--cluster --K 3` spl
 ## PLINK 2.0
 `plink2 --pca 10` writes `.eigenvec` and `.eigenval`; add `allele-wts` for loadings and `approx` for very large samples. Projection uses `--score` as shown in Step 6. `--cluster` and `--mds-plot` are only in PLINK 1.9.
 :::
+
+## Exercises
+
+Try each question first, then open the answer. The challenge goes a step further than the chapter.
+
+**1.** What share of the variance of the first 10 PCs does PC1 explain? Use `pca.eigenval`.
+
+::: {.callout-note collapse="true" title="Answer"}
+PC1 = 32.93 out of a top-10 sum of 73.2, so 45%. Remember from above that this is a share of the top 10, not of all genetic variance.
+:::
+
+**2.** Run `--pca 10` on all SNPs, without pruning and without a MAF filter. What happens? Then add `--maf 0.01`.
+
+::: {.callout-note collapse="true" title="Answer"}
+Every eigenvalue is 0, and the log warns: `Monomorphic variant(s) present; this implies GRM-destabilizing very rare variants are also present.` The 83 monomorphic SNPs break the calculation. With `--maf 0.01`, PC1 = 37.5 (47.7% of the top 10), a little higher than with pruned SNPs because blocks of correlated SNPs now count several times.
+:::
+
+**Challenge.** Run a PCA on the Holsteins only (raw `cattle` file, pruned SNPs). Which animals stand out on PC1, and why is this a warning about QC order?
+
+::: {.callout-note collapse="true" title="Answer"}
+Two animals sit far from the rest on PC1: HOL_050 (0.668) and HOL_050_rep (0.680), while all other Holsteins lie between −0.09 and 0.1. A duplicated sample is the strongest "family" in the data, so it takes over a whole PC. Remove duplicates and close relatives (Chapter 10) before you run a PCA, or project them as shown in Step 6.
+:::

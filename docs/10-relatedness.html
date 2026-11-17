@@ -411,6 +411,7 @@ window.Quarto = {
   <li><a href="#step-2-the-genomic-relationship-matrix-grm" id="toc-step-2-the-genomic-relationship-matrix-grm" class="nav-link" data-scroll-target="#step-2-the-genomic-relationship-matrix-grm"><span class="header-section-number">10.4</span> Step 2: the genomic relationship matrix (GRM)</a></li>
   <li><a href="#step-3-king-a-method-robust-to-structure" id="toc-step-3-king-a-method-robust-to-structure" class="nav-link" data-scroll-target="#step-3-king-a-method-robust-to-structure"><span class="header-section-number">10.5</span> Step 3: KING, a method robust to structure</a></li>
   <li><a href="#step-4-runs-of-homozygosity-roh" id="toc-step-4-runs-of-homozygosity-roh" class="nav-link" data-scroll-target="#step-4-runs-of-homozygosity-roh"><span class="header-section-number">10.6</span> Step 4: runs of homozygosity (ROH)</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">10.7</span> Exercises</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Megaluno/plink-tutorial-for-beginners/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -929,6 +930,80 @@ roh.hom.summary (one line per SNP):
 </div>
 <div class="callout-body-container callout-body">
 <p>Use <code>--make-king-table</code> and <code>--king-cutoff</code> for relatedness, <code>--make-rel</code> for the GRM, and <code>--homozyg</code> (in recent builds). <code>--genome</code> does not exist in PLINK 2.0.</p>
+</div>
+</div>
+</section>
+<section id="exercises" class="level2" data-number="10.7">
+<h2 data-number="10.7" class="anchored" data-anchor-id="exercises"><span class="header-section-number">10.7</span> Exercises</h2>
+<p>Try each question first, then open the answer. The challenge goes a step further than the chapter.</p>
+<p><strong>1.</strong> Run <code>--genome</code> on <code>cattle_qc</code>. How many pairs have PI_HAT above 0.9, and how many between 0.4 and 0.6?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>0 pairs above 0.9, because QC (Chapter 19) removed HOL_050_rep. On the raw <code>cattle</code> file, <code>--genome --min 0.9</code> finds exactly that pair, HOL_050 and HOL_050_rep, with PI_HAT 0.986. 142 pairs fall between 0.4 and 0.6: parent-offspring and full-sib pairs in the families.</p>
+</div>
+</div>
+</div>
+<p><strong>Challenge.</strong> Repeat the ROH run from Step 4 (30 SNPs, 10 Mb) with <code>--homozyg-window-het</code> set to 0, 1 and 2. How do the number of runs and the number of animals with runs change?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><code>--homozyg-window-het</code></th>
+<th>Runs</th>
+<th>Animals with runs</th>
+<th>Longest total (NDA_040)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0</td>
+<td>14</td>
+<td>1</td>
+<td>718,835 kb</td>
+</tr>
+<tr class="even">
+<td>1 (default)</td>
+<td>20</td>
+<td>7</td>
+<td>718,835 kb</td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td>42</td>
+<td>29</td>
+<td>718,835 kb</td>
+</tr>
+</tbody>
+</table>
+<p>Allowing heterozygous calls in the window rescues runs broken by genotyping errors, but allows more runs to appear that are not true IBD stretches. The truly inbred NDA_040 is found with every setting. With 50K-type data, many studies allow 1 heterozygote; whatever you choose, report it.</p>
+</div>
 </div>
 </div>
 

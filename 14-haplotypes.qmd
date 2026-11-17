@@ -442,3 +442,28 @@ PLINK fills a genotype only when the best guess has a probability of at least 0.
 ## PLINK 2.0
 Neither PLINK 1.9 nor 2.0 has the haplotype tests, `--chap`, proxy association or the 1.07 imputation heuristic. PLINK 1.9 keeps the LD tools that support this work: `--ld`, `--r2`, `--blocks` (haplotype blocks, as in Haploview), `--clump` and `--show-tags`. PLINK 2.0 adds what modern pipelines need around phasing and imputation: it stores phased genotypes and dosages in `.pgen` files, imports them from VCF and BGEN, exports phased data (`--export haps`, `vcf`, `bgen-1.2`), filters on imputation quality (`--extract-if-info`, `--mach-r2-filter`) and tests dosages with `--glm`. The phasing and imputation themselves are done by BEAGLE, SHAPEIT, Eagle, Minimac, IMPUTE or FImpute.
 :::
+
+## Exercises
+
+Try each question first, then open the answer. The challenge goes a step further than the chapter.
+
+**1.** What are the frequencies of the QTL allele T at hd01048 in the two reference breeds?
+
+::: {.callout-note collapse="true" title="Answer"}
+```bash
+plink2 --vcf ref_A_hd.vcf.gz --chr-set 29 --freq --out exA     # 0.340
+plink2 --vcf ref_B_hd.vcf.gz --chr-set 29 --freq --out exB     # 0.243
+```
+:::
+
+**2.** In the imputed file `imp`, how many of the 2,080 SNPs pass DR2 ≥ 0.3, ≥ 0.8 and ≥ 0.95?
+
+::: {.callout-note collapse="true" title="Answer"}
+2,075, 2,050 and 1,364. The very strict 0.95 throws away a third of the SNPs, while 0.3 and 0.8 differ by only 25. Choose the filter from the DR2–accuracy figure above, not by habit.
+:::
+
+**Challenge.** Measure the LD between the QTL hd01048 and the chip SNP hd01053, which was the top chip SNP in the GWAS, in reference A. Use it to explain why the chip GWAS found only a weak signal.
+
+::: {.callout-note collapse="true" title="Answer"}
+`plink2 --vcf ref_A_hd.vcf.gz --chr-set 29 --ld hd01048 hd01053` gives r² = 0.57 and |D′| = 1. D′ = 1 means the two SNPs are never seen on all four possible haplotypes, but r² = 0.57 means the chip SNP is only a partial tag: the test statistic at a tag shrinks roughly in proportion to r². Imputation recovers the QTL itself, which is why the imputed GWAS gave p = 2.7 × 10⁻⁶ against 8.4 × 10⁻⁴ on the chip.
+:::

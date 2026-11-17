@@ -102,3 +102,28 @@ You point PLINK to them with `--pheno`, `--covar` and `--within`. Missing values
 ## Look before you analyse
 `head cattle.fam` and `head cattle.bim` take two seconds. Check that sexes are 1 and 2 (not M and F), that phenotypes look sensible, and that chromosome codes are numbers your species flag accepts.
 :::
+
+## Exercises
+
+Try each question first, then open the answer. The challenge goes a step further than the chapter.
+
+**1.** How many SNPs are on chromosome 14, and how many on the X chromosome? Use the `.bim` file only.
+
+::: {.callout-note collapse="true" title="Answer"}
+```bash
+awk '$1 == 14' cattle.bim | wc -l     # 230
+awk '$1 == 30' cattle.bim | wc -l     # 250  (with --cow the X is coded 30)
+```
+:::
+
+**2.** In `cattle.bim`, which allele is A1 for snp00001? In a `--recode A` file, what would the value 2 mean for this SNP?
+
+::: {.callout-note collapse="true" title="Answer"}
+The first line is `1  snp00001  0.484  484050  G  A`, so A1 = G and A2 = A. In a `.raw` file the column is called `snp00001_G` and counts G alleles, so 2 means the animal is GG.
+:::
+
+**Challenge.** Compare the size of `cattle.ped` with `cattle.bed`. Why is the binary file so much smaller? Work out how many bytes the `.bed` file should have.
+
+::: {.callout-note collapse="true" title="Answer"}
+`cattle.ped` is 6,940,164 bytes and `cattle.bed` is 436,803 bytes, about 16 times smaller. The `.ped` file spends two letters and two spaces on every genotype, while the `.bed` file packs 4 genotypes into one byte (2 bits each). Each SNP needs ceiling(361 / 4) = 91 bytes, so 4,800 SNPs × 91 bytes + 3 header bytes = 436,803 bytes, exactly the file size.
+:::

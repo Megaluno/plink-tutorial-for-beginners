@@ -393,6 +393,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#plink-1.07s-own-imputation-heuristic" id="toc-plink-1.07s-own-imputation-heuristic" class="nav-link" data-scroll-target="#plink-1.07s-own-imputation-heuristic"><span class="header-section-number">14.6.5</span> PLINK 1.07’s own imputation heuristic</a></li>
   <li><a href="#imputation-in-livestock-practical-advice" id="toc-imputation-in-livestock-practical-advice" class="nav-link" data-scroll-target="#imputation-in-livestock-practical-advice"><span class="header-section-number">14.6.6</span> Imputation in livestock: practical advice</a></li>
   </ul></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">14.7</span> Exercises</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Megaluno/plink-tutorial-for-beginners/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -1186,9 +1187,65 @@ Figure&nbsp;14.5: Weaning weight in the 100 targets, tested on the chip SNPs onl
 <p>Neither PLINK 1.9 nor 2.0 has the haplotype tests, <code>--chap</code>, proxy association or the 1.07 imputation heuristic. PLINK 1.9 keeps the LD tools that support this work: <code>--ld</code>, <code>--r2</code>, <code>--blocks</code> (haplotype blocks, as in Haploview), <code>--clump</code> and <code>--show-tags</code>. PLINK 2.0 adds what modern pipelines need around phasing and imputation: it stores phased genotypes and dosages in <code>.pgen</code> files, imports them from VCF and BGEN, exports phased data (<code>--export haps</code>, <code>vcf</code>, <code>bgen-1.2</code>), filters on imputation quality (<code>--extract-if-info</code>, <code>--mach-r2-filter</code>) and tests dosages with <code>--glm</code>. The phasing and imputation themselves are done by BEAGLE, SHAPEIT, Eagle, Minimac, IMPUTE or FImpute.</p>
 </div>
 </div>
-
-
 </section>
+</section>
+<section id="exercises" class="level2" data-number="14.7">
+<h2 data-number="14.7" class="anchored" data-anchor-id="exercises"><span class="header-section-number">14.7</span> Exercises</h2>
+<p>Try each question first, then open the answer. The challenge goes a step further than the chapter.</p>
+<p><strong>1.</strong> What are the frequencies of the QTL allele T at hd01048 in the two reference breeds?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--vcf</span> ref_A_hd.vcf.gz <span class="at">--chr-set</span> 29 <span class="at">--freq</span> <span class="at">--out</span> exA     <span class="co"># 0.340</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink2</span> <span class="at">--vcf</span> ref_B_hd.vcf.gz <span class="at">--chr-set</span> 29 <span class="at">--freq</span> <span class="at">--out</span> exB     <span class="co"># 0.243</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+<p><strong>2.</strong> In the imputed file <code>imp</code>, how many of the 2,080 SNPs pass DR2 ≥ 0.3, ≥ 0.8 and ≥ 0.95?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>2,075, 2,050 and 1,364. The very strict 0.95 throws away a third of the SNPs, while 0.3 and 0.8 differ by only 25. Choose the filter from the DR2–accuracy figure above, not by habit.</p>
+</div>
+</div>
+</div>
+<p><strong>Challenge.</strong> Measure the LD between the QTL hd01048 and the chip SNP hd01053, which was the top chip SNP in the GWAS, in reference A. Use it to explain why the chip GWAS found only a weak signal.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><code>plink2 --vcf ref_A_hd.vcf.gz --chr-set 29 --ld hd01048 hd01053</code> gives r² = 0.57 and |D′| = 1. D′ = 1 means the two SNPs are never seen on all four possible haplotypes, but r² = 0.57 means the chip SNP is only a partial tag: the test statistic at a tag shrinks roughly in proportion to r². Imputation recovers the QTL itself, which is why the imputed GWAS gave p = 2.7 × 10⁻⁶ against 8.4 × 10⁻⁴ on the chip.</p>
+</div>
+</div>
+</div>
+
+
 </section>
 
 </main> <!-- /main -->

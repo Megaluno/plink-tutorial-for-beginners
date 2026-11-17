@@ -51,3 +51,23 @@ Simulations are clean. Real data are not, so Chapter 18 repeats the main analyse
 | Real sheep | 100: 64 Jacob, 36 Navajo-Churro | 4,841 on chromosomes 2 and 24 | Kijas and colleagues (2016), *Animal Genetics* 47: 258-262, shipped with the `detectRUNS` R package (GPL-3) |
 
 Both are in `data/real/`. The sheep come as PLINK `.ped`/`.map` files in the `detectRUNS` package; the cattle were converted from the `synbreedData` R data file with `scripts/convert_real_data.py`, which reproduces our files exactly.
+
+## Exercises
+
+Try each question first, then open the answer. The challenge goes a step further than the chapter.
+
+**1.** How many animals of each breed are in `cattle.fam`, and how many are founders (both parents unknown)?
+
+::: {.callout-note collapse="true" title="Answer"}
+```bash
+cut -d' ' -f1 cattle.fam | cut -c1-3 | sort | uniq -c    # 80 ANG, 141 HOL, 140 NDA
+awk '$3 == "0" && $4 == "0"' cattle.fam | wc -l         # 301 founders
+```
+The 60 non-founders are the calves in the Holstein and N'Dama families.
+:::
+
+**Challenge.** The simulation hid about ten kinds of error in the data (the list is above). Before reading further, write down for each one which PLINK check you think will find it. Come back to your list at the end of Chapter 19.
+
+::: {.callout-note collapse="true" title="Answer"}
+Chapter 19 has the answer key. In short: missingness (`--missing`) for the poor samples and SNPs; `--hardy` and `--test-missing` for bad SNPs; `--check-sex` for the sex errors; `--het` for contamination and inbreeding; `--genome` for the duplicate; `--mendel` for the wrong sire; PCA for the mislabelled and crossbred animals; and `--flip-scan` or a failed merge for the strand flips in `batch2`.
+:::

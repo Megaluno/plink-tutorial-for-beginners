@@ -380,6 +380,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#anatomy-of-a-plink-command" id="toc-anatomy-of-a-plink-command" class="nav-link" data-scroll-target="#anatomy-of-a-plink-command"><span class="header-section-number">1.6</span> Anatomy of a PLINK command</a></li>
   <li><a href="#the-log-file-is-your-best-friend" id="toc-the-log-file-is-your-best-friend" class="nav-link" data-scroll-target="#the-log-file-is-your-best-friend"><span class="header-section-number">1.7</span> The log file is your best friend</a></li>
   <li><a href="#the-flag-every-livestock-user-needs---cow" id="toc-the-flag-every-livestock-user-needs---cow" class="nav-link" data-scroll-target="#the-flag-every-livestock-user-needs---cow"><span class="header-section-number">1.8</span> The flag every livestock user needs: <code>--cow</code></a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">1.9</span> Exercises</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Megaluno/plink-tutorial-for-beginners/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -660,6 +661,62 @@ you forgot to define a different chromosome set with e.g. --chr-set.)</code></pr
 </div>
 <div class="callout-body-container callout-body">
 <p>Download the practice data (Chapter 4), then run <code>plink --file cattle --cow --make-bed --out cattle</code> and open <code>cattle.log</code>. How many males and females did PLINK find?</p>
+</div>
+</div>
+</section>
+<section id="exercises" class="level2" data-number="1.9">
+<h2 data-number="1.9" class="anchored" data-anchor-id="exercises"><span class="header-section-number">1.9</span> Exercises</h2>
+<p>Try each question first, then open the answer. The challenge goes a step further than the chapter.</p>
+<p><strong>1.</strong> Convert the practice file with <code>plink --file cattle --cow --make-bed --out cattle</code>. How many males, females and animals of unknown sex does the log report?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><code>361 cattle (137 males, 222 females, 2 ambiguous) loaded from .fam.</code> “Ambiguous” means the sex column of the <code>.ped</code> file holds 0. Chapter 8 shows how to give these two animals their genetic sex.</p>
+</div>
+</div>
+</div>
+<p><strong>2.</strong> Run the same command with <code>--chr-set 29</code> instead of <code>--cow</code>. Does anything change? Look at chromosome 30 in the <code>.bim</code> file.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Nothing changes: both runs keep 4,800 SNPs and 361 animals. <code>--cow</code> is a shortcut for the cattle chromosome set: 29 autosomes, then code 30 for the X (250 SNPs here) and 31 for the Y. <code>--chr-set 29</code> builds the same set. <code>--cow</code> is easier to read in a script, so this book uses it.</p>
+</div>
+</div>
+</div>
+<p><strong>Challenge.</strong> Without looking back, write the command that reads <code>cattle_clean.bed/.bim/.fam</code>, removes SNPs with more than 2% missing calls and saves the result as <code>cattle_geno2</code>. Which file will tell you how many SNPs were removed?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_clean <span class="at">--cow</span> <span class="at">--geno</span> 0.02 <span class="at">--make-bed</span> <span class="at">--out</span> cattle_geno2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The log, <code>cattle_geno2.log</code>, reports it in a line like <code>33 variants removed due to missing genotype data (--geno).</code></p>
+</div>
 </div>
 </div>
 

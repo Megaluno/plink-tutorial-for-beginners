@@ -410,6 +410,7 @@ window.Quarto = {
   <li><a href="#adjusting-the-sex-check" id="toc-adjusting-the-sex-check" class="nav-link" data-scroll-target="#adjusting-the-sex-check"><span class="header-section-number">8.2.1</span> Adjusting the sex check</a></li>
   </ul></li>
   <li><a href="#mendel-errors-checking-the-pedigree" id="toc-mendel-errors-checking-the-pedigree" class="nav-link" data-scroll-target="#mendel-errors-checking-the-pedigree"><span class="header-section-number">8.3</span> Mendel errors: checking the pedigree</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">8.4</span> Exercises</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Megaluno/plink-tutorial-for-beginners/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -609,6 +610,61 @@ cattle_sexed: --impute-sex: 246 Xchr and 0 Ychr variant(s) scanned, 321/361 sexe
 </div>
 <div class="callout-body-container callout-body">
 <p><code>--het</code>, <code>--check-sex</code> (with <code>max-female-xf=</code> and <code>min-male-xf=</code>), <code>--impute-sex</code> and <code>--mendel</code> all exist. <code>--mendel-duos</code> also checks sire-calf and dam-calf pairs when the other parent is missing, which is common in livestock.</p>
+</div>
+</div>
+</section>
+<section id="exercises" class="level2" data-number="8.4">
+<h2 data-number="8.4" class="anchored" data-anchor-id="exercises"><span class="header-section-number">8.4</span> Exercises</h2>
+<p>Try each question first, then open the answer. The challenge goes a step further than the chapter.</p>
+<p><strong>1.</strong> In the <code>--het</code> output (autosomes), which animal has the highest F and which has the lowest? What do you think happened to each?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Highest: NDA_040, F = 0.42, an inbred animal (it also carries the longest runs of homozygosity in Chapter 10). Lowest: ANG_030, F = −0.72, far more heterozygous than expected, the sign of a DNA sample mixed with another animal’s DNA.</p>
+</div>
+</div>
+</div>
+<p><strong>2.</strong> Which family has the most Mendel errors in <code>mendel.fmendel</code>?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><code>sort -k5,5nr mendel.fmendel | head</code> puts HOL_F03 first with 536 errors, against 14 to 20 for the other families. That family holds the calf with the wrong recorded sire.</p>
+</div>
+</div>
+</div>
+<p><strong>Challenge.</strong> <code>--check-sex</code> with the defaults reports 44 problems, but the simulation flipped the sex of only 4 animals. Where do the others come from? Which flag settings bring the list down, and what risk do they carry?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Four are real: ANG_071 and NDA_022 (sex recorded wrongly) and HOL_064 and NDA_009 (sex recorded as 0). The other 40 are cows with an X-chromosome F between 0.20 and 0.36, pushed above the 0.2 limit because three breeds are pooled. With <code>--check-sex 0.3 0.7</code>, 10 problems remain: the four real ones and six cows with F between 0.30 and 0.36. The risk is that a looser limit can hide a real error, so always plot the X F values (the figure above) before choosing limits, or run the check within each breed.</p>
+</div>
 </div>
 </div>
 

@@ -199,3 +199,25 @@ Pruning complete.  969 of 4550 variants removed.
 ## PLINK 2.0
 `plink2 --r2-unphased` replaces `plink --r2`, and `plink2 --r2-phased` replaces `plink --r2 dprime` (see the box above). `--ld`, `--indep-pairwise`, `--blocks` and `--clump` work as in 1.9.
 :::
+
+## Exercises
+
+Try each question first, then open the answer. The challenge goes a step further than the chapter.
+
+**1.** On `cattle_qc`, prune with `--indep-pairwise 50 5 0.5` instead of 0.2. How many SNPs are kept?
+
+::: {.callout-note collapse="true" title="Answer"}
+4,376 of 4,443 SNPs are kept with r² < 0.5, against 3,533 with r² < 0.2. A looser threshold keeps more SNPs but leaves more LD for analyses that assume independent SNPs (PCA, relatedness).
+:::
+
+**Challenge.** Using `--r2 --ld-window 99999 --ld-window-kb 1000 --ld-window-r2 0`, compare the mean r² of SNP pairs less than 50 kb apart with that of pairs 500 to 1,000 kb apart.
+
+::: {.callout-note collapse="true" title="Answer"}
+```bash
+plink --bfile cattle_qc --cow --r2 --ld-window 99999 --ld-window-kb 1000 --ld-window-r2 0 --out ldd
+awk 'NR > 1 {d = ($5 - $2) / 1000
+             if (d < 50) {a += $7; n++} else if (d >= 500) {b += $7; m++}}
+     END {print a/n, n, b/m, m}' ldd.ld
+```
+Mean r² was 0.163 over 607 close pairs and 0.054 over 5,254 distant pairs: LD falls quickly with distance. The distant value is not zero, partly because of real long-range LD in small populations and partly because three breeds are pooled.
+:::

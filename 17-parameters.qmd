@@ -183,3 +183,24 @@ The r² threshold matters most and the window size much less. For 50K or HD catt
 3. **Use the gaps in your own data**, not only textbook numbers.
 4. **Work within breed** for HWE, MAF, heterozygosity and sex checks in multi-breed or crossbred data.
 5. **Write down the exact commands.** The `.log` file is your record.
+
+## Exercises
+
+Try each question first, then open the answer. The challenge goes a step further than the chapter.
+
+**1.** Apply a strict set of filters in one run: `--geno 0.02 --mind 0.02 --maf 0.05 --hwe 1e-6`. Then a loose set: `--geno 0.1 --mind 0.1 --maf 0.01 --hwe 1e-10`. How many SNPs and animals pass each?
+
+::: {.callout-note collapse="true" title="Answer"}
+| Set | Animals removed (--mind) | SNPs removed: geno / hwe / maf | Result |
+|---|---|---|---|
+| Strict | 6 | 33 / 59 / 797 | 3,911 SNPs, 355 animals |
+| Loose | 4 | 18 / 19 / 310 | 4,453 SNPs, 357 animals |
+
+Most of the difference comes from the MAF limit. Note that this pooled `--hwe` run suffers from the Wahlund effect (Chapter 7).
+:::
+
+**Challenge.** In the strict run, the 2% and 5% missingness limits removed the same 33 SNPs and 6 animals. What does that tell you about the shape of the missingness distribution, and how would you justify your threshold in a paper?
+
+::: {.callout-note collapse="true" title="Answer"}
+The missingness distribution has a clear gap: good SNPs and animals are well below 2%, and the bad ones are well above 5%. Any threshold inside the gap gives the same result, so the choice is robust. In a paper, show the histogram (Chapter 6) and say that the results did not change between 2% and 5%. That is stronger than quoting a "standard" value.
+:::

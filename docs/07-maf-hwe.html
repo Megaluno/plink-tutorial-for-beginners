@@ -412,6 +412,7 @@ window.Quarto = {
   <li><a href="#step-4-watch-out-for-the-wahlund-effect" id="toc-step-4-watch-out-for-the-wahlund-effect" class="nav-link" data-scroll-target="#step-4-watch-out-for-the-wahlund-effect"><span class="header-section-number">7.2.2</span> Step 4: watch out for the Wahlund effect</a></li>
   <li><a href="#step-5-choose-a-threshold" id="toc-step-5-choose-a-threshold" class="nav-link" data-scroll-target="#step-5-choose-a-threshold"><span class="header-section-number">7.2.3</span> Step 5: choose a threshold</a></li>
   </ul></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">7.3</span> Exercises</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Megaluno/plink-tutorial-for-beginners/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -694,9 +695,71 @@ h3: --hwe: 114 variants removed due to Hardy-Weinberg exact test.</code></pre>
 <p><code>--hwe</code> also takes an optional second number k that tightens the threshold as the sample grows (the cut-off becomes p × 10<sup>-nk</sup> for n animals). PLINK 2.0 prints a warning suggesting it when the number of genotyped animals varies between SNPs; in multi-breed livestock data the within-breed test above matters far more.</p>
 </div>
 </div>
-
-
 </section>
+</section>
+<section id="exercises" class="level2" data-number="7.3">
+<h2 data-number="7.3" class="anchored" data-anchor-id="exercises"><span class="header-section-number">7.3</span> Exercises</h2>
+<p>Try each question first, then open the answer. The challenge goes a step further than the chapter.</p>
+<p><strong>1.</strong> How many SNPs have a MAF below 0.05 in the whole dataset, and how many are monomorphic?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>In <code>freq.frq</code> 802 SNPs have MAF &lt; 0.05 and 83 have MAF = 0.</p>
+</div>
+</div>
+</div>
+<p><strong>2.</strong> With <code>--freq --within breed.clst</code>, how many SNPs are monomorphic in N’Dama alone?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="st">'NR &gt; 1 &amp;&amp; $3 == "NDA" &amp;&amp; $7 == 0'</span> fw.frq.strat <span class="kw">|</span> <span class="fu">wc</span> <span class="at">-l</span>     <span class="co"># 578</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Column 7 is the MAC (minor allele count); MAC = 0 means the breed carries only one allele.</p>
+</div>
+</div>
+</div>
+<p><strong>Challenge.</strong> Count the SNPs with HWE p &lt; 1e-4 in the pooled data, then in each breed separately (the union of the three lists). Explain the difference.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--hardy</span> <span class="at">--out</span> h</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="st">'$3 == "ALL" &amp;&amp; $9 &lt; 1e-4'</span> h.hwe <span class="kw">|</span> <span class="fu">wc</span> <span class="at">-l</span>                       <span class="co"># 264 pooled</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> b <span class="kw">in</span> ANG HOL NDA<span class="kw">;</span> <span class="cf">do</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="ex">plink</span> <span class="at">--bfile</span> cattle <span class="at">--cow</span> <span class="at">--keep</span> k_<span class="va">$b</span>.txt <span class="at">--hardy</span> <span class="at">--out</span> h_<span class="va">$b</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">awk</span> <span class="st">'$3 == "ALL" &amp;&amp; $9 &lt; 1e-4 {print $2}'</span> h_<span class="va">$b</span>.hwe</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span> <span class="kw">|</span> <span class="fu">sort</span> <span class="at">-u</span> <span class="kw">|</span> <span class="fu">wc</span> <span class="at">-l</span>                                             <span class="co"># 13 within breeds</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Pooling the breeds creates a heterozygote deficit at every SNP whose frequency differs between breeds (the Wahlund effect), so 264 SNPs “fail” although only 13 fail inside any breed. Removing the 264 would throw away many of the most informative SNPs for breed differences.</p>
+</div>
+</div>
+</div>
+
+
 </section>
 
 </main> <!-- /main -->

@@ -412,6 +412,7 @@ window.Quarto = {
   <li><a href="#step-7-check-the-snp-loadings" id="toc-step-7-check-the-snp-loadings" class="nav-link" data-scroll-target="#step-7-check-the-snp-loadings"><span class="header-section-number">11.9</span> Step 7: check the SNP loadings</a></li>
   <li><a href="#pca-and-mds-two-roads-to-the-same-map" id="toc-pca-and-mds-two-roads-to-the-same-map" class="nav-link" data-scroll-target="#pca-and-mds-two-roads-to-the-same-map"><span class="header-section-number">11.10</span> PCA and MDS: two roads to the same map</a></li>
   <li><a href="#using-clustering-to-name-the-groups" id="toc-using-clustering-to-name-the-groups" class="nav-link" data-scroll-target="#using-clustering-to-name-the-groups"><span class="header-section-number">11.11</span> Using clustering to name the groups</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">11.12</span> Exercises</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Megaluno/plink-tutorial-for-beginners/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -729,6 +730,61 @@ Figure&nbsp;11.5: Absolute PC1 loadings along the genome. They are spread evenly
 </div>
 <div class="callout-body-container callout-body">
 <p><code>plink2 --pca 10</code> writes <code>.eigenvec</code> and <code>.eigenval</code>; add <code>allele-wts</code> for loadings and <code>approx</code> for very large samples. Projection uses <code>--score</code> as shown in Step 6. <code>--cluster</code> and <code>--mds-plot</code> are only in PLINK 1.9.</p>
+</div>
+</div>
+</section>
+<section id="exercises" class="level2" data-number="11.12">
+<h2 data-number="11.12" class="anchored" data-anchor-id="exercises"><span class="header-section-number">11.12</span> Exercises</h2>
+<p>Try each question first, then open the answer. The challenge goes a step further than the chapter.</p>
+<p><strong>1.</strong> What share of the variance of the first 10 PCs does PC1 explain? Use <code>pca.eigenval</code>.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>PC1 = 32.93 out of a top-10 sum of 73.2, so 45%. Remember from above that this is a share of the top 10, not of all genetic variance.</p>
+</div>
+</div>
+</div>
+<p><strong>2.</strong> Run <code>--pca 10</code> on all SNPs, without pruning and without a MAF filter. What happens? Then add <code>--maf 0.01</code>.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Every eigenvalue is 0, and the log warns: <code>Monomorphic variant(s) present; this implies GRM-destabilizing very rare variants are also present.</code> The 83 monomorphic SNPs break the calculation. With <code>--maf 0.01</code>, PC1 = 37.5 (47.7% of the top 10), a little higher than with pruned SNPs because blocks of correlated SNPs now count several times.</p>
+</div>
+</div>
+</div>
+<p><strong>Challenge.</strong> Run a PCA on the Holsteins only (raw <code>cattle</code> file, pruned SNPs). Which animals stand out on PC1, and why is this a warning about QC order?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Two animals sit far from the rest on PC1: HOL_050 (0.668) and HOL_050_rep (0.680), while all other Holsteins lie between −0.09 and 0.1. A duplicated sample is the strongest “family” in the data, so it takes over a whole PC. Remove duplicates and close relatives (Chapter 10) before you run a PCA, or project them as shown in Step 6.</p>
+</div>
 </div>
 </div>
 

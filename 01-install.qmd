@@ -169,3 +169,28 @@ The same flags work: `plink2 --bfile cattle --cow ...`. PLINK 2.0 also accepts `
 ## Try it yourself
 Download the practice data (Chapter 4), then run `plink --file cattle --cow --make-bed --out cattle` and open `cattle.log`. How many males and females did PLINK find?
 :::
+
+## Exercises
+
+Try each question first, then open the answer. The challenge goes a step further than the chapter.
+
+**1.** Convert the practice file with `plink --file cattle --cow --make-bed --out cattle`. How many males, females and animals of unknown sex does the log report?
+
+::: {.callout-note collapse="true" title="Answer"}
+`361 cattle (137 males, 222 females, 2 ambiguous) loaded from .fam.` "Ambiguous" means the sex column of the `.ped` file holds 0. Chapter 8 shows how to give these two animals their genetic sex.
+:::
+
+**2.** Run the same command with `--chr-set 29` instead of `--cow`. Does anything change? Look at chromosome 30 in the `.bim` file.
+
+::: {.callout-note collapse="true" title="Answer"}
+Nothing changes: both runs keep 4,800 SNPs and 361 animals. `--cow` is a shortcut for the cattle chromosome set: 29 autosomes, then code 30 for the X (250 SNPs here) and 31 for the Y. `--chr-set 29` builds the same set. `--cow` is easier to read in a script, so this book uses it.
+:::
+
+**Challenge.** Without looking back, write the command that reads `cattle_clean.bed/.bim/.fam`, removes SNPs with more than 2% missing calls and saves the result as `cattle_geno2`. Which file will tell you how many SNPs were removed?
+
+::: {.callout-note collapse="true" title="Answer"}
+```bash
+plink --bfile cattle_clean --cow --geno 0.02 --make-bed --out cattle_geno2
+```
+The log, `cattle_geno2.log`, reports it in a line like `33 variants removed due to missing genotype data (--geno).`
+:::

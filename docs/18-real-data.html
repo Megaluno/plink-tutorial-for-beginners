@@ -414,6 +414,7 @@ window.Quarto = {
   <li><a href="#limiting-the-damage" id="toc-limiting-the-damage" class="nav-link" data-scroll-target="#limiting-the-damage"><span class="header-section-number">18.7.3</span> Limiting the damage</a></li>
   </ul></li>
   <li><a href="#what-real-data-taught-us" id="toc-what-real-data-taught-us" class="nav-link" data-scroll-target="#what-real-data-taught-us"><span class="header-section-number">18.8</span> What real data taught us</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">18.9</span> Exercises</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Megaluno/plink-tutorial-for-beginners/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -891,6 +892,63 @@ Figure&nbsp;18.3: Left: expected heterozygosity of each breed on the three SNP s
 </tr>
 </tbody>
 </table>
+</section>
+<section id="exercises" class="level2" data-number="18.9">
+<h2 data-number="18.9" class="anchored" data-anchor-id="exercises"><span class="header-section-number">18.9</span> Exercises</h2>
+<p>Try each question first, then open the answer. The challenge goes a step further than the chapter.</p>
+<p><strong>1.</strong> After QC, how many sheep of each breed remain, and how many SNPs are polymorphic within each breed?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>64 Jacob and 36 Navajo-Churro. Within breeds, 4,336 of the 4,686 SNPs vary in Jacob and 4,612 in Navajo-Churro (<code>--keep</code> one breed, then any MAF filter above 0). The Jacob sample is larger yet has fewer polymorphic SNPs, a first sign of lower diversity.</p>
+</div>
+</div>
+</div>
+<p><strong>2.</strong> Compute the mean F from <code>--het</code> for each sheep breed.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Jacob 0.104 and Navajo-Churro −0.021. Jacob sheep are more homozygous, which fits a small, closed breed. Navajo-Churro animals are close to Hardy-Weinberg expectation.</p>
+</div>
+</div>
+</div>
+<p><strong>Challenge.</strong> Compute F_ST between the two sheep breeds with <code>--fst --within</code>. How does the weighted F_ST compare with the mean F_ST, and which would you report?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="st">'{print $1, $2, $1}'</span> sheep_qc.fam <span class="op">&gt;</span> sb.clst</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> sheep_qc <span class="at">--sheep</span> <span class="at">--within</span> sb.clst <span class="at">--fst</span> <span class="at">--out</span> sfst</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Mean F_ST = 0.142 and weighted F_ST = 0.168. The weighted estimate (Weir and Cockerham’s ratio of averages) gives more weight to informative SNPs and is the one usually reported. Remember the ascertainment section: on this chip, the value is comparable only with values from the same SNP set.</p>
+</div>
+</div>
+</div>
 
 
 </section>

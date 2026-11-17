@@ -2,83 +2,83 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://megaluno.github.io/plink-tutorial-for-beginners/index.html</loc>
-    <lastmod>2026-11-17T20:57:54.398Z</lastmod>
+    <lastmod>2026-11-17T21:15:11.399Z</lastmod>
   </url>
   <url>
     <loc>https://megaluno.github.io/plink-tutorial-for-beginners/01-install.html</loc>
-    <lastmod>2026-11-17T20:11:12.834Z</lastmod>
+    <lastmod>2026-11-17T21:14:10.112Z</lastmod>
   </url>
   <url>
     <loc>https://megaluno.github.io/plink-tutorial-for-beginners/02-rstudio.html</loc>
-    <lastmod>2026-11-17T20:12:00.547Z</lastmod>
+    <lastmod>2026-11-17T21:14:55.896Z</lastmod>
   </url>
   <url>
     <loc>https://megaluno.github.io/plink-tutorial-for-beginners/03-files.html</loc>
-    <lastmod>2026-11-17T17:17:37.265Z</lastmod>
+    <lastmod>2026-11-17T21:14:10.113Z</lastmod>
   </url>
   <url>
     <loc>https://megaluno.github.io/plink-tutorial-for-beginners/04-practice-data.html</loc>
-    <lastmod>2026-11-17T18:47:11.622Z</lastmod>
+    <lastmod>2026-11-17T21:14:10.113Z</lastmod>
   </url>
   <url>
     <loc>https://megaluno.github.io/plink-tutorial-for-beginners/05-data-management.html</loc>
-    <lastmod>2026-11-17T20:57:54.399Z</lastmod>
+    <lastmod>2026-11-17T21:14:10.114Z</lastmod>
   </url>
   <url>
     <loc>https://megaluno.github.io/plink-tutorial-for-beginners/06-missingness.html</loc>
-    <lastmod>2026-11-17T20:16:32.481Z</lastmod>
+    <lastmod>2026-11-17T21:14:10.114Z</lastmod>
   </url>
   <url>
     <loc>https://megaluno.github.io/plink-tutorial-for-beginners/07-maf-hwe.html</loc>
-    <lastmod>2026-11-17T20:17:15.545Z</lastmod>
+    <lastmod>2026-11-17T21:14:10.115Z</lastmod>
   </url>
   <url>
     <loc>https://megaluno.github.io/plink-tutorial-for-beginners/08-sex-mendel-het.html</loc>
-    <lastmod>2026-11-17T20:25:08.375Z</lastmod>
+    <lastmod>2026-11-17T21:14:55.897Z</lastmod>
   </url>
   <url>
     <loc>https://megaluno.github.io/plink-tutorial-for-beginners/09-ld.html</loc>
-    <lastmod>2026-11-17T21:00:31.843Z</lastmod>
+    <lastmod>2026-11-17T21:14:55.897Z</lastmod>
   </url>
   <url>
     <loc>https://megaluno.github.io/plink-tutorial-for-beginners/10-relatedness.html</loc>
-    <lastmod>2026-11-17T21:00:31.843Z</lastmod>
+    <lastmod>2026-11-17T21:14:10.115Z</lastmod>
   </url>
   <url>
     <loc>https://megaluno.github.io/plink-tutorial-for-beginners/11-pca.html</loc>
-    <lastmod>2026-11-17T18:32:25.862Z</lastmod>
+    <lastmod>2026-11-17T21:14:10.115Z</lastmod>
   </url>
   <url>
     <loc>https://megaluno.github.io/plink-tutorial-for-beginners/12-association.html</loc>
-    <lastmod>2026-11-17T20:19:49.414Z</lastmod>
+    <lastmod>2026-11-17T21:14:10.116Z</lastmod>
   </url>
   <url>
     <loc>https://megaluno.github.io/plink-tutorial-for-beginners/13-families-traits.html</loc>
-    <lastmod>2026-11-17T20:19:27.428Z</lastmod>
+    <lastmod>2026-11-17T21:14:55.897Z</lastmod>
   </url>
   <url>
     <loc>https://megaluno.github.io/plink-tutorial-for-beginners/14-haplotypes.html</loc>
-    <lastmod>2026-11-17T21:00:31.999Z</lastmod>
+    <lastmod>2026-11-17T21:14:10.118Z</lastmod>
   </url>
   <url>
     <loc>https://megaluno.github.io/plink-tutorial-for-beginners/15-cnv.html</loc>
-    <lastmod>2026-11-17T21:00:31.843Z</lastmod>
+    <lastmod>2026-11-17T21:14:10.118Z</lastmod>
   </url>
   <url>
     <loc>https://megaluno.github.io/plink-tutorial-for-beginners/16-beyond-single-snps.html</loc>
-    <lastmod>2026-11-17T21:00:31.999Z</lastmod>
+    <lastmod>2026-11-17T21:14:10.118Z</lastmod>
   </url>
   <url>
     <loc>https://megaluno.github.io/plink-tutorial-for-beginners/17-parameters.html</loc>
-    <lastmod>2026-11-17T20:20:12.475Z</lastmod>
+    <lastmod>2026-11-17T21:14:10.119Z</lastmod>
   </url>
   <url>
     <loc>https://megaluno.github.io/plink-tutorial-for-beginners/18-real-data.html</loc>
-    <lastmod>2026-11-17T20:23:31.318Z</lastmod>
+    <lastmod>2026-11-17T21:14:10.119Z</lastmod>
   </url>
   <url>
     <loc>https://megaluno.github.io/plink-tutorial-for-beginners/19-pipeline.html</loc>
-    <lastmod>2026-11-17T20:24:30.969Z</lastmod>
+    <lastmod>2026-11-17T21:14:10.119Z</lastmod>
   </url>
   <url>
     <loc>https://megaluno.github.io/plink-tutorial-for-beginners/A-plink2.html</loc>

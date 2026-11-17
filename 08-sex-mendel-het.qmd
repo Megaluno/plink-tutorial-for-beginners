@@ -145,3 +145,25 @@ plink --bfile cattle --cow --set-me-missing --make-bed --out me_missing
 ## PLINK 2.0
 `--het`, `--check-sex` (with `max-female-xf=` and `min-male-xf=`), `--impute-sex` and `--mendel` all exist. `--mendel-duos` also checks sire-calf and dam-calf pairs when the other parent is missing, which is common in livestock.
 :::
+
+## Exercises
+
+Try each question first, then open the answer. The challenge goes a step further than the chapter.
+
+**1.** In the `--het` output (autosomes), which animal has the highest F and which has the lowest? What do you think happened to each?
+
+::: {.callout-note collapse="true" title="Answer"}
+Highest: NDA_040, F = 0.42, an inbred animal (it also carries the longest runs of homozygosity in Chapter 10). Lowest: ANG_030, F = −0.72, far more heterozygous than expected, the sign of a DNA sample mixed with another animal's DNA.
+:::
+
+**2.** Which family has the most Mendel errors in `mendel.fmendel`?
+
+::: {.callout-note collapse="true" title="Answer"}
+`sort -k5,5nr mendel.fmendel | head` puts HOL_F03 first with 536 errors, against 14 to 20 for the other families. That family holds the calf with the wrong recorded sire.
+:::
+
+**Challenge.** `--check-sex` with the defaults reports 44 problems, but the simulation flipped the sex of only 4 animals. Where do the others come from? Which flag settings bring the list down, and what risk do they carry?
+
+::: {.callout-note collapse="true" title="Answer"}
+Four are real: ANG_071 and NDA_022 (sex recorded wrongly) and HOL_064 and NDA_009 (sex recorded as 0). The other 40 are cows with an X-chromosome F between 0.20 and 0.36, pushed above the 0.2 limit because three breeds are pooled. With `--check-sex 0.3 0.7`, 10 problems remain: the four real ones and six cows with F between 0.30 and 0.36. The risk is that a looser limit can hide a real error, so always plot the X F values (the figure above) before choosing limits, or run the check within each breed.
+:::

@@ -420,6 +420,7 @@ window.Quarto = {
   <li><a href="#clustered-permutation---within" id="toc-clustered-permutation---within" class="nav-link" data-scroll-target="#clustered-permutation---within"><span class="header-section-number">13.6.1</span> Clustered permutation: <code>--within</code></a></li>
   </ul></li>
   <li><a href="#imputed-data---dosage" id="toc-imputed-data---dosage" class="nav-link" data-scroll-target="#imputed-data---dosage"><span class="header-section-number">13.7</span> Imputed data: <code>--dosage</code></a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">13.8</span> Exercises</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Megaluno/plink-tutorial-for-beginners/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -838,6 +839,46 @@ Figure&nbsp;13.3: Weaning weight (as deviation from breed mean) by genotype at s
 </div>
 <div class="callout-body-container callout-body">
 <p><code>--glm</code> replaces <code>--linear</code>, <code>--logistic</code> and <code>--qassoc</code>, with <code>interaction</code>, <code>--parameters</code>, <code>--condition</code> and <code>--covar-name</code> working as in 1.9. Permutation is a modifier (<code>--glm mperm=1000</code>), and clustered permutation uses <code>--permute-within</code>. <code>--glm</code> uses dosages stored in a <code>.pgen</code> file, which you create from an imputed VCF (<code>--vcf file dosage=DS</code>) or a BGEN file (<code>--bgen</code>), so <code>--dosage</code> is not needed. Chapter 14 shows the whole route from imputation to <code>--glm</code>. <code>--tdt</code>, <code>--dfam</code>, <code>--qfam</code> and <code>--gxe</code> are only in PLINK 1.9.</p>
+</div>
+</div>
+</section>
+<section id="exercises" class="level2" data-number="13.8">
+<h2 data-number="13.8" class="anchored" data-anchor-id="exercises"><span class="header-section-number">13.8</span> Exercises</h2>
+<p>Try each question first, then open the answer. The challenge goes a step further than the chapter.</p>
+<p><strong>1.</strong> Run <code>--linear</code> on yearling weight (YWT) with the PCs as covariates. Which two SNPs come first?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--pheno</span> pheno.txt <span class="at">--pheno-name</span> YWT <span class="dt">\</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>      <span class="at">--linear</span> <span class="at">--covar</span> pcs.txt <span class="at">--hide-covar</span> <span class="at">--adjust</span> <span class="at">--out</span> ly</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>λ = 1.05. First is snp00217 on chromosome 2 (p = 6.8 × 10⁻⁵), then snp02145 on chromosome 14 (p = 9.8 × 10⁻⁵), the planted PLAG1-like weaning weight SNP. Neither reaches genome-wide significance.</p>
+</div>
+</div>
+</div>
+<p><strong>Challenge.</strong> Run <code>--assoc</code> on YWT without covariates. Compare λ and the top SNP with the run above. What does this tell you about the traits in this dataset?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Without covariates, λ = 16.3 and the top SNP is snp04131 on chromosome 27, with p = 4.5 × 10⁻³⁵, a breed-difference SNP rather than a QTL. Yearling weight differs strongly between breeds, so any SNP whose frequency differs between breeds looks “associated”. In the simulation, yearling weight was built as 1.8 × weaning weight plus extra noise, so it inherits both the breed differences and, diluted by the noise, the PLAG1-like effect. Without the breed correction that trace is buried; with it, snp02145 comes second.</p>
+</div>
 </div>
 </div>
 

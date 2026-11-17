@@ -137,3 +137,19 @@ The deletion carries the risk and the SNP allele does not. In a SNP-only study y
 ## PLINK 2.0
 PLINK 1.9 and 2.0 have no CNV commands. For livestock CNV work today: call CNVs with PennCNV (chips) or a sequencing caller, merge them into CNV regions with tools such as CNVRanger (R/Bioconductor), and test common regions by coding each animal's copy number as a dosage or covariate in `plink2 --glm`.
 :::
+
+## Exercises
+
+Try each question first, then open the answer. The challenge goes a step further than the chapter.
+
+**1.** How many segments are deletions and how many duplications in `cattle.cnv`?
+
+::: {.callout-note collapse="true" title="Answer"}
+`awk 'NR > 1 {t[$6]++} END {for (k in t) print k, t[k]}' cattle.cnv` gives 771 deletions (copy number 1) and 489 duplications (copy number 3). After mapping, 765 and 485 remain, as in the table above.
+:::
+
+**Challenge.** Repeat the burden test (`--cnv-indiv-perm --mperm 1000`) on large CNVs only (`--cnv-kb 200`). How many segments remain, and how does the result differ from the test on all CNVs?
+
+::: {.callout-note collapse="true" title="Answer"}
+183 segments of at least 200 kb remain. Cases carry 0.74 large CNVs per animal and controls 0.36, and 54% of cases against 29% of controls carry at least one (both EMP1 = 0.001). Unlike the test on all CNVs, PROP now differs as well: almost every animal has some small CNV, but large CNVs are rarer and more clearly enriched in cases. Large, rare CNVs are often the most interesting ones.
+:::

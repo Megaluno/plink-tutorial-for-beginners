@@ -376,6 +376,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#the-binary-format-.bed-.bim-and-.fam" id="toc-the-binary-format-.bed-.bim-and-.fam" class="nav-link" data-scroll-target="#the-binary-format-.bed-.bim-and-.fam"><span class="header-section-number">3.2</span> The binary format: <code>.bed</code>, <code>.bim</code> and <code>.fam</code></a></li>
   <li><a href="#other-formats-you-will-meet" id="toc-other-formats-you-will-meet" class="nav-link" data-scroll-target="#other-formats-you-will-meet"><span class="header-section-number">3.3</span> Other formats you will meet</a></li>
   <li><a href="#extra-files-phenotypes-covariates-and-clusters" id="toc-extra-files-phenotypes-covariates-and-clusters" class="nav-link" data-scroll-target="#extra-files-phenotypes-covariates-and-clusters"><span class="header-section-number">3.4</span> Extra files: phenotypes, covariates and clusters</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">3.5</span> Exercises</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Megaluno/plink-tutorial-for-beginners/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -604,6 +605,62 @@ breed.clst    ANG ANG_001 ANG          (cluster file: no header, third column = 
 </div>
 <div class="callout-body-container callout-body">
 <p><code>head cattle.fam</code> and <code>head cattle.bim</code> take two seconds. Check that sexes are 1 and 2 (not M and F), that phenotypes look sensible, and that chromosome codes are numbers your species flag accepts.</p>
+</div>
+</div>
+</section>
+<section id="exercises" class="level2" data-number="3.5">
+<h2 data-number="3.5" class="anchored" data-anchor-id="exercises"><span class="header-section-number">3.5</span> Exercises</h2>
+<p>Try each question first, then open the answer. The challenge goes a step further than the chapter.</p>
+<p><strong>1.</strong> How many SNPs are on chromosome 14, and how many on the X chromosome? Use the <code>.bim</code> file only.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="st">'$1 == 14'</span> cattle.bim <span class="kw">|</span> <span class="fu">wc</span> <span class="at">-l</span>     <span class="co"># 230</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="st">'$1 == 30'</span> cattle.bim <span class="kw">|</span> <span class="fu">wc</span> <span class="at">-l</span>     <span class="co"># 250  (with --cow the X is coded 30)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+<p><strong>2.</strong> In <code>cattle.bim</code>, which allele is A1 for snp00001? In a <code>--recode A</code> file, what would the value 2 mean for this SNP?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>The first line is <code>1  snp00001  0.484  484050  G  A</code>, so A1 = G and A2 = A. In a <code>.raw</code> file the column is called <code>snp00001_G</code> and counts G alleles, so 2 means the animal is GG.</p>
+</div>
+</div>
+</div>
+<p><strong>Challenge.</strong> Compare the size of <code>cattle.ped</code> with <code>cattle.bed</code>. Why is the binary file so much smaller? Work out how many bytes the <code>.bed</code> file should have.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><code>cattle.ped</code> is 6,940,164 bytes and <code>cattle.bed</code> is 436,803 bytes, about 16 times smaller. The <code>.ped</code> file spends two letters and two spaces on every genotype, while the <code>.bed</code> file packs 4 genotypes into one byte (2 bits each). Each SNP needs ceiling(361 / 4) = 91 bytes, so 4,800 SNPs × 91 bytes + 3 header bytes = 436,803 bytes, exactly the file size.</p>
+</div>
 </div>
 </div>
 

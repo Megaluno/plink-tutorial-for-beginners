@@ -405,6 +405,7 @@ window.Quarto = {
   <li><a href="#epistasis-snp-snp-interaction" id="toc-epistasis-snp-snp-interaction" class="nav-link" data-scroll-target="#epistasis-snp-snp-interaction"><span class="header-section-number">16.2</span> Epistasis: SNP × SNP interaction</a></li>
   <li><a href="#snp-environment-with-a-continuous-environment" id="toc-snp-environment-with-a-continuous-environment" class="nav-link" data-scroll-target="#snp-environment-with-a-continuous-environment"><span class="header-section-number">16.3</span> SNP × environment with a continuous environment</a></li>
   <li><a href="#meta-analysis-combining-several-studies" id="toc-meta-analysis-combining-several-studies" class="nav-link" data-scroll-target="#meta-analysis-combining-several-studies"><span class="header-section-number">16.4</span> Meta-analysis: combining several studies</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">16.5</span> Exercises</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/Megaluno/plink-tutorial-for-beginners/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -731,6 +732,46 @@ Figure&nbsp;16.2: Forest plot for snp02145. Each square is one breed’s estimat
 </div>
 <div class="callout-body-container callout-body">
 <p>Set-based tests are not in 2.0 (use 1.9, or tools such as MAGMA, SKAT or GCTA-fastBAT). Recent 2.0 builds have <code>--epistasis</code>, <code>--epistasis-boost</code> and <code>--twolocus</code>. G × E uses <code>--glm interaction</code> with <code>--parameters</code>. Recent builds include <code>--meta-analysis</code>; METAL is the most widely used external tool.</p>
+</div>
+</div>
+</section>
+<section id="exercises" class="level2" data-number="16.5">
+<h2 data-number="16.5" class="anchored" data-anchor-id="exercises"><span class="header-section-number">16.5</span> Exercises</h2>
+<p>Try each question first, then open the answer. The challenge goes a step further than the chapter.</p>
+<p><strong>1.</strong> Run the set test on BRD with <code>--logistic mperm=5000 set-test</code> and <code>pcs.txt</code> as covariates. Which set is significant?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> cattle_qc <span class="at">--cow</span> <span class="at">--allow-no-sex</span> <span class="at">--make-set</span> genes.txt <span class="dt">\</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>      <span class="at">--logistic</span> mperm=5000 set-test <span class="at">--covar</span> pcs.txt <span class="at">--hide-covar</span> <span class="at">--seed</span> 2 <span class="at">--out</span> setbrd</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Only BRD_region: 10 of its 29 SNPs have p &lt; 0.05, 5 are used, and EMP1 = 0.0012. PLAG1_region (a weaning weight region) gives 0.32 for BRD, as it should.</p>
+</div>
+</div>
+</div>
+<p><strong>Challenge.</strong> Repeat <code>--fast-epistasis</code> on PKE with <code>--epi1 1e-4</code>. How many pairs are reported? What do the top two pairs have in common?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>257 pairs are reported (25 have p &lt; 10⁻⁵). The top pair is the true one, snp01294 × snp03388 (p = 6.0 × 10⁻²⁰). Second is snp01294 × snp03387, a neighbour of snp03388 in LD with it (p = 2.0 × 10⁻⁸). The rest are chance results. A loose <code>--epi1</code> makes long lists that are mostly noise; judge against the Bonferroni threshold for 8.85 million tests.</p>
+</div>
 </div>
 </div>
 

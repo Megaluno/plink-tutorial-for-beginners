@@ -163,3 +163,23 @@ Six animals are too far right (poor DNA), ANG_030 is far too heterozygous for it
 ## PLINK 2.0
 `plink2 --bfile cattle --cow --missing` writes `.smiss` (samples) and `.vmiss` (variants). `--geno` and `--mind` work as in 1.9.
 :::
+
+## Exercises
+
+Try each question first, then open the answer. The challenge goes a step further than the chapter.
+
+**1.** From `miss.lmiss` and `miss.imiss`, count the SNPs with more than 2% missing calls and the animals with more than 5% and more than 10%.
+
+::: {.callout-note collapse="true" title="Answer"}
+```bash
+awk 'NR > 1 && $5 > 0.02' miss.lmiss | wc -l    # 49 SNPs
+awk 'NR > 1 && $6 > 0.05' miss.imiss | wc -l    # 6 animals
+awk 'NR > 1 && $6 > 0.10' miss.imiss | wc -l    # 4 animals
+```
+:::
+
+**Challenge.** Run the two filters in two steps, first `--mind 0.05` then `--geno 0.05`, and then in the opposite order. Do you lose the same animals and SNPs? When could the order make a difference?
+
+::: {.callout-note collapse="true" title="Answer"}
+Both orders end with 4,767 SNPs and 355 animals: 6 animals and 33 SNPs are removed either way. Here the bad animals and the bad SNPs are clearly separate, so the order does not matter. It matters when a few very poor samples push many SNPs over the `--geno` limit: removing those samples first saves the SNPs. That is why the two-round approach removes the worst animals first.
+:::
